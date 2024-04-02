@@ -575,9 +575,65 @@ def icons(request):
     }
     return render(request, 'pages/icons.html', context)
 
-def finance_tracker_setting(request):
+def finance_tracker_settings(request):
     context = {
         'parent': '',
-        'segment': 'icons',
+        'segment': 'finance_tracker_settings',
     }
-    return render(request, 'pages/icons.html', context)
+    return render(request, 'pages/expense_tracking/settings.html', context)
+
+def summary_income_expense(request):
+    context = {
+        'parent': 'summary',
+        'segment': 'summary_income_expense',
+    }
+    return render(request, 'pages/expense_tracking/summary_income_expense.html', context)
+
+def summary_asset(request):
+    context = {
+        'parent': 'summary',
+        'segment': 'summary_asset',
+    }
+    return render(request, 'pages/expense_tracking/summary_asset.html', context)
+
+def data_goal_budget(request):
+    context = {
+        'parent': 'data_table',
+        'segment': 'data_goal_budget',
+    }
+    return render(request, 'pages/expense_tracking/data_goal_budget.html', context)
+
+def data_income_expense(request):
+    context = {
+        'parent': 'data_table',
+        'segment': 'data_income_expense',
+    }
+    return render(request, 'pages/expense_tracking/data_income_expense.html', context)
+
+def data_asset(request):
+    context = {
+        'parent': 'data_table',
+        'segment': 'data_asset',
+    }
+    return render(request, 'pages/expense_tracking/data_asset.html', context)
+
+def add_income(request):
+    context = {
+        'parent': 'add',
+        'segment': 'add_income',
+    }
+    return render(request, 'pages/expense_tracking/add_income.html', context)
+
+def add_expense(request):
+    context = {
+        'parent': 'add',
+        'segment': 'add_expense',
+    }
+    return render(request, 'pages/expense_tracking/add_expense.html', context)
+
+def add_saving(request):
+    context = {
+        'parent': 'add',
+        'segment': 'add_saving',
+    }
+    return render(request, 'pages/expense_tracking/add_saving.html', context)

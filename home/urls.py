@@ -117,5 +117,15 @@ urlpatterns = [
     path('changelog/', views.changelog, name='changelog'),
     path('profile/', views.profile, name='profile'),
     path('icons/', views.icons, name='icons'),
-    path('finance_tracker_setting/', views.finance_tracker_setting, name='finance_tracker_setting'),
+
+    #finance_tracker
+    path('finance_tracker_settings/', views.finance_tracker_settings, name='finance_tracker_settings'),
+    path('summary_income_expense/', views.summary_income_expense, name='summary_income_expense'),
+    path('summary_asset/', views.summary_asset, name='summary_asset'),
+    path('data_goal_budget/', views.data_goal_budget, name='data_goal_budget'),
+    path('data_income_expense/', views.data_income_expense, name='data_income_expense'),
+    path('data_asset/', views.data_asset, name='data_asset'),
+    path('add_income/', views.add_income, name='add_income'),
+    path('add_expense/', views.add_expense, name='add_expense'),
+    path('add_saving/', views.add_saving, name='add_saving'),
 ]
