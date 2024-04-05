@@ -572,21 +572,33 @@
     });
 
     $('#myExampleTable').on('click', 'tbody td.editable', function() {
-      var cell = $(this);
+        var cell = $(this);
         var currentValue = cell.text();
         
         // Check if the cell already contains an input field
         if (!cell.hasClass('editing')) {
             cell.addClass('editing'); // Add class to mark as editing
             
-            // Replace cell content with an input field and buttons
-            cell.html('<input type="text" class="editable-input" value="' + currentValue + '">' +
-                      '<button class="btn btn-success save-btn">Save</button>' +
-                      '<button class="btn btn-danger cancel-btn">Cancel</button>');
+            // Remove any form
+            $('.save-btn').remove();
+            $('.cancel-btn').remove();
+            cancelEdit(cell, currentValue);
+
+            // Create a container div for input and buttons
+            var container = $('<div class="input-btn-container"></div>');
             
-            var input = cell.find('.editable-input');
-            var saveBtn = cell.find('.save-btn');
-            var cancelBtn = cell.find('.cancel-btn');
+            // Append input field to the container
+            var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
+            container.append(input);
+
+            // Append Save and Cancel buttons to the container
+            var saveBtn = $('<button type="button" class="btn btn-success save-btn btn-primary float-end">Save</button>');
+            var cancelBtn = $('<button type="button" class="btn btn-danger cancel-btn btn-secondary float-end">Cancel</button>');
+            container.append(saveBtn);
+            container.append(cancelBtn);
+            
+            // Replace cell content with the container
+            cell.html(container);
             
             input.focus(); // Focus on the input field
             input.get(0).setSelectionRange(0, input.val().length); // Set cursor to end of input
@@ -596,17 +608,19 @@
             });
             
             cancelBtn.on('click', function() {
-              cancelEdit(cell, currentValue);
+                cell.text(currentValue);
+                cell.removeClass('editing'); // Remove editing class
             });
 
             input.on('keyup', function(event) {
                 if (event.keyCode === 13) { // Check if Enter key is pressed
-                  updateCellValue(cell, input);
-                }
-                else if (event.keyCode === 27) { // Check if Enter key is pressed
-                  cancelEdit(cell, currentValue);
+                    updateCellValue(cell, input);
+                } else if (event.keyCode === 27) { // Check if Escape key is pressed
+                    cancelEdit(cell, currentValue);
                 }
             });
+
+
         }
     });
 
@@ -617,8 +631,8 @@
     }
 
     function cancelEdit(cell, currentValue) {
-      cell.text(currentValue);
-      cell.removeClass('editing'); // Remove editing class
+        cell.text(currentValue);
+        cell.removeClass('editing'); // Remove editing class
     }
   });
 </script>
