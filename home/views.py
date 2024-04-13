@@ -3,6 +3,7 @@ from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChan
 from admin_tabler.forms import RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm, UserPasswordChangeForm
 from django.contrib.auth import logout
 from django.views.generic import CreateView
+from .models import Platform
 
 from django.contrib.auth.decorators import login_required
 
@@ -576,6 +577,7 @@ def icons(request):
     return render(request, 'pages/icons.html', context)
 
 def finance_tracker_settings(request):
+    platform = Platform.objects.all() # Fetch all Platform objects
     context = {
         'parent': '',
         'segment': 'finance_tracker_settings',
