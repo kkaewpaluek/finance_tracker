@@ -3,8 +3,7 @@
 
 {% block title %} - Settings {% endblock title %}
 
-{% block content %}
-
+{% block content %} {% csrf_token %}
 <div class="page-wrapper mx-md-2">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -122,49 +121,56 @@
                                     <h4>Home tab</h4>
                                     <div>Cursus turpis vestibulum, dui in pharetra vulputate id sed non turpis ultricies
                                         fringilla at sed facilisis lacus pellentesque purus nibh</div>
-                                        <div class="d-flex"></div><div class="ms-auto"><button id="addRowBtn" class="btn btn-primary">Add Item</button></div></div>
-                                        <table id="myExampleTable" class="table" style="width:100%">
-                                            <thead>
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Name</th>
-                                                    <th>Description</th>
-                                                    <th>Enabled</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {% for platform in platforms %}
-                                                <tr>
-                                                    <td>{{ platform.id }}</td>
-                                                    <td>{{ platform.name }}</td>
-                                                    <td>{{ platform.description }}</td>
-                                                    <td>{{ platform.enable }}</td>
-                                                </tr>
-                                                {% endfor %}
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <td></td>
-                                                    <td><input type="text" id="newName" class="form-control" placeholder="Name"></td>
-                                                    <td><input type="text" id="newDescription" class="form-control" placeholder="Description"></td>
-                                                    <td><input type="text" id="newEnabled" class="form-control" placeholder="Enabled"></td>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
+                                    <div class="d-flex"></div>
+                                    <div class="ms-auto"><button id="addRowBtn" class="btn btn-primary">Add
+                                            Item</button></div>
                                 </div>
+                                <table id="myExampleTable" class="table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Name</th>
+                                            <th>Description</th>
+                                            <th>Enabled</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in platform %}
+                                        <tr>
+                                            <td>{{ item.id }}</td>
+                                            <td>{{ item.name }}</td>
+                                            <td>{{ item.description }}</td>
+                                            <td>{{ item.enable }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td></td>
+                                            <td><input type="text" id="newName" class="form-control" placeholder="Name">
+                                            </td>
+                                            <td><input type="text" id="newDescription" class="form-control"
+                                                    placeholder="Description"></td>
+                                            <td><input type="text" id="newEnable" class="form-control"
+                                                    placeholder="Enable"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
+
         </div>
     </div>
+</div>
 </div>
 <!--     {% include 'includes/footer.html' %} -->
 </div>
 
 {% endblock content %}
+
 
 {% block extrajs %}
 <script>
@@ -189,28 +195,61 @@
             $('#myExampleTable tfoot').show();
             row.append(addBtn);
 
+
             //Add button click event
             $('#addBtn').on('click', function () {
                 console.log('test');
                 newName = $('#newName').val();
-                console.log(newName);
+                newDescription = $('#newDescription').val();
+                newEnable = $('#newEnable').val();
+                addNewItem();
 
 
                 var newRow = $('<tr></tr>');
                 newRow.append('<td>' + $('#newId').val() + '</td>');
                 newRow.append('<td>' + $('#newName').val() + '</td>');
                 newRow.append('<td>' + $('#newDescription').val() + '</td>');
-                newRow.append('<td>' + $('#newEnabled').val() + '</td>');
+                newRow.append('<td>' + $('#newEnable').val() + '</td>');
                 $('#myExampleTable tbody').append(newRow);
-                
+
 
                 //Clear input fields and hide the footer row
                 $('#newId').val('');
                 $('#newName').val('');
                 $('#newDescription').val('');
-                $('#newEnabled').val('');
+                $('#newEnable').val('');
                 $('#myExampleTable tfoot').hide();
             });
+
+            function addNewItem() {
+
+                // Send data to Django view using AJAX
+                // Get the CSRF token from the form
+                let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+
+                $.ajax({
+                    url: window.location.href, // Replace with the actual URL of your Django view
+                    type: 'POST',
+                    data: {
+                        'newName': newName,
+                        'newDescription': newDescription,
+                        'newEnable': newEnable,
+                    },
+                    //dataType: 'json',
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                    },
+                    success: function (response) {
+                        console.log('Success:', response);
+
+                    },
+                    error: function (error) {
+                        console.log('Error:', error);
+                    }
+                });
+
+            }
 
 
         });
@@ -271,7 +310,7 @@
                 });
             }
 
-        
+
             function updateCellValue(cell, input) {
                 var newValue = input.val();
                 cell.text(newValue);

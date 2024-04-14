@@ -3,6 +3,9 @@ from django.contrib.auth.views import LoginView, PasswordResetView, PasswordChan
 from admin_tabler.forms import RegistrationForm, LoginForm, UserPasswordResetForm, UserSetPasswordForm, UserPasswordChangeForm
 from django.contrib.auth import logout
 from django.views.generic import CreateView
+from django.http import JsonResponse
+from django.db.utils import IntegrityError  # Import IntegrityError for error handling
+from django.db.models import Max
 from .models import Platform
 
 from django.contrib.auth.decorators import login_required
@@ -577,12 +580,42 @@ def icons(request):
     return render(request, 'pages/icons.html', context)
 
 def finance_tracker_settings(request):
-    platform = Platform.objects.all() # Fetch all Platform objects
-    context = {
-        'parent': '',
-        'segment': 'finance_tracker_settings',
-    }
-    return render(request, 'pages/expense_tracking/settings.html', context)
+
+    if request.method == 'GET': # When load the URL first time
+        platform = Platform.objects.all() # Fetch all Platform objects
+        context = {
+            'parent': '',
+            'segment': 'finance_tracker_settings',
+            'platform': platform
+        }
+        return render(request, 'pages/expense_tracking/settings.html', context)
+    
+    else:
+        newName = request.POST.get('newName', None)
+        newDescription = request.POST.get('newDescription', None)
+        newEnable = request.POST.get('newEnable', None)
+
+        record = Platform.objects.create(
+            name=newName,
+            description=newDescription,
+            enable=newEnable,
+        )
+        try:
+            record.save()
+            print('Saved')
+
+        except IntegrityError as e:
+            print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+            return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+
+        # Serialize the record data before returning it in JsonResponse
+        serialized_data = {
+            'name': record.name,
+            'description': record.description,
+            'enable': record.enable,
+        }
+        return JsonResponse({'data': serialized_data})
+    
 
 def summary_income_expense(request):
     context = {
