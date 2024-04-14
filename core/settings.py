@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
+    "crispy_forms",
+    "crispy_bootstrap5",
+
     "home",
 ]
 
@@ -165,6 +168,9 @@ STATICFILES_DIRS = (
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CRISPY_ALLOWED_TEMPATE_PACKS="bootstrap5"
+CRISPY_TEMPLATE_PACK="bootstrap5"
 
 LOGIN_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
