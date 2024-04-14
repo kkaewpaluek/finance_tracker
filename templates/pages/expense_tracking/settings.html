@@ -122,7 +122,7 @@
                                     <h4>Home tab</h4>
                                     <div>Cursus turpis vestibulum, dui in pharetra vulputate id sed non turpis ultricies
                                         fringilla at sed facilisis lacus pellentesque purus nibh</div>
-                                        <p><button id="addRow">Add new row</button></p>
+                                        <div class="d-flex"></div><div class="ms-auto"><button id="addRowBtn" class="btn btn-primary">Add Item</button></div></div>
                                         <table id="myExampleTable" class="table" style="width:100%">
                                             <thead>
                                                 <tr>
@@ -130,7 +130,6 @@
                                                     <th>Name</th>
                                                     <th>Description</th>
                                                     <th>Enabled</th>
-                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -140,28 +139,18 @@
                                                     <td>{{ platform.name }}</td>
                                                     <td>{{ platform.description }}</td>
                                                     <td>{{ platform.enable }}</td>
-                                                    <td class="editable-actions">
-                                                        <button class="btn btn-success save-btn">Save</button>
-                                                        <button class="btn btn-danger cancel-btn">Cancel</button>
-                                                    </td>
                                                 </tr>
                                                 {% endfor %}
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <th>ID</th>
-                                                    <th>Name</th>
-                                                    <th>Description</th>
-                                                    <th>Enabled</th>
-                                                    <th>Action</th>
+                                                    <td></td>
+                                                    <td><input type="text" id="newName" class="form-control" placeholder="Name"></td>
+                                                    <td><input type="text" id="newDescription" class="form-control" placeholder="Description"></td>
+                                                    <td><input type="text" id="newEnabled" class="form-control" placeholder="Enabled"></td>
                                                 </tr>
                                             </tfoot>
-                                        </table>   
-                                </div>
-                                <div class="tab-pane" id="tabs-profile-3">
-                                    <h4>Profile tab</h4>
-                                    <div>Fringilla egestas nunc quis tellus diam rhoncus ultricies tristique enim at
-                                        diam, sem nunc amet, pellentesque id egestas velit sed</div>
+                                        </table>
                                 </div>
                             </div>
                         </div>
@@ -180,51 +169,121 @@
 {% block extrajs %}
 <script>
     $(document).ready(function () {
-        const table = $('#myExampleTable').DataTable({
-            "paging": false,
-            "info": false,
-            "searching": false
+        $('#myExampleTable').DataTable({
+            "paging": false, // Disable pagination if needed
+            "info": false, // Disable info text if needed
+            "searching": false, // Disable search box if needed
+            "columnDefs": [
+                { "targets": "_all", "className": "editable addable" } // Add editable class to all columns
+            ]
         });
 
-        $('#addRow').on('click', function () {
-            addNewRow();
+        // Hide the footer row initially
+        $('#myExampleTable tfoot').hide();
+
+        // Add Row button click event
+        $('#addRowBtn').on('click', function () {
+            $('.addBtn').remove();
+            var row = $('#myExampleTable tfoot tr');
+            var addBtn = $('<div class="col-auto ms-auto addBtn"><button id="addBtn" type="button" class="btn btn-success add-btn btn-primary d-flex ms-auto">Add</button></div>');
+            $('#myExampleTable tfoot').show();
+            row.append(addBtn);
+
+            //Add button click event
+            $('#addBtn').on('click', function () {
+                console.log('test');
+                newName = $('#newName').val();
+                console.log(newName);
+
+
+                var newRow = $('<tr></tr>');
+                newRow.append('<td>' + $('#newId').val() + '</td>');
+                newRow.append('<td>' + $('#newName').val() + '</td>');
+                newRow.append('<td>' + $('#newDescription').val() + '</td>');
+                newRow.append('<td>' + $('#newEnabled').val() + '</td>');
+                $('#myExampleTable tbody').append(newRow);
+                
+
+                //Clear input fields and hide the footer row
+                $('#newId').val('');
+                $('#newName').val('');
+                $('#newDescription').val('');
+                $('#newEnabled').val('');
+                $('#myExampleTable tfoot').hide();
+            });
+
+
         });
 
-        let counter = {{ platforms|length }} + 1;
 
-        function addNewRow() {
-            var newRow = [
-                counter + '.1',
-                '', // Name (initially empty)
-                '', // Description (initially empty)
-                'false', // Enabled (initially unchecked)
-                '<button class="btn btn-success save-btn">Save</button><button class="btn btn-danger cancel-btn">Cancel</button>'
-            ];
-            var newRowElement = table.row.add(newRow).draw(false).node();
+        $('#myExampleTable').on('click', 'tbody td.editable', function () {
+            var cell = $(this);
+            var currentValue = cell.text();
 
-            $(newRowElement).addClass('new-row');
-            $(newRowElement).find('.editable-actions button').show(); // Show buttons for new row
+            if (!cell.hasClass('editing')) {
+                cell.addClass('editing');
 
-            counter++;
-        }
+                $('.saveBtn').remove();
+                $('.cancelBtn').remove();
 
-        $('#myExampleTable tbody').on('click', '.editable-actions button.save-btn', function () {
-            var row = $(this).closest('tr');
-            var rowData = table.row(row).data();
+                var container = $('<div class="input-btn-container"></div>');
+                var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
+                container.append(input);
 
-            // Handle save logic here (send data to backend, update UI, etc.)
-            console.log('Saving row:', rowData);
+                var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
+                var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
+                container.append(saveBtn);
+                container.append(cancelBtn);
 
-            row.removeClass('new-row');
-            row.find('.editable-actions button').hide(); // Hide buttons after save
+                cell.html(container);
+
+                input.focus();
+                input.get(0).setSelectionRange(0, input.val().length);
+
+                // Event delegation for Save and Cancel buttons
+                container.on('click', '.saveBtn', function () {
+                    updateCellValue(cell, input);
+                });
+
+                container.on('click', '.cancelBtn', function () {
+                    cancelEdit(cell, currentValue);
+                });
+
+                input.on('keyup', function (event) {
+                    if (event.keyCode === 13) { // Enter key
+                        updateCellValue(cell, input);
+                    } else if (event.keyCode === 27) { // Escape key
+                        cancelEdit(cell, currentValue);
+                    }
+                });
+
+                // Blur event handling
+                var blurTimeout;
+                input.on('blur', function () {
+                    blurTimeout = setTimeout(function () {
+                        cancelEdit(cell, currentValue);
+                    }, 100); // Delay in milliseconds
+                });
+
+                // Clear the blur timeout if Save button is clicked
+                container.on('click', '.saveBtn', function () {
+                    clearTimeout(blurTimeout);
+                });
+            }
+
+        
+            function updateCellValue(cell, input) {
+                var newValue = input.val();
+                cell.text(newValue);
+                cell.removeClass('editing'); // Remove editing class
+            }
+
+            function cancelEdit(cell, currentValue) {
+                cell.text(currentValue);
+                cell.removeClass('editing'); // Remove editing class
+            }
         });
 
-        $('#myExampleTable tbody').on('click', '.editable-actions button.cancel-btn', function () {
-            var row = $(this).closest('tr');
-
-            // Discard changes and remove the row
-            table.row(row).remove().draw();
-        });
     });
 </script>
 {% endblock extrajs %}
