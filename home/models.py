@@ -13,6 +13,19 @@ class Platform(models.Model):
     #create ForeignKey so ever list made will link to user
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
+    #define method
+    def __str__(self):
+        return f"{self.name} (User: {self.user.username})"
+    
+    
+# Create your models here.
+class UserAdditionalInfo(models.Model): 
+
+    user_photo = models.ImageField(default='profile_images/teacher_default.png', upload_to="profile_images/")
+
+    #create ForeignKey so ever list made will link to user
+    user = models.OneToOneField(User, default=None, null=True, blank=True, on_delete=models.SET_NULL, unique=True)
+
 
     #define method
     def __str__(self):

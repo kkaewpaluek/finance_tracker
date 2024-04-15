@@ -203,22 +203,6 @@
                 newDescription = $('#newDescription').val();
                 newEnable = $('#newEnable').val();
                 addNewItem();
-
-
-                var newRow = $('<tr></tr>');
-                newRow.append('<td>' + $('#newId').val() + '</td>');
-                newRow.append('<td>' + $('#newName').val() + '</td>');
-                newRow.append('<td>' + $('#newDescription').val() + '</td>');
-                newRow.append('<td>' + $('#newEnable').val() + '</td>');
-                $('#myExampleTable tbody').append(newRow);
-
-
-                //Clear input fields and hide the footer row
-                $('#newId').val('');
-                $('#newName').val('');
-                $('#newDescription').val('');
-                $('#newEnable').val('');
-                $('#myExampleTable tfoot').hide();
             });
 
             function addNewItem() {
@@ -242,11 +226,25 @@
                     },
                     success: function (response) {
                         console.log('Success:', response);
+                        newId = response.data.id;
 
+                        var newRow = $('<tr></tr>');
+                        newRow.append('<td>' + newId + '</td>');
+                        newRow.append('<td>' + $('#newName').val() + '</td>');
+                        newRow.append('<td>' + $('#newDescription').val() + '</td>');
+                        newRow.append('<td>' + $('#newEnable').val() + '</td>');
+                        $('#myExampleTable tbody').append(newRow);
+
+                        //Clear input fields and hide the footer row
+                        $('#newName').val('');
+                        $('#newDescription').val('');
+                        $('#newEnable').val('');
+                        $('#myExampleTable tfoot').hide();
                     },
                     error: function (error) {
                         console.log('Error:', error);
                     }
+                                    
                 });
 
             }

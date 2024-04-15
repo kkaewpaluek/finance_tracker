@@ -5,7 +5,6 @@ from django.contrib.auth import logout
 from django.views.generic import CreateView
 from django.http import JsonResponse
 from django.db.utils import IntegrityError  # Import IntegrityError for error handling
-from django.db.models import Max
 from .models import Platform
 
 
@@ -611,6 +610,7 @@ def finance_tracker_settings(request):
 
         # Serialize the record data before returning it in JsonResponse
         serialized_data = {
+            'id': record.id,
             'name': record.name,
             'description': record.description,
             'enable': record.enable,
