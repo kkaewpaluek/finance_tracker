@@ -11,8 +11,9 @@ class Platform(models.Model):
     enable = models.BooleanField(default=True)
 
     #create ForeignKey so ever list made will link to user
-    user= models.ForeignKey(User, on_delete=models.CASCADE, related_name="todolist", null=True) 
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+
 
     #define method
-    def __str__(self): #'__str__' is to set text representation
-        return self.name #for example -> if print then return 'name'
+    def __str__(self):
+        return f"{self.name} (User: {self.user.username})"

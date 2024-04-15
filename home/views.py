@@ -8,6 +8,7 @@ from django.db.utils import IntegrityError  # Import IntegrityError for error ha
 from django.db.models import Max
 from .models import Platform
 
+
 from django.contrib.auth.decorators import login_required
 
 def index_template(request):
