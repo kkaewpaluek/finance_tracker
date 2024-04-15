@@ -136,7 +136,9 @@
                                     </thead>
                                     <tbody>
                                         {% for item in platform %}
-                                        <tr>
+                                        
+                                        <tr style = "color: {% if not item.enabled %} #6c7a91; text-decoration: line-through; {% endif %}">
+                                            
                                             <td>{{ item.id }}</td>
                                             <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
                                             <td data-id="{{item.id}}" data-column="description">{{ item.description }}
