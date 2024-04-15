@@ -606,7 +606,41 @@ def finance_tracker_settings(request):
             )
             try:
                 record.save()
-                print('Saved')
+                print('Saved new item')
+
+            except IntegrityError as e:
+                print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+                return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+
+            # Serialize the record data before returning it in JsonResponse
+            serialized_data = {
+                'id': record.id,
+                'name': record.name,
+                'description': record.description,
+                'enabled': record.enabled,
+            }
+            return JsonResponse({'data': serialized_data})
+        
+        else: # action = 'update_item'
+            updateValue = request.POST.get('updateValue', None)
+            cell_id = request.POST.get('cell_id', None)
+            cell_column = request.POST.get('cell_column', None)
+
+            record = Platform.objects.get(id=int(cell_id))
+            
+            match cell_column:
+                case 'name':
+                    record.name = updateValue
+                case 'description':
+                    record.description = updateValue
+                case 'enabled':
+                    record.description = updateValue
+
+            record.user = request.user
+
+            try:
+                record.save()
+                print('Saved updateValue')
 
             except IntegrityError as e:
                 print(f'Error: {e}')  # Print the specific IntegrityError for debugging

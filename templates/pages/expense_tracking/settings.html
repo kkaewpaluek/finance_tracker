@@ -138,9 +138,9 @@
                                         {% for item in platform %}
                                         <tr>
                                             <td>{{ item.id }}</td>
-                                            <td>{{ item.name }}</td>
-                                            <td>{{ item.description }}</td>
-                                            <td>{{ item.enabled }}</td>
+                                            <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
+                                            <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
+                                            <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -183,7 +183,7 @@
             "info": false, // Disable info text if needed
             "searching": false, // Disable search box if needed
             "columnDefs": [
-                { "targets": "_all", "className": "editable addable" } // Add editable class to all columns
+                { "targets": "_all", "className": "editable" } // Add editable class to all columns
             ]
         });
 
@@ -217,7 +217,6 @@
 
                 function addNewItem() {
 
-                    console.log('test');
                     newName = $('#newName').val();
                     newDescription = $('#newDescription').val();
                     newEnabled = $('#newEnabled').val();
@@ -283,9 +282,11 @@
 
                 var cell = $(this);
                 var currentValue = cell.text();
-                var currentColumnName = $(this).closest('td').parent().children('th').eq($(this).closest('td').index()).text().trim();
+                var cell_id = cell.data('id');
+                var cell_column = cell.data('column');
+                console.log(cell_id);
 
-                console.log(currentColumnName);
+                //console.log(currentColumnName);
                 //if(!currentColumnName === 'Enabled'){
 
                     if (!cell.hasClass('editing')) {
@@ -341,10 +342,42 @@
 
 
                     function updateCellValue(cell, input) {
-                        var newValue = input.val();
-                        cell.text(newValue);
-                        cell.removeClass('editing'); // Remove editing class
-                        busy = false;
+                        var updateValue = input.val();
+                        
+
+                        // Send data to Django view using AJAX
+                        // Get the CSRF token from the form
+                        let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+                        // update model
+                        $.ajax({
+                            url: window.location.href, // Replace with the actual URL of your Django view
+                            type: 'POST',
+                            data: {
+                                'action': 'update_item',
+                                'updateValue': updateValue,
+                                'cell_id': cell_id,
+                                'cell_column': cell_column,
+                            },
+                            //dataType: 'json',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                            },
+                            success: function (response) {
+                                cell.text(updateValue);
+                                cell.removeClass('editing'); // Remove editing class
+                                console.log('Success:', response);
+                                busy = false;
+
+                            },
+                            error: function (error) {
+                                console.log('Error:', error);
+                                cell.removeClass('editing'); // Remove editing class
+                                busy = false;
+                            }
+                        });
+
+                        
                     }
 
                     function cancelEdit(cell, currentValue) {
