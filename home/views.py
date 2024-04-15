@@ -593,31 +593,33 @@ def finance_tracker_settings(request):
         return render(request, 'pages/expense_tracking/settings.html', context)
     
     else:
-        newName = request.POST.get('newName', None)
-        newDescription = request.POST.get('newDescription', None)
-        newEnable = request.POST.get('newEnable', None)
+        if request.POST.get('action', None) == 'add_new_item':
+            newName = request.POST.get('newName', None)
+            newDescription = request.POST.get('newDescription', None)
+            newEnabled = request.POST.get('newEnabled', None)
 
-        record = Platform.objects.create(
-            name=newName,
-            description=newDescription,
-            enable=newEnable,
-        )
-        try:
-            record.save()
-            print('Saved')
+            record = Platform.objects.create(
+                name=newName,
+                description=newDescription,
+                enabled=newEnabled,
+                user=request.user,
+            )
+            try:
+                record.save()
+                print('Saved')
 
-        except IntegrityError as e:
-            print(f'Error: {e}')  # Print the specific IntegrityError for debugging
-            return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+            except IntegrityError as e:
+                print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+                return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
 
-        # Serialize the record data before returning it in JsonResponse
-        serialized_data = {
-            'id': record.id,
-            'name': record.name,
-            'description': record.description,
-            'enable': record.enable,
-        }
-        return JsonResponse({'data': serialized_data})
+            # Serialize the record data before returning it in JsonResponse
+            serialized_data = {
+                'id': record.id,
+                'name': record.name,
+                'description': record.description,
+                'enabled': record.enabled,
+            }
+            return JsonResponse({'data': serialized_data})
     
 
 def summary_income_expense(request):

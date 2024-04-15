@@ -8,7 +8,7 @@ class Platform(models.Model):
 
     description = models.CharField(max_length=300)
 
-    enable = models.BooleanField(default=True)
+    enabled = models.BooleanField(default=True)
 
     #create ForeignKey so ever list made will link to user
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)

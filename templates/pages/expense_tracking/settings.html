@@ -140,7 +140,7 @@
                                             <td>{{ item.id }}</td>
                                             <td>{{ item.name }}</td>
                                             <td>{{ item.description }}</td>
-                                            <td>{{ item.enable }}</td>
+                                            <td>{{ item.enabled }}</td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -151,8 +151,8 @@
                                             </td>
                                             <td><input type="text" id="newDescription" class="form-control"
                                                     placeholder="Description"></td>
-                                            <td><input type="text" id="newEnable" class="form-control"
-                                                    placeholder="Enable"></td>
+                                            <td><input type="text" id="newEnabled" class="form-control"
+                                                    placeholder="Enabled"></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -175,6 +175,9 @@
 {% block extrajs %}
 <script>
     $(document).ready(function () {
+
+        var busy = false;
+
         $('#myExampleTable').DataTable({
             "paging": false, // Disable pagination if needed
             "info": false, // Disable info text if needed
@@ -189,63 +192,83 @@
 
         // Add Row button click event
         $('#addRowBtn').on('click', function () {
-            $('.addBtn').remove();
-            var row = $('#myExampleTable tfoot tr');
-            var addBtn = $('<div class="col-auto ms-auto addBtn"><button id="addBtn" type="button" class="btn btn-success add-btn btn-primary d-flex ms-auto">Add</button></div>');
-            $('#myExampleTable tfoot').show();
-            row.append(addBtn);
+            if (!busy){
 
+                busy = true;
 
-            //Add button click event
-            $('#addBtn').on('click', function () {
-                console.log('test');
-                newName = $('#newName').val();
-                newDescription = $('#newDescription').val();
-                newEnable = $('#newEnable').val();
-                addNewItem();
-            });
+                $('#container').remove();
+                var row = $('#myExampleTable tfoot tr');
+                var container = $('<div id="container" class="d-flex"><div class="col-auto ms-auto addBtn"></div></div>');
+                var addBtn = $('<button id="addBtn" type="button" class="btn btn-success add-btn btn-primary d-flex ms-auto">Add</button>');
+                var cancelBtn = $('<button id="cancelBtn" type="button" class="btn btn-danger cancel-btn btn-secondary d-flex ms-auto">Cancel</button>');
+                $('#myExampleTable tfoot').show();
+                container.append(addBtn);
+                container.append(cancelBtn);
+                row.append(container);
 
-            function addNewItem() {
-
-                // Send data to Django view using AJAX
-                // Get the CSRF token from the form
-                let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-
-
-                $.ajax({
-                    url: window.location.href, // Replace with the actual URL of your Django view
-                    type: 'POST',
-                    data: {
-                        'newName': newName,
-                        'newDescription': newDescription,
-                        'newEnable': newEnable,
-                    },
-                    //dataType: 'json',
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("X-CSRFToken", csrfToken);
-                    },
-                    success: function (response) {
-                        console.log('Success:', response);
-                        newId = response.data.id;
-
-                        var newRow = $('<tr></tr>');
-                        newRow.append('<td>' + newId + '</td>');
-                        newRow.append('<td>' + $('#newName').val() + '</td>');
-                        newRow.append('<td>' + $('#newDescription').val() + '</td>');
-                        newRow.append('<td>' + $('#newEnable').val() + '</td>');
-                        $('#myExampleTable tbody').append(newRow);
-
-                        //Clear input fields and hide the footer row
-                        $('#newName').val('');
-                        $('#newDescription').val('');
-                        $('#newEnable').val('');
-                        $('#myExampleTable tfoot').hide();
-                    },
-                    error: function (error) {
-                        console.log('Error:', error);
-                    }
-                                    
+                //Add button click event
+                $('#addBtn').on('click', function () {
+                    addNewItem();
                 });
+
+                $('#cancelBtn').on('click', function () {
+                    cancelAdding();
+                });
+
+                function addNewItem() {
+
+                    console.log('test');
+                    newName = $('#newName').val();
+                    newDescription = $('#newDescription').val();
+                    newEnabled = $('#newEnabled').val();
+
+                    // Send data to Django view using AJAX
+                    // Get the CSRF token from the form
+                    let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+
+                    $.ajax({
+                        url: window.location.href, // Replace with the actual URL of your Django view
+                        type: 'POST',
+                        data: {
+                            'action': 'add_new_item',
+                            'newName': newName,
+                            'newDescription': newDescription,
+                            'newEnabled': newEnabled,
+                        },
+                        //dataType: 'json',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                        },
+                        success: function (response) {
+                            console.log('Success:', response);
+                            newId = response.data.id;
+
+                            var newRow = $('<tr></tr>');
+                            newRow.append('<td>' + newId + '</td>');
+                            newRow.append('<td>' + $('#newName').val() + '</td>');
+                            newRow.append('<td>' + $('#newDescription').val() + '</td>');
+                            newRow.append('<td>' + $('#newEnabled').val() + '</td>');
+                            $('#myExampleTable tbody').append(newRow);
+
+                            //Clear input fields and hide the footer row
+                            $('#newName').val('');
+                            $('#newDescription').val('');
+                            $('#newEnabled').val('');
+                            $('#myExampleTable tfoot').hide();
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                        }
+                    });
+                    busy = false;
+                }
+
+                function cancelAdding() {
+                    $('.container').remove();
+                    $('#myExampleTable tfoot').hide();
+                    busy = false;
+                }
 
             }
 
@@ -254,71 +277,84 @@
 
 
         $('#myExampleTable').on('click', 'tbody td.editable', function () {
-            var cell = $(this);
-            var currentValue = cell.text();
+            if (!busy){
+                busy = true;
+            
 
-            if (!cell.hasClass('editing')) {
-                cell.addClass('editing');
+                var cell = $(this);
+                var currentValue = cell.text();
+                var currentColumnName = $(this).closest('td').parent().children('th').eq($(this).closest('td').index()).text().trim();
 
-                $('.saveBtn').remove();
-                $('.cancelBtn').remove();
+                console.log(currentColumnName);
+                //if(!currentColumnName === 'Enabled'){
 
-                var container = $('<div class="input-btn-container"></div>');
-                var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
-                container.append(input);
+                    if (!cell.hasClass('editing')) {
+                        cell.addClass('editing');
 
-                var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
-                var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
-                container.append(saveBtn);
-                container.append(cancelBtn);
+                        $('.saveBtn').remove();
+                        $('.cancelBtn').remove();
 
-                cell.html(container);
+                        var container = $('<div class="input-btn-container"></div>');
+                        var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
+                        container.append(input);
 
-                input.focus();
-                input.get(0).setSelectionRange(0, input.val().length);
+                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
+                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
+                        container.append(saveBtn);
+                        container.append(cancelBtn);
 
-                // Event delegation for Save and Cancel buttons
-                container.on('click', '.saveBtn', function () {
-                    updateCellValue(cell, input);
-                });
+                        cell.html(container);
 
-                container.on('click', '.cancelBtn', function () {
-                    cancelEdit(cell, currentValue);
-                });
+                        input.focus();
+                        input.get(0).setSelectionRange(0, input.val().length);
 
-                input.on('keyup', function (event) {
-                    if (event.keyCode === 13) { // Enter key
-                        updateCellValue(cell, input);
-                    } else if (event.keyCode === 27) { // Escape key
-                        cancelEdit(cell, currentValue);
+                        // Event delegation for Save and Cancel buttons
+                        container.on('click', '.saveBtn', function () {
+                            updateCellValue(cell, input);
+                        });
+
+                        container.on('click', '.cancelBtn', function () {
+                            cancelEdit(cell, currentValue);
+                        });
+
+                        input.on('keyup', function (event) {
+                            if (event.keyCode === 13) { // Enter key
+                                updateCellValue(cell, input);
+                            } else if (event.keyCode === 27) { // Escape key
+                                cancelEdit(cell, currentValue);
+                            }
+                        });
+
+                        // Blur event handling
+                        var blurTimeout;
+                        input.on('blur', function () {
+                            blurTimeout = setTimeout(function () {
+                                cancelEdit(cell, currentValue);
+                            }, 100); // Delay in milliseconds
+                        });
+
+                        // Clear the blur timeout if Save button is clicked
+                        container.on('click', '.saveBtn', function () {
+                            clearTimeout(blurTimeout);
+                        });
                     }
-                });
 
-                // Blur event handling
-                var blurTimeout;
-                input.on('blur', function () {
-                    blurTimeout = setTimeout(function () {
-                        cancelEdit(cell, currentValue);
-                    }, 100); // Delay in milliseconds
-                });
 
-                // Clear the blur timeout if Save button is clicked
-                container.on('click', '.saveBtn', function () {
-                    clearTimeout(blurTimeout);
-                });
+                    function updateCellValue(cell, input) {
+                        var newValue = input.val();
+                        cell.text(newValue);
+                        cell.removeClass('editing'); // Remove editing class
+                        busy = false;
+                    }
+
+                    function cancelEdit(cell, currentValue) {
+                        cell.text(currentValue);
+                        cell.removeClass('editing'); // Remove editing class
+                        busy = false;
+                    }
+                //}
             }
 
-
-            function updateCellValue(cell, input) {
-                var newValue = input.val();
-                cell.text(newValue);
-                cell.removeClass('editing'); // Remove editing class
-            }
-
-            function cancelEdit(cell, currentValue) {
-                cell.text(currentValue);
-                cell.removeClass('editing'); // Remove editing class
-            }
         });
 
     });
