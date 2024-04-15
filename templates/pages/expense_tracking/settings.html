@@ -139,7 +139,8 @@
                                         <tr>
                                             <td>{{ item.id }}</td>
                                             <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                            <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
+                                            <td data-id="{{item.id}}" data-column="description">{{ item.description }}
+                                            </td>
                                             <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
                                         </tr>
                                         {% endfor %}
@@ -192,7 +193,7 @@
 
         // Add Row button click event
         $('#addRowBtn').on('click', function () {
-            if (!busy){
+            if (!busy) {
 
                 busy = true;
 
@@ -276,18 +277,55 @@
 
 
         $('#myExampleTable').on('click', 'tbody td.editable', function () {
-            if (!busy){
+            if (!busy) {
                 busy = true;
-            
 
                 var cell = $(this);
                 var currentValue = cell.text();
                 var cell_id = cell.data('id');
                 var cell_column = cell.data('column');
-                console.log(cell_id);
 
-                //console.log(currentColumnName);
-                //if(!currentColumnName === 'Enabled'){
+                if (cell_column === 'enabled') {
+                    if (!cell.hasClass('editing')) {
+                        cell.addClass('editing');
+
+                        $('.saveBtn').remove();
+                        $('.cancelBtn').remove();
+
+                        var container = $('<div class="input-btn-container"></div>');
+
+                        // Create the dropdown with options
+                        var select = $('<select class="editable-select form-control" value="' + currentValue + '">');
+                        var trueOption = $('<option value="True"' + (currentValue === 'True' ? ' selected' : '') + '>True</option>');
+                        var falseOption = $('<option value="False"' + (currentValue === 'False' ? ' selected' : '') + '>False</option>');
+                        select.append(trueOption);
+                        select.append(falseOption);
+
+                        container.append(select);
+
+                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
+                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
+                        container.append(saveBtn);
+                        container.append(cancelBtn);
+
+                        cell.html(container);
+
+                        select.focus(); // Focus on the dropdown
+
+                        // Event delegation for Save and Cancel buttons (similar to before)
+                        container.on('click', '.saveBtn', function () {
+                            updateCellValue(cell, select);
+                        });
+
+                        container.on('click', '.cancelBtn', function () {
+                            cancelEdit(cell, currentValue);
+                        });
+
+                        // No need for keyup event handling as selection is done via the dropdown
+                    }
+                }
+
+                else {
 
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
@@ -341,53 +379,55 @@
                     }
 
 
-                    function updateCellValue(cell, input) {
-                        var updateValue = input.val();
-                        
+                    
+                    //}
+                }
 
-                        // Send data to Django view using AJAX
-                        // Get the CSRF token from the form
-                        let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+                function updateCellValue(cell, input) {
+                    var updateValue = input.val();
 
-                        // update model
-                        $.ajax({
-                            url: window.location.href, // Replace with the actual URL of your Django view
-                            type: 'POST',
-                            data: {
-                                'action': 'update_item',
-                                'updateValue': updateValue,
-                                'cell_id': cell_id,
-                                'cell_column': cell_column,
-                            },
-                            //dataType: 'json',
-                            beforeSend: function (xhr) {
-                                xhr.setRequestHeader("X-CSRFToken", csrfToken);
-                            },
-                            success: function (response) {
-                                cell.text(updateValue);
-                                cell.removeClass('editing'); // Remove editing class
-                                console.log('Success:', response);
-                                busy = false;
 
-                            },
-                            error: function (error) {
-                                console.log('Error:', error);
-                                cell.removeClass('editing'); // Remove editing class
-                                busy = false;
-                            }
-                        });
+                    // Send data to Django view using AJAX
+                    // Get the CSRF token from the form
+                    let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
 
-                        
-                    }
+                    // update model
+                    $.ajax({
+                        url: window.location.href, // Replace with the actual URL of your Django view
+                        type: 'POST',
+                        data: {
+                            'action': 'update_item',
+                            'updateValue': updateValue,
+                            'cell_id': cell_id,
+                            'cell_column': cell_column,
+                        },
+                        //dataType: 'json',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                        },
+                        success: function (response) {
+                            cell.text(updateValue);
+                            cell.removeClass('editing'); // Remove editing class
+                            console.log('Success:', response);
+                            busy = false;
 
-                    function cancelEdit(cell, currentValue) {
-                        cell.text(currentValue);
-                        cell.removeClass('editing'); // Remove editing class
-                        busy = false;
-                    }
-                //}
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                            cell.removeClass('editing'); // Remove editing class
+                            busy = false;
+                        }
+                    });
+
+
+                }
+
+                function cancelEdit(cell, currentValue) {
+                    cell.text(currentValue);
+                    cell.removeClass('editing'); // Remove editing class
+                    busy = false;
+                }
             }
-
         });
 
     });
