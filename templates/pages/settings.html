@@ -61,8 +61,8 @@
                 </div>
                 <h3 class="card-title mt-3">Email</h3>
                 <div>
-                  <div class="row g-2 ms-3">
-                    <div class="col-auto">
+                  <div class="row align-items-center g-2 ms-3">
+                    <div class="col-auto ">
                       <input id="inputEmail" data-object="email" type="text" class="input-editable form-control w-auto" value= "{{ request.user.email }}">
                     </div>
                   </div>
@@ -105,24 +105,22 @@
         //Add input edit event
         
         input.on('click', function () {
-          console.log(input.attr('class'));
 
           if (!busy) {
                 busy = true;
 
                 var object = input.data('object');
                 var currentValue = input.text();
-                var container = input;
-                var changeBtn = $('<div class="col-auto"><a href="#" class="btn">Change</a></div>');
-                var cancelBtn = $('<div class="col-auto"><a href="#" class="btn btn-ghost-danger">Cancel</a></div>');
-                
+                var container = input.parent().parent();
+                var changeBtn = $('<div class="col-auto"><a href="#" class="btn input-edit-button">Change</a></div>');
+                var cancelBtn = $('<div class="col-auto"><a href="#" class="btn input-edit-button btn-ghost-danger">Cancel</a></div>');
+
+                container.append(input);
                 container.append(changeBtn);
                 container.append(cancelBtn);
-                //console.log(input);
 
                 
                 container.focus();
-                container.get(0).setSelectionRange(0, input.val().length);
 
                 // Event delegation for Save and Cancel buttons
                 changeBtn.on('click', function () {
@@ -191,10 +189,11 @@
                 }
 
                 function cancelEdit(cell, currentValue) {
+                    console.log('cancel');
                     input.text(currentValue);
                     input.removeClass('editing'); // Remove editing class
+                    $('.input-edit-button').remove();
                     busy = false;
-                    
                 }
             }
         });
