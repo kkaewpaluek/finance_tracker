@@ -428,10 +428,12 @@
                         // Event delegation for Save and Cancel buttons
                         container.on('click', '.saveBtn', function () {
                             updateCellValue(cell, input);
+                            clearTimeout(blurTimeout);
                         });
 
                         container.on('click', '.cancelBtn', function () {
                             cancelEdit(cell, currentValue);
+                            clearTimeout(blurTimeout);
                         });
 
                         input.on('keyup', function (event) {
@@ -450,10 +452,6 @@
                             }, 100); // Delay in milliseconds
                         });
 
-                        // Clear the blur timeout if Save button is clicked
-                        container.on('click', '.saveBtn', function () {
-                            clearTimeout(blurTimeout);
-                        });
                     }
 
 

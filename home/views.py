@@ -5,7 +5,10 @@ from django.contrib.auth import logout
 from django.views.generic import CreateView
 from django.http import JsonResponse
 from django.db.utils import IntegrityError  # Import IntegrityError for error handling
+from django.contrib.auth.models import User
 from .models import Platform
+from .models import UserAdditionalInfo
+
 
 
 from django.contrib.auth.decorators import login_required
@@ -442,11 +445,36 @@ def wizard(request):
     return render(request, 'pages/wizard.html', context)
 
 def settings(request):
-    context = {
-        'parent': 'extra',
-        'segment': 'settings',
-    }
-    return render(request, 'pages/settings.html', context)
+
+    if request.method == 'GET': # When load the URL first time
+        platform = Platform.objects.all() # Fetch all Platform objects
+        user_additional_info = UserAdditionalInfo.objects.all()
+        context = {
+            'parent': 'extra',
+            'segment': 'settings',
+        }
+        return render(request, 'pages/settings.html', context)
+    
+    else:
+        # request.POST.get('action', None) == 'update_input':
+            updateObject = request.POST.get('updateObject', None)
+            updateValue = request.POST.get('updateValue', None)
+
+            record = User.objects.get(id=int(updateObject))
+            
+            match updateObject:
+                case 'email':
+                    record.email = updateValue
+
+            try:
+                record.save() 
+                print('Saved updateValue')
+                return JsonResponse(status=200)
+
+            except IntegrityError as e:
+                print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+                return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+
 
 def settings_plan(request):
     context = {

@@ -63,11 +63,8 @@
                 <div>
                   <div class="row g-2 ms-3">
                     <div class="col-auto">
-                      <input type="text" class="form-control w-auto" value= "{{ request.user.email }}">
+                      <input id="inputEmail" data-object="email" type="text" class="input-editable form-control w-auto" value= "{{ request.user.email }}">
                     </div>
-                    <div class="col-auto"><a href="#" class="btn">
-                        Change
-                      </a></div>
                   </div>
                 </div>
                 <h3 class="card-title mt-4">Password</h3>
@@ -94,3 +91,132 @@
   </div>
   
 {% endblock content %}
+
+
+{% block extrajs %}
+<script>
+    $(document).ready(function () {
+
+        var busy = false;
+        var blurTimeout;
+        var input = $('.input-editable');
+
+
+        //Add input edit event
+        
+        input.on('click', function () {
+          console.log(input.attr('class'));
+
+          if (!busy) {
+                busy = true;
+
+                var object = input.data('object');
+                var currentValue = input.text();
+                var container = input;
+                var changeBtn = $('<div class="col-auto"><a href="#" class="btn">Change</a></div>');
+                var cancelBtn = $('<div class="col-auto"><a href="#" class="btn btn-ghost-danger">Cancel</a></div>');
+                
+                container.append(changeBtn);
+                container.append(cancelBtn);
+                //console.log(input);
+
+                
+                container.focus();
+                container.get(0).setSelectionRange(0, input.val().length);
+
+                // Event delegation for Save and Cancel buttons
+                changeBtn.on('click', function () {
+                    updateInputValue(object, input);
+                    clearTimeout(blurTimeout);
+                });
+
+                cancelBtn.on('click', function () {
+                    cancelEdit(object, currentValue);
+                    clearTimeout(blurTimeout);
+                });
+
+                input.on('keyup', function (event) {
+                    if (event.keyCode === 13) { // Enter key
+                      updateInputValue(object, input);
+                    } else if (event.keyCode === 27) { // Escape key
+                        cancelEdit(object, currentValue);
+                    }
+                    clearTimeout(blurTimeout);
+                });
+
+                // Blur event handling
+                input.on('blur', function () {
+                    blurTimeout = setTimeout(function () {
+                        cancelEdit(object, currentValue);
+                    }, 100); // Delay in milliseconds
+                });
+
+                
+                //---------- function for editable ----------//
+
+                function updateInputValue(object, value) {
+                    var updateObject = object;  
+                    var updateValue = value.val();                    
+                    console.log(updateObject);
+                    console.log(updateValue);
+
+                    // Send data to Django view using AJAX
+                    // Get the CSRF token from the form
+                    let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+                    // update model
+                    $.ajax({
+                        url: window.location.href, // Replace with the actual URL of your Django view
+                        type: 'POST',
+                        data: {
+                            'action': 'update_input',
+                            'updateObject': updateObject,      
+                            'updateValue': updateValue,                      
+                        },
+                        //dataType: 'json',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                        },
+                        success: function (response) {
+                            input.text(updateValue);
+                            console.log('Success updateInputValue:', response);  
+                            busy = false;                     
+                        },
+                        error: function (error) {
+                            console.log('Error:', error);
+                            busy = false;
+                            }
+
+                    });
+                }
+
+                function cancelEdit(cell, currentValue) {
+                    input.text(currentValue);
+                    input.removeClass('editing'); // Remove editing class
+                    busy = false;
+                    
+                }
+            }
+        });
+
+        //---------- function for entire table ----------//
+
+        function refreshTable() {
+
+            const rows = table.find('tr'); // Find rows within the table using jQuery
+
+            rows.each(function () { // Loop through rows using jQuery each()
+                const cellEnabled = $(this).find('td[data-column="enabled"]'); // Select cell within the current row
+                if (cellEnabled.text().trim() === 'False') { // Use jQuery methods for text content
+                    $(this).addClass('table_disabled'); // Add class using jQuery
+                }
+                else {
+                    $(this).removeClass('table_disabled');
+                }
+            });
+
+        }
+
+    });
+</script>
+{% endblock extrajs %}
