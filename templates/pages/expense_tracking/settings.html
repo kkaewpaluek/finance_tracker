@@ -151,7 +151,7 @@
                                         {% for item in platform %}
                                         
                                         <tr>                                            
-                                            <td>{{ item.id }}</td>
+                                            <td data-column="id">{{ item.id }}</td>
                                             <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
                                             <td data-id="{{item.id}}" data-column="description">{{ item.description }}
                                             </td>
@@ -201,6 +201,9 @@
                 { "targets": "_all", "className": "editable" } // Add editable class to all columns
             ]
         });
+
+        //remove class editable from data-column="id"
+        table.find('td[data-column="id"]').removeClass('editable');
 
         // Hide the footer row initially
         table.find('tfoot').hide();
@@ -261,7 +264,7 @@
                             newId = response.data.id;
 
                             var newRow = $('<tr></tr>');
-                            newRow.append('<td>' + newId + '</td>');
+                            newRow.append('<td data-column="id">' + newId + '</td>');
                             newRow.append(`<td data-id="${newId}" data-column="name" class="editable">` + $('#newName').val() + '</td>');
                             newRow.append(`<td data-id="${newId}" data-column="description" class="editable">` + $('#newDescription').val() + '</td>');
                             newRow.append(`<td data-id="${newId}" data-column="enabled" class="editable">` + $('#newEnabled').val() + '</td>');
@@ -296,7 +299,7 @@
 
         });
 
-
+        //Add cell edit event
         table.on('click', 'tbody td.editable', function () {
             if (!busy) {
                 busy = true;
