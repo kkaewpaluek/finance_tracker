@@ -153,8 +153,7 @@
                                         <tr>                                            
                                             <td data-column="id">{{ item.id }}</td>
                                             <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                            <td data-id="{{item.id}}" data-column="description">{{ item.description }}
-                                            </td>
+                                            <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
                                             <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
                                         </tr>
                                         {% endfor %}
@@ -162,12 +161,14 @@
                                     <tfoot>
                                         <tr>
                                             <td></td>
-                                            <td><input type="text" id="newName" class="form-control" placeholder="Name">
+                                            <td><input type="text" id="newName" class="form-control" placeholder="Name"></td>
+                                            <td><input type="text" id="newDescription" class="form-control" placeholder="Description"></td>
+                                            <td>    
+                                                <select id="newEnabled" class="form-select">
+                                                    <option value="True" selected>True</option>
+                                                    <option value="False">False</option>
+                                                </select>
                                             </td>
-                                            <td><input type="text" id="newDescription" class="form-control"
-                                                    placeholder="Description"></td>
-                                            <td><input type="text" id="newEnabled" class="form-control"
-                                                    placeholder="Enabled"></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -319,7 +320,7 @@
                         var container = $('<div class="input-btn-container"></div>');
 
                         // Create the dropdown with options
-                        var select = $('<select class="editable-select form-control" value="' + currentValue + '">');
+                        var select = $('<select class="editable-select form-select" value="' + currentValue + '">');
                         var trueOption = $('<option value="True"' + (currentValue === 'True' ? ' selected' : '') + '>True</option>');
                         var falseOption = $('<option value="False"' + (currentValue === 'False' ? ' selected' : '') + '>False</option>');
                         select.append(trueOption);
@@ -345,7 +346,27 @@
                             cancelEdit(cell, currentValue);
                         });
 
-                        // No need for keyup event handling as selection is done via the dropdown
+                        select.on('keyup', function (event) {
+
+                            // keyup event 'Enter' is handled by selection on the dropdown
+
+                            if (event.keyCode === 27) { // Escape key
+                                cancelEdit(cell, currentValue);
+                            }
+                        }); 
+
+                        // Blur event handling
+                        var blurTimeout;
+                        select.on('blur', function () {
+                            blurTimeout = setTimeout(function () {
+                                cancelEdit(cell, currentValue);
+                            }, 100); // Delay in milliseconds
+                        });
+
+                        // Clear the blur timeout if Save button is clicked
+                        container.on('click', '.saveBtn', function () {
+                            clearTimeout(blurTimeout);
+                        });
                     }
                 }
 
