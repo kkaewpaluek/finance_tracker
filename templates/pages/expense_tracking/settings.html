@@ -3,6 +3,19 @@
 
 {% block title %} - Settings {% endblock title %}
 
+
+{% block extrastyle %}
+
+<style>
+    .table_disabled {
+      color: #6c7a91; /* Semicolon added */
+      text-decoration: line-through;
+    }
+</style>
+
+{% endblock extrastyle %}
+
+
 {% block content %} {% csrf_token %}
 <div class="page-wrapper mx-md-2">
     <!-- Page header -->
@@ -125,7 +138,7 @@
                                     <div class="ms-auto"><button id="addRowBtn" class="btn btn-primary">Add
                                             Item</button></div>
                                 </div>
-                                <table id="myExampleTable" class="table" style="width:100%">
+                                <table id="platformTable" class="table-setting" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>ID</th>
@@ -137,8 +150,7 @@
                                     <tbody>
                                         {% for item in platform %}
                                         
-                                        <tr style = "color: {% if not item.enabled %} #6c7a91; text-decoration: line-through; {% endif %}">
-                                            
+                                        <tr>                                            
                                             <td>{{ item.id }}</td>
                                             <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
                                             <td data-id="{{item.id}}" data-column="description">{{ item.description }}
@@ -180,8 +192,8 @@
     $(document).ready(function () {
 
         var busy = false;
-
-        $('#myExampleTable').DataTable({
+        var table = $('.table-setting')
+        table.DataTable({
             "paging": false, // Disable pagination if needed
             "info": false, // Disable info text if needed
             "searching": false, // Disable search box if needed
@@ -191,7 +203,8 @@
         });
 
         // Hide the footer row initially
-        $('#myExampleTable tfoot').hide();
+        table.find('tfoot').hide();
+        refreshTable();
 
         // Add Row button click event
         $('#addRowBtn').on('click', function () {
@@ -200,11 +213,11 @@
                 busy = true;
 
                 $('#container').remove();
-                var row = $('#myExampleTable tfoot tr');
+                var row = table.find('tfoot tr');
                 var container = $('<div id="container" class="d-flex"><div class="col-auto ms-auto addBtn"></div></div>');
                 var addBtn = $('<button id="addBtn" type="button" class="btn btn-success add-btn btn-primary d-flex ms-auto">Add</button>');
                 var cancelBtn = $('<button id="cancelBtn" type="button" class="btn btn-danger cancel-btn btn-secondary d-flex ms-auto">Cancel</button>');
-                $('#myExampleTable tfoot').show();
+                table.find('tfoot').show();
                 container.append(addBtn);
                 container.append(cancelBtn);
                 row.append(container);
@@ -217,6 +230,8 @@
                 $('#cancelBtn').on('click', function () {
                     cancelAdding();
                 });
+
+                //---------- function for addRow ----------//
 
                 function addNewItem() {
 
@@ -251,24 +266,28 @@
                             newRow.append('<td>' + $('#newName').val() + '</td>');
                             newRow.append('<td>' + $('#newDescription').val() + '</td>');
                             newRow.append('<td>' + $('#newEnabled').val() + '</td>');
-                            $('#myExampleTable tbody').append(newRow);
+                            table.find('tbody').append(newRow);
 
                             //Clear input fields and hide the footer row
                             $('#newName').val('');
                             $('#newDescription').val('');
                             $('#newEnabled').val('');
-                            $('#myExampleTable tfoot').hide();
+                            table.find('tfoot').hide();
+
+                            refreshTable();
+                            busy = false;
                         },
                         error: function (error) {
                             console.log('Error:', error);
+                            busy = false;
                         }
                     });
-                    busy = false;
+                    
                 }
 
                 function cancelAdding() {
                     $('.container').remove();
-                    $('#myExampleTable tfoot').hide();
+                    table.find('tfoot').hide();
                     busy = false;
                 }
 
@@ -278,7 +297,7 @@
         });
 
 
-        $('#myExampleTable').on('click', 'tbody td.editable', function () {
+        table.on('click', 'tbody td.editable', function () {
             if (!busy) {
                 busy = true;
 
@@ -380,10 +399,10 @@
                         });
                     }
 
-
                     
-                    //}
                 }
+
+                //---------- function for editable ----------//
 
                 function updateCellValue(cell, input) {
                     var updateValue = input.val();
@@ -411,6 +430,7 @@
                             cell.text(updateValue);
                             cell.removeClass('editing'); // Remove editing class
                             console.log('Success:', response);
+                            refreshTable();
                             busy = false;
 
                         },
@@ -420,7 +440,6 @@
                             busy = false;
                         }
                     });
-
                 }
 
                 function cancelEdit(cell, currentValue) {
@@ -430,6 +449,23 @@
                 }
             }
         });
+
+        //---------- function for entire table ----------//
+
+        function refreshTable() {
+
+            const rows = table.find('tr'); // Find rows within the table using jQuery
+
+            rows.each(function() { // Loop through rows using jQuery each()
+                const cellEnabled = $(this).find('td[data-column="enabled"]'); // Select cell within the current row
+                if (cellEnabled.text().trim() === 'False') { // Use jQuery methods for text content
+                    $(this).addClass('table_disabled'); // Add class using jQuery
+                }
+                else{
+                    $(this).removeClass('table_disabled'); 
+                }
+            });
+        }
 
     });
 </script>
