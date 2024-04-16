@@ -634,7 +634,7 @@ def finance_tracker_settings(request):
                 case 'description':
                     record.description = updateValue
                 case 'enabled':
-                    record.description = updateValue
+                    record.enabled = updateValue
 
             record.user = request.user
 

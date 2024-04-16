@@ -387,7 +387,7 @@
 
                 function updateCellValue(cell, input) {
                     var updateValue = input.val();
-
+                    console.log(updateValue);
 
                     // Send data to Django view using AJAX
                     // Get the CSRF token from the form
@@ -420,7 +420,6 @@
                             busy = false;
                         }
                     });
-
 
                 }
 
