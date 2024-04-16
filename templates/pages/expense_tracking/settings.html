@@ -262,9 +262,9 @@
 
                             var newRow = $('<tr></tr>');
                             newRow.append('<td>' + newId + '</td>');
-                            newRow.append(`<td data-id="${newId}" data-column="name">` + $('#newName').val() + '</td>');
-                            newRow.append(`<td data-id="${newId}" data-column="description">` + $('#newDescription').val() + '</td>');
-                            newRow.append(`<td data-id="${newId}" data-column="enabled">` + $('#newEnabled').val() + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="name" class="editable">` + $('#newName').val() + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="description" class="editable">` + $('#newDescription').val() + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="enabled" class="editable">` + $('#newEnabled').val() + '</td>');
                             table.find('tbody').append(newRow);
 
                             //Clear input fields and hide the footer row
