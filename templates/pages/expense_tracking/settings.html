@@ -194,6 +194,7 @@
 
         var busy = false;
         var table = $('.table-setting')
+        var blurTimeout;
         table.DataTable({
             "paging": false, // Disable pagination if needed
             "info": false, // Disable info text if needed
@@ -229,11 +230,21 @@
                 //Add button click event
                 $('#addBtn').on('click', function () {
                     addNewItem();
+                    clearTimeout(blurTimeout); // Clear the blur timeout if Add button is clicked
                 });
 
                 $('#cancelBtn').on('click', function () {
                     cancelAdding();
+                    clearTimeout(blurTimeout);
                 });
+
+                // Blur event handling
+                select.on('blur', function () {
+                    blurTimeout = setTimeout(function () {
+                        cancelEdit(cell, currentValue);
+                    }, 100); // Delay in milliseconds
+                });
+
 
                 //---------- function for addRow ----------//
 
@@ -340,10 +351,12 @@
                         // Event delegation for Save and Cancel buttons (similar to before)
                         container.on('click', '.saveBtn', function () {
                             updateCellValue(cell, select);
+                            clearTimeout(blurTimeout);
                         });
 
                         container.on('click', '.cancelBtn', function () {
                             cancelEdit(cell, currentValue);
+                            clearTimeout(blurTimeout);
                         });
 
                         select.on('keyup', function (event) {
@@ -353,19 +366,14 @@
                             if (event.keyCode === 27) { // Escape key
                                 cancelEdit(cell, currentValue);
                             }
+                            clearTimeout(blurTimeout);
                         }); 
 
                         // Blur event handling
-                        var blurTimeout;
                         select.on('blur', function () {
                             blurTimeout = setTimeout(function () {
                                 cancelEdit(cell, currentValue);
                             }, 100); // Delay in milliseconds
-                        });
-
-                        // Clear the blur timeout if Save button is clicked
-                        container.on('click', '.saveBtn', function () {
-                            clearTimeout(blurTimeout);
                         });
                     }
                 }
@@ -410,7 +418,6 @@
                         });
 
                         // Blur event handling
-                        var blurTimeout;
                         input.on('blur', function () {
                             blurTimeout = setTimeout(function () {
                                 cancelEdit(cell, currentValue);
