@@ -8,8 +8,9 @@
 
 <style>
     .table_disabled {
-      color: #6c7a91; /* Semicolon added */
-      text-decoration: line-through;
+        color: #6c7a91;
+        /* Semicolon added */
+        text-decoration: line-through;
     }
 </style>
 
@@ -149,8 +150,8 @@
                                     </thead>
                                     <tbody>
                                         {% for item in platform %}
-                                        
-                                        <tr>                                            
+
+                                        <tr>
                                             <td data-column="id">{{ item.id }}</td>
                                             <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
                                             <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
@@ -158,20 +159,30 @@
                                         </tr>
                                         {% endfor %}
                                     </tbody>
-                                    <tfoot>
+                                    <tfoot style="display: none"> <!-- initially hidden -->
                                         <tr>
                                             <td></td>
                                             <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
                                             <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
-                                            <td>    
+                                            <td>
                                                 <select id="newEnabled" class="form-select">
                                                     <option value="True" selected>True</option>
                                                     <option value="False">False</option>
                                                 </select>
                                             </td>
                                         </tr>
+
                                     </tfoot>
+
                                 </table>
+                                
+                                <div class="d-flex align-items-center">
+                                    <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
+                                        <button id="addBtn" type="button" class="btn btn-success add-btn btn-primary ">Add</button>
+                                        <button id="cancelBtn" type="button" class="btn btn-danger cancel-btn btn-secondary ">Cancel</button>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -206,9 +217,6 @@
 
         //remove class editable from data-column="id"
         table.find('td[data-column="id"]').removeClass('editable');
-
-        // Hide the footer row initially
-        table.find('tfoot').hide();
         refreshTable();
 
         // Add Row button click event
@@ -223,16 +231,15 @@
                 $('.tfoot-input').off('keyup');
                 $(document).off('click');
 
-                $('#row').remove();
-                $('#container').remove();
-                var row = table.find('tfoot tr');
-                var container = $('<div id="container" class="d-flex"><div class="col-auto ms-auto addBtn"></div></div>');
+                /* var row = table.find('tfoot tr'); */
+/*                 var container = $('<div id="container" class="d-flex"><div class="col-auto ms-auto addBtn"></div></div>');
                 var addBtn = $('<button id="addBtn" type="button" class="btn btn-success add-btn btn-primary d-flex ms-auto">Add</button>');
-                var cancelBtn = $('<button id="cancelBtn" type="button" class="btn btn-danger cancel-btn btn-secondary d-flex ms-auto">Cancel</button>');
+                var cancelBtn = $('<button id="cancelBtn" type="button" class="btn btn-danger cancel-btn btn-secondary d-flex ms-auto">Cancel</button>'); */
                 table.find('tfoot').show();
-                container.append(addBtn);
+                $('#addButtonContainer').show();
+/*                 container.append(addBtn);
                 container.append(cancelBtn);
-                row.append(container);
+                row.append(container); */
 
                 event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
 
@@ -249,9 +256,9 @@
                     console.log('keyup');
                     if (event.keyCode === 13) { // Enter key
                         addNewItem();
-/*                     } else if (event.keyCode === 27) { // Escape key
-                        cancelAdding();*/
-                    } 
+                        /*                     } else if (event.keyCode === 27) { // Escape key
+                                                cancelAdding();*/
+                    }
                 });
 
                 // Click outside tfoot to cancel adding,  this is gross! might cause future bug
@@ -263,7 +270,7 @@
                         // Clicked outside the tfoot area, so call cancelAdding()
                         cancelAdding();
                     }
-                }); 
+                });
 
                 //---------- function for addRow ----------//
 
@@ -308,6 +315,7 @@
                             $('#newDescription').val('');
                             $('#newEnabled').val('');
                             table.find('tfoot').hide();
+                            $('#addButtonContainer').hide();
 
                             refreshTable();
 
@@ -318,7 +326,7 @@
                             busy = false;
                         }
                     });
-                    
+
                 }
 
                 function cancelAdding() {
@@ -328,6 +336,7 @@
                     $('#newDescription').val('');
                     $('#newEnabled').val('');
                     table.find('tfoot').hide();
+                    $('#addButtonContainer').hide();
                     busy = false;
                 }
 
@@ -392,7 +401,7 @@
                                 cancelEdit(cell, currentValue);
                             }
                             clearTimeout(blurTimeout);
-                        }); 
+                        });
 
                         // Blur event handling
                         select.on('blur', function () {
@@ -456,7 +465,7 @@
                         });
                     }
 
-                    
+
                 }
 
                 //---------- function for editable ----------//
@@ -513,13 +522,13 @@
 
             const rows = table.find('tr'); // Find rows within the table using jQuery
 
-            rows.each(function() { // Loop through rows using jQuery each()
+            rows.each(function () { // Loop through rows using jQuery each()
                 const cellEnabled = $(this).find('td[data-column="enabled"]'); // Select cell within the current row
                 if (cellEnabled.text().trim() === 'False') { // Use jQuery methods for text content
                     $(this).addClass('table_disabled'); // Add class using jQuery
                 }
-                else{
-                    $(this).removeClass('table_disabled'); 
+                else {
+                    $(this).removeClass('table_disabled');
                 }
             });
 
