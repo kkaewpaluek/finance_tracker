@@ -132,12 +132,9 @@
                         <div class="card-body">
                             <div class="tab-content">
                                 <div class="tab-pane active show" id="tabs-home-3">
-                                    <h4>Home tab</h4>
-                                    <div>Cursus turpis vestibulum, dui in pharetra vulputate id sed non turpis ultricies
-                                        fringilla at sed facilisis lacus pellentesque purus nibh</div>
-                                    <div class="d-flex"></div>
-                                    <div class="ms-auto"><button id="addRowBtn" class="btn btn-primary">Add
-                                            Item</button></div>
+                                    <div class="d-flex">
+                                        <div class="ms-auto"><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                    </div>
                                 </div>
                                 <table id="platformTable" class="table-setting" style="width:100%">
                                     <thead>
@@ -178,8 +175,8 @@
                                 
                                 <div class="d-flex align-items-center">
                                     <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
-                                        <button id="addBtn" type="button" class="btn btn-success add-btn btn-primary ">Add</button>
-                                        <button id="cancelBtn" type="button" class="btn btn-danger cancel-btn btn-secondary ">Cancel</button>
+                                        <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
+                                        <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
                                     </div>
                                 </div>
 
@@ -226,29 +223,22 @@
                 busy = true;
 
                 // Remove existing handlers to prevent duplication when addRowBtn is clicked several times
-                $('#addBtn').off('click');
-                $('#cancelBtn').off('click');
+                $('#saveAddBtn').off('click');
+                $('#cancelAddBtn').off('click');
                 $('.tfoot-input').off('keyup');
                 $(document).off('click');
 
-                /* var row = table.find('tfoot tr'); */
-/*                 var container = $('<div id="container" class="d-flex"><div class="col-auto ms-auto addBtn"></div></div>');
-                var addBtn = $('<button id="addBtn" type="button" class="btn btn-success add-btn btn-primary d-flex ms-auto">Add</button>');
-                var cancelBtn = $('<button id="cancelBtn" type="button" class="btn btn-danger cancel-btn btn-secondary d-flex ms-auto">Cancel</button>'); */
                 table.find('tfoot').show();
                 $('#addButtonContainer').show();
-/*                 container.append(addBtn);
-                container.append(cancelBtn);
-                row.append(container); */
 
                 event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
 
                 //Add button click event
-                $('#addBtn').on('click', function () {
+                $('#saveAddBtn').on('click', function () {
                     addNewItem();
                 });
 
-                $('#cancelBtn').on('click', function () {
+                $('#cancelAddBtn').on('click', function () {
                     cancelAdding();
                 });
 
@@ -256,8 +246,9 @@
                     console.log('keyup');
                     if (event.keyCode === 13) { // Enter key
                         addNewItem();
-                        /*                     } else if (event.keyCode === 27) { // Escape key
-                                                cancelAdding();*/
+                    } 
+                    else if (event.keyCode === 27) { // Escape key
+                        cancelAdding();
                     }
                 });
 
@@ -265,7 +256,7 @@
                 $(document).on('click', function (event) {
                     console.log('document');
                     var target = $(event.target);
-                    if (!target.closest('tfoot').length) {
+                    if (!target.closest('tfoot').length && (!target.closest('#addButtonContainer')).length){
                         console.log('document_inside');
                         // Clicked outside the tfoot area, so call cancelAdding()
                         cancelAdding();
