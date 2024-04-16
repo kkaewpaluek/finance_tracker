@@ -161,8 +161,8 @@
                                     <tfoot>
                                         <tr>
                                             <td></td>
-                                            <td><input type="text" id="newName" class="form-control" placeholder="Name"></td>
-                                            <td><input type="text" id="newDescription" class="form-control" placeholder="Description"></td>
+                                            <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
+                                            <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
                                             <td>    
                                                 <select id="newEnabled" class="form-select">
                                                     <option value="True" selected>True</option>
@@ -217,6 +217,13 @@
 
                 busy = true;
 
+                // Remove existing handlers to prevent duplication when addRowBtn is clicked several times
+                $('#addBtn').off('click');
+                $('#cancelBtn').off('click');
+                $('.tfoot-input').off('keyup');
+                $(document).off('click');
+
+                $('#row').remove();
                 $('#container').remove();
                 var row = table.find('tfoot tr');
                 var container = $('<div id="container" class="d-flex"><div class="col-auto ms-auto addBtn"></div></div>');
@@ -227,28 +234,42 @@
                 container.append(cancelBtn);
                 row.append(container);
 
+                event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
+
                 //Add button click event
                 $('#addBtn').on('click', function () {
                     addNewItem();
-                    clearTimeout(blurTimeout); // Clear the blur timeout if Add button is clicked
                 });
 
                 $('#cancelBtn').on('click', function () {
                     cancelAdding();
-                    clearTimeout(blurTimeout);
                 });
 
-                // Blur event handling
-                select.on('blur', function () {
-                    blurTimeout = setTimeout(function () {
-                        cancelEdit(cell, currentValue);
-                    }, 100); // Delay in milliseconds
+                $('.tfoot-input').on('keyup', function (event) {
+                    console.log('keyup');
+                    if (event.keyCode === 13) { // Enter key
+                        addNewItem();
+/*                     } else if (event.keyCode === 27) { // Escape key
+                        cancelAdding();*/
+                    } 
                 });
 
+                // Click outside tfoot to cancel adding,  this is gross! might cause future bug
+                $(document).on('click', function (event) {
+                    console.log('document');
+                    var target = $(event.target);
+                    if (!target.closest('tfoot').length) {
+                        console.log('document_inside');
+                        // Clicked outside the tfoot area, so call cancelAdding()
+                        cancelAdding();
+                    }
+                }); 
 
                 //---------- function for addRow ----------//
 
                 function addNewItem() {
+
+                    console.log('addNewItem');
 
                     newName = $('#newName').val();
                     newDescription = $('#newDescription').val();
@@ -272,7 +293,7 @@
                             xhr.setRequestHeader("X-CSRFToken", csrfToken);
                         },
                         success: function (response) {
-                            console.log('Success:', response);
+                            console.log('Success addNewItem:', response);
                             newId = response.data.id;
 
                             var newRow = $('<tr></tr>');
@@ -301,7 +322,11 @@
                 }
 
                 function cancelAdding() {
-                    $('.container').remove();
+                    console.log('cancel adding');
+                    //Clear input fields and hide the footer row
+                    $('#newName').val('');
+                    $('#newDescription').val('');
+                    $('#newEnabled').val('');
                     table.find('tfoot').hide();
                     busy = false;
                 }
@@ -415,6 +440,7 @@
                             } else if (event.keyCode === 27) { // Escape key
                                 cancelEdit(cell, currentValue);
                             }
+                            clearTimeout(blurTimeout);
                         });
 
                         // Blur event handling
@@ -460,7 +486,7 @@
                         success: function (response) {
                             cell.text(updateValue);
                             cell.removeClass('editing'); // Remove editing class
-                            console.log('Success:', response);
+                            console.log('Success updateCellValue:', response);
                             refreshTable();
                             busy = false;
 
