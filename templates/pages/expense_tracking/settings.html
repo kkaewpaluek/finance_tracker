@@ -243,7 +243,6 @@
                     // Get the CSRF token from the form
                     let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
 
-
                     $.ajax({
                         url: window.location.href, // Replace with the actual URL of your Django view
                         type: 'POST',
@@ -263,9 +262,9 @@
 
                             var newRow = $('<tr></tr>');
                             newRow.append('<td>' + newId + '</td>');
-                            newRow.append('<td>' + $('#newName').val() + '</td>');
-                            newRow.append('<td>' + $('#newDescription').val() + '</td>');
-                            newRow.append('<td>' + $('#newEnabled').val() + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="name">` + $('#newName').val() + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="description">` + $('#newDescription').val() + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="enabled">` + $('#newEnabled').val() + '</td>');
                             table.find('tbody').append(newRow);
 
                             //Clear input fields and hide the footer row
@@ -275,6 +274,7 @@
                             table.find('tfoot').hide();
 
                             refreshTable();
+
                             busy = false;
                         },
                         error: function (error) {
@@ -465,6 +465,7 @@
                     $(this).removeClass('table_disabled'); 
                 }
             });
+
         }
 
     });
