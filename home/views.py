@@ -21,11 +21,11 @@ def index_template(request):
     return render(request, 'pages/index.html', context)
 
 def index(request):
-    user_is_admin = request.user.groups.filter(name='admin').exists()
+    #user_is_admin = request.user.groups.filter(name='admin').exists()
     context = {
         'parent': '',
         'segment': 'index',
-        'user_is_admin': user_is_admin
+        #'user_is_admin': user_is_admin
     }
     return render(request, 'pages/index_finance_tracker.html', context)
 

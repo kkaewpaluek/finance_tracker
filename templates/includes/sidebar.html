@@ -133,7 +133,7 @@
                 </div>
             </form>
             
-              {% if user_is_admin %}
+              {% if request.user.is_staff %}
               <ul class="navbar-nav d-inline-block">
                 <li class="nav-item {% if 'finance_tracker_settings' in segment %}active{% endif %}">
                   <a href="{% url 'finance_tracker_settings' %}" class="nav-link">
