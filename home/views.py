@@ -447,11 +447,11 @@ def wizard(request):
 def settings(request):
 
     if request.method == 'GET': # When load the URL first time
-        platform = Platform.objects.all() # Fetch all Platform objects
         user_additional_info = UserAdditionalInfo.objects.all()
         context = {
             'parent': 'extra',
             'segment': 'settings',
+            'user_additional_info': 'user_additional_info',
         }
         return render(request, 'pages/settings.html', context)
     
@@ -478,24 +478,33 @@ def settings(request):
                 return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
         
         else: # action = 'update_userAdditionalInfo'
-            user_id= request.user.id
+            user = request.user
             updateObject = request.POST.get('updateObject', None)
             updateValue = request.POST.get('updateValue', None)
 
-            record = User.objects.get(id=int(user_id))
+            filtered_UserAdditionalInfo = UserAdditionalInfo.objects.filter(user__id=user_id)
+
+            if filtered_UserAdditionalInfo.exists():
+                record = filtered_UserAdditionalInfo.first()  # Get the first user
+                print(f"User ID: {filtered_UserAdditionalInfo.id}")
+
+                match updateObject:
+                    case 'profile_picture':
+                        record.profile_picture = updateValue
+
+                try:
+                    record.save() 
+                    return JsonResponse({'Success': 'Updated'}, status=200)
+                    #return JsonResponse(status=200)
+
+                except IntegrityError as e:
+                    print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+                    return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+
+            else:
+                print("No user found with that ToDoList name")
+
             
-            match updateObject:
-                case 'email':
-                    record.email = updateValue
-
-            try:
-                record.save() 
-                return JsonResponse({'Success': 'Updated'}, status=200)
-                #return JsonResponse(status=200)
-
-            except IntegrityError as e:
-                print(f'Error: {e}')  # Print the specific IntegrityError for debugging
-                return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
             
 
 def settings_plan(request):
