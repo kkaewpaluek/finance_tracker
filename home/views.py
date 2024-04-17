@@ -455,25 +455,26 @@ def settings(request):
         }
         return render(request, 'pages/settings.html', context)
     
-    else:
-        # request.POST.get('action', None) == 'update_input':
-            updateObject = request.POST.get('updateObject', None)
-            updateValue = request.POST.get('updateValue', None)
+    else: # request.POST.get('action', None) == 'update_input':
+        
+        user_id= request.user.id
+        updateObject = request.POST.get('updateObject', None)
+        updateValue = request.POST.get('updateValue', None)
 
-            record = User.objects.get(id=int(updateObject))
-            
-            match updateObject:
-                case 'email':
-                    record.email = updateValue
+        record = User.objects.get(id=int(user_id))
+        
+        match updateObject:
+            case 'email':
+                record.email = updateValue
 
-            try:
-                record.save() 
-                print('Saved updateValue')
-                return JsonResponse(status=200)
+        try:
+            record.save() 
+            return JsonResponse({'Success': 'Updated'}, status=200)
+            #return JsonResponse(status=200)
 
-            except IntegrityError as e:
-                print(f'Error: {e}')  # Print the specific IntegrityError for debugging
-                return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+        except IntegrityError as e:
+            print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+            return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
 
 
 def settings_plan(request):

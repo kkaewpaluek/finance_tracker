@@ -3,27 +3,27 @@
 
 {% block title %}Settings - {% endblock title %}
 
-{% block content %}
+{% block content %}{% csrf_token %}
 
-  <div class="page-wrapper">
-    <!-- Page header -->
-    <div class="page-header d-print-none">
-      <div class="container-xl">
-        <div class="row g-2 align-items-center">
-          <div class="col">
-            <h2 class="page-title">
-              Account Setting
-            </h2>
-          </div>
+<div class="page-wrapper">
+  <!-- Page header -->
+  <div class="page-header d-print-none">
+    <div class="container-xl">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <h2 class="page-title">
+            Account Setting
+          </h2>
         </div>
       </div>
     </div>
-    <!-- Page body -->
-    <div class="page-body">
-      <div class="container-xl">
-        <div class="card">
-          <div class="row g-0">
-<!--             <div class="col-3 d-none d-md-block border-end">
+  </div>
+  <!-- Page body -->
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="card">
+        <div class="row g-0">
+          <!--             <div class="col-3 d-none d-md-block border-end">
               <div class="card-body">
                 <h4 class="subheader">Business settings</h4>
                 <div class="list-group list-group-transparent">
@@ -39,183 +39,182 @@
                 </div>
               </div>
             </div> -->
-            <div class="col d-flex flex-column">
-              <div class="card-body">
-                <!-- <h2 class="mb-4">My Account</h2> -->
-                <h3 class="card-title">Picture</h3>
-                <div class="row align-items-center ms-3">
-                  <div class="col-auto"><span class="avatar avatar-xl" style="background-image: url({% static 'static/avatars/000m.jpg' %})"></span>
-                  </div>
-                  <div class="col-auto"><a href="#" class="btn">
-                      Change picture
-                    </a></div>
-                  <div class="col-auto"><a href="#" class="btn btn-ghost-danger">
-                      Delete picture
-                    </a></div>
+          <div class="col d-flex flex-column">
+            <div class="card-body">
+              <!-- <h2 class="mb-4">My Account</h2> -->
+              <h3 class="card-title">Picture</h3>
+              <div class="row align-items-center ms-3">
+                <div class="col-auto"><span class="avatar avatar-xl"
+                    style="background-image: url({% static 'static/avatars/000m.jpg' %})"></span>
                 </div>
-                <h3 class="card-title mt-4">Username</h3>
-                <div class="row align-items-center ms-3">
-                  <div class="col-auto">
-                    <p class="text-secondary">{{ request.user.username }}</p>
-                  </div>
-                </div>
-                <h3 class="card-title mt-3">Email</h3>
-                <div>
-                  <div class="row align-items-center g-2 ms-3">
-                    <div class="col-auto ">
-                      <input id="inputEmail" data-object="email" type="text" class="input-editable form-control w-auto" value= "{{ request.user.email }}">
-                    </div>
-                  </div>
-                </div>
-                <h3 class="card-title mt-4">Password</h3>
-                <div class="ms-3">
-                  <a href="/accounts/password-change/" class="btn">Change Password</a>
+                <div class="col-auto"><a href="#" class="btn">
+                    Change picture
+                  </a></div>
+                <div class="col-auto"><a href="#" class="btn btn-ghost-danger">
+                    Delete picture
+                  </a></div>
+              </div>
+              <h3 class="card-title mt-4">Username</h3>
+              <div class="row align-items-center ms-3">
+                <div class="col-auto">
+                  <p class="text-secondary">{{ request.user.username }}</p>
                 </div>
               </div>
-              <div class="card-footer bg-transparent mt-auto">
-                <div class="btn-list justify-content-end">
-                  <a href="#" class="btn">
-                    Cancel
-                  </a>
-                  <a href="#" class="btn btn-primary">
-                    Submit
-                  </a>
+              <h3 class="card-title mt-3">Email</h3>
+              <div>
+                <div class="row align-items-center g-2 ms-3">
+                  <div class="col-auto ">
+                    <input id="inputEmail" data-object="email" type="text" class="input-editable form-control w-auto"
+                      value="{{ request.user.email }}">
+                  </div>
                 </div>
+              </div>
+              <h3 class="card-title mt-4">Password</h3>
+              <div class="ms-3">
+                <a href="/accounts/password-change/" class="btn">Change Password</a>
+              </div>
+            </div>
+            <div class="card-footer bg-transparent mt-auto">
+              <div class="btn-list justify-content-end">
+                <a href="#" class="btn">
+                  Cancel
+                </a>
+                <a href="#" class="btn btn-primary">
+                  Submit
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    {% include 'includes/footer.html' %}
   </div>
-  
+  {% include 'includes/footer.html' %}
+</div>
+
 {% endblock content %}
 
 
 {% block extrajs %}
 <script>
-    $(document).ready(function () {
+  $(document).ready(function () {
 
-        var busy = false;
-        var blurTimeout;
-        var input = $('.input-editable');
+    var busy = false;
+    var blurTimeout;
 
 
-        //Add input edit event
-        
-        input.on('click', function () {
+    //Add input edit event
 
-          if (!busy) {
-                busy = true;
+    $('.input-editable').on('click', function () {
 
-                var object = input.data('object');
-                var currentValue = input.text();
-                var container = input.parent().parent();
-                var changeBtn = $('<div class="col-auto"><a href="#" class="btn input-edit-button">Change</a></div>');
-                var cancelBtn = $('<div class="col-auto"><a href="#" class="btn input-edit-button btn-ghost-danger">Cancel</a></div>');
+      if (!busy) {
+        busy = true;
+        var input = $(this);
+        var object = input.data('object');
+        var currentValue = input.val();
+        var container = input.parent().parent();
+        var changeBtn = $('<div class="col-auto input-edit-button"><a href="#" class="btn">Change</a></div>');
+        var cancelBtn = $('<div class="col-auto input-edit-button"><a href="#" class="btn btn-ghost-danger">Cancel</a></div>');
 
-                container.append(input);
-                container.append(changeBtn);
-                container.append(cancelBtn);
+        container.append(changeBtn);
+        container.append(cancelBtn);
 
-                
-                container.focus();
+        input.focus();
+        input.get(0).setSelectionRange(0, input.val().length);
 
-                // Event delegation for Save and Cancel buttons
-                changeBtn.on('click', function () {
-                    updateInputValue(object, input);
-                    clearTimeout(blurTimeout);
-                });
+        // Event delegation for Save and Cancel buttons
 
-                cancelBtn.on('click', function () {
-                    cancelEdit(object, currentValue);
-                    clearTimeout(blurTimeout);
-                });
 
-                input.on('keyup', function (event) {
-                    if (event.keyCode === 13) { // Enter key
-                      updateInputValue(object, input);
-                    } else if (event.keyCode === 27) { // Escape key
-                        cancelEdit(object, currentValue);
-                    }
-                    clearTimeout(blurTimeout);
-                });
 
-                // Blur event handling
-                input.on('blur', function () {
-                    blurTimeout = setTimeout(function () {
-                        cancelEdit(object, currentValue);
-                    }, 100); // Delay in milliseconds
-                });
+        changeBtn.on('click', function () {
 
-                
-                //---------- function for editable ----------//
+          console.log(currentValue);
+          console.log(input.val());
 
-                function updateInputValue(object, value) {
-                    var updateObject = object;  
-                    var updateValue = value.val();                    
-                    console.log(updateObject);
-                    console.log(updateValue);
+          if (currentValue != input.val()) {
+            updateInputValue(object, input);
+          }
+          else{
+            cancelEdit(object, currentValue);
+          }
 
-                    // Send data to Django view using AJAX
-                    // Get the CSRF token from the form
-                    let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-
-                    // update model
-                    $.ajax({
-                        url: window.location.href, // Replace with the actual URL of your Django view
-                        type: 'POST',
-                        data: {
-                            'action': 'update_input',
-                            'updateObject': updateObject,      
-                            'updateValue': updateValue,                      
-                        },
-                        //dataType: 'json',
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader("X-CSRFToken", csrfToken);
-                        },
-                        success: function (response) {
-                            input.text(updateValue);
-                            console.log('Success updateInputValue:', response);  
-                            busy = false;                     
-                        },
-                        error: function (error) {
-                            console.log('Error:', error);
-                            busy = false;
-                            }
-
-                    });
-                }
-
-                function cancelEdit(cell, currentValue) {
-                    console.log('cancel');
-                    input.text(currentValue);
-                    input.removeClass('editing'); // Remove editing class
-                    $('.input-edit-button').remove();
-                    busy = false;
-                }
-            }
+          clearTimeout(blurTimeout);
         });
 
-        //---------- function for entire table ----------//
+        cancelBtn.on('click', function () {
+          cancelEdit(object, currentValue);
+          clearTimeout(blurTimeout);
+        });
 
-        function refreshTable() {
+        input.on('keyup', function (event) {
+          if (event.keyCode === 13) { // Enter keya
+            if (currentValue != input.val()) {
+              updateInputValue(object, input);
+            }
+            else{
+              cancelEdit(object, currentValue);
+            }
+          }
+          else if (event.keyCode === 27) { // Escape key
+            cancelEdit(object, currentValue);
+          }
+          clearTimeout(blurTimeout);
+        });
 
-            const rows = table.find('tr'); // Find rows within the table using jQuery
+        // Blur event handling
+        input.on('blur', function () {
+          blurTimeout = setTimeout(function () {
+            cancelEdit(object, currentValue);
+          }, 1000); // Delay in milliseconds
+        });
 
-            rows.each(function () { // Loop through rows using jQuery each()
-                const cellEnabled = $(this).find('td[data-column="enabled"]'); // Select cell within the current row
-                if (cellEnabled.text().trim() === 'False') { // Use jQuery methods for text content
-                    $(this).addClass('table_disabled'); // Add class using jQuery
-                }
-                else {
-                    $(this).removeClass('table_disabled');
-                }
-            });
 
+        //---------- function for editable ----------//
+
+        function updateInputValue(object, value) {
+          var updateObject = object;
+          var updateValue = value.val();
+
+          // Send data to Django view using AJAX
+          // Get the CSRF token from the form
+          let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+          // update model
+          $.ajax({
+            url: window.location.href, // Replace with the actual URL of your Django view
+            type: 'POST',
+            data: {
+              'action': 'update_input',
+              'updateObject': updateObject,
+              'updateValue': updateValue,
+            },
+            //dataType: 'json',
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader("X-CSRFToken", csrfToken);
+            },
+            success: function (response) {
+              input.text(updateValue);
+              $('.input-edit-button').remove();
+              busy = false;
+            },
+            error: function (error) {
+              console.log('Error:', error);
+              busy = false;
+            }
+
+          });
         }
 
+        function cancelEdit(cell, currentValue) {
+          input.text(currentValue);
+          $('.input-edit-button').remove();
+          busy = false;
+        }
+      }
     });
+
+
+
+  });
 </script>
 {% endblock extrajs %}
