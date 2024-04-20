@@ -477,7 +477,7 @@ def settings(request):
                 print(f'Error: {e}')  # Print the specific IntegrityError for debugging
                 return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
         
-        else: # action = 'update_userAdditionalInfo'
+        else: #request.POST.get('action', None) == 'update_userAdditionalInfo':
             user = request.user
             updateObject = request.POST.get('updateObject', None)
             updateValue = request.POST.get('updateValue', None)
@@ -489,8 +489,10 @@ def settings(request):
                 print(f"User ID: {filtered_UserAdditionalInfo.id}")
 
                 match updateObject:
-                    case 'profile_picture':
+                    case 'change_profile_picture':
                         record.profile_picture = updateValue
+                    case 'delete_profilepicture':
+                        record.profile_picture = 'url of dummy picture'
 
                 try:
                     record.save() 
@@ -503,6 +505,18 @@ def settings(request):
 
             else:
                 print("No user found with that ToDoList name")
+                record = Platform.objects.create(
+                    user=user,
+                )
+                try:
+                    record.save()
+                    print('Saved new item')
+
+                except IntegrityError as e:
+                    print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+                    return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+
+                return JsonResponse({'Success': 'Added new item'}, status=200)
 
             
             

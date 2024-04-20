@@ -21,12 +21,11 @@ class Platform(models.Model):
 # Create your models here.
 class UserAdditionalInfo(models.Model): 
 
-    #user_photo = models.ImageField(default='profile_images/teacher_default.png', upload_to="profile_images/")
-    profile_picture = models.ImageField(default='static/avatars/dummy.png', upload_to="static/avatars/")
-
     #create ForeignKey so ever list made will link to user
     user = models.OneToOneField(User, default=None, null=True, blank=True, on_delete=models.SET_NULL, unique=True)
 
+    #user_photo = models.ImageField(default='profile_images/teacher_default.png', upload_to="profile_images/")
+    profile_picture = models.ImageField(default='static/avatars/dummy.png', upload_to="static/avatars/")
 
     #define method
     def __str__(self):
