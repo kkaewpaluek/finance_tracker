@@ -445,20 +445,29 @@ def wizard(request):
     return render(request, 'pages/wizard.html', context)
 
 def settings(request):
+    user = request.user
+    user_id= request.user.id
+
+    print(user)
 
     if request.method == 'GET': # When load the URL first time
-        user_additional_info = UserAdditionalInfo.objects.all()
+
+        try:
+            user_additional_info = UserAdditionalInfo.objects.get(user=user)
+        except:
+            userAdditionalInfo = None
+
+        print(user_additional_info)
+        
         context = {
             'parent': 'extra',
             'segment': 'settings',
-            'user_additional_info': 'user_additional_info',
+            'userAdditionalInfo': user_additional_info,
         }
         return render(request, 'pages/settings.html', context)
     
     else: 
-        
-        if request.POST.get('action', None) == 'update_user':
-            user_id= request.user.id
+        if 'update_user' == request.POST.get('action', None):
             updateObject = request.POST.get('updateObject', None)
             updateValue = request.POST.get('updateValue', None)
 
@@ -477,46 +486,71 @@ def settings(request):
                 print(f'Error: {e}')  # Print the specific IntegrityError for debugging
                 return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
         
-        else: #request.POST.get('action', None) == 'update_userAdditionalInfo':
-            user = request.user
+        else: #('update_userAdditionalInfo' == request.POST.get('action', None)) or ('delete_userAdditionalInfo' == request.POST.get('action', None)) :
+            action = request.POST.get('action', None)
+            print(action)
             updateObject = request.POST.get('updateObject', None)
-            updateValue = request.POST.get('updateValue', None)
+            print(updateObject)
+            inputType = request.POST.get('inputType', None)
 
-            filtered_UserAdditionalInfo = UserAdditionalInfo.objects.filter(user__id=user_id)
+            if 'file' == inputType:
+                updateFile = request.FILES.get('updateFile', None)
+            else: #'info' == inputType:
+                updateValue = request.POST.get('updateValue', None)
 
-            if filtered_UserAdditionalInfo.exists():
-                record = filtered_UserAdditionalInfo.first()  # Get the first user
-                print(f"User ID: {filtered_UserAdditionalInfo.id}")
+            try:
+                record = UserAdditionalInfo.objects.get(user=user)
+            except:
+                record = None
+
+            if record:
 
                 match updateObject:
-                    case 'change_profile_picture':
-                        record.profile_picture = updateValue
-                    case 'delete_profilepicture':
-                        record.profile_picture = 'url of dummy picture'
+                    case 'changeProfilePicture':
+                        record.profilePicture = updateFile
+                    case 'deleteProfilePicture':
+                        record.profilePicture = 'static/avatars/dummy.png'
 
                 try:
                     record.save() 
-                    return JsonResponse({'Success': 'Updated'}, status=200)
-                    #return JsonResponse(status=200)
+                    # Serialize the record data before returning it in JsonResponse
+                    serialized_data = {
+                        'profilePicture': record.profilePicture.url,
+                    }
+                    return JsonResponse({'data': serialized_data}, status=200)
 
                 except IntegrityError as e:
                     print(f'Error: {e}')  # Print the specific IntegrityError for debugging
                     return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
 
-            else:
-                print("No user found with that ToDoList name")
-                record = Platform.objects.create(
-                    user=user,
-                )
-                try:
-                    record.save()
-                    print('Saved new item')
+            else: #UserAdditionalInfo doesn't exist
+                if 'update_userAdditionalInfo' == action:
+                    
+                   
+                    match updateObject:
+                        case 'changeProfilePicture':
+                            record = UserAdditionalInfo.objects.create(
+                                user=user,
+                                profilePicture=updateFile,
+                            )
+                            
+                    try:
+                        record.save()
+                        print('Saved new item')
+                        # Serialize the record data before returning it in JsonResponse
+                        serialized_data = {
+                            'profilePicture': record.profilePicture.url,
+                        }
+                        return JsonResponse({'data': serialized_data})
+                        #return JsonResponse({'data': 'ddd'})
 
-                except IntegrityError as e:
-                    print(f'Error: {e}')  # Print the specific IntegrityError for debugging
-                    return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
-
-                return JsonResponse({'Success': 'Added new item'}, status=200)
+                    except IntegrityError as e:
+                        print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+                        return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+                
+                else: #'delete_userAdditionalInfo' == action:
+                    print("Do nothing as no user found in the model")
+                    return JsonResponse({'Success':'Do nothing as no user found in the model'}, status=200)
 
             
             
@@ -692,7 +726,7 @@ def finance_tracker_settings(request):
                 'description': record.description,
                 'enabled': record.enabled,
             }
-            return JsonResponse({'data': serialized_data})
+            return JsonResponse({'data': serialized_data}, status=200)
         
         else: # action = 'update_item'
             updateValue = request.POST.get('updateValue', None)
@@ -714,19 +748,20 @@ def finance_tracker_settings(request):
             try:
                 record.save()
                 print('Saved updateValue')
+                # Serialize the record data before returning it in JsonResponse
+                serialized_data = {
+                    'id': record.id,
+                    'name': record.name,
+                    'description': record.description,
+                    'enabled': record.enabled,
+                }
+                return JsonResponse({'data': serialized_data})
 
             except IntegrityError as e:
                 print(f'Error: {e}')  # Print the specific IntegrityError for debugging
                 return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
 
-            # Serialize the record data before returning it in JsonResponse
-            serialized_data = {
-                'id': record.id,
-                'name': record.name,
-                'description': record.description,
-                'enabled': record.enabled,
-            }
-            return JsonResponse({'data': serialized_data})
+
     
 
 def summary_income_expense(request):

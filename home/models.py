@@ -25,8 +25,8 @@ class UserAdditionalInfo(models.Model):
     user = models.OneToOneField(User, default=None, null=True, blank=True, on_delete=models.SET_NULL, unique=True)
 
     #user_photo = models.ImageField(default='profile_images/teacher_default.png', upload_to="profile_images/")
-    profile_picture = models.ImageField(default='static/avatars/dummy.png', upload_to="static/avatars/")
+    profilePicture = models.ImageField(default='static/avatars/dummy.png', upload_to="profile_picture/")
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"User: {self.user.username}"

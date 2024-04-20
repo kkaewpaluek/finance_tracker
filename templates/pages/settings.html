@@ -44,14 +44,20 @@
               <!-- <h2 class="mb-4">My Account</h2> -->
               <h3 class="card-title">Picture</h3>
               <div class="row align-items-center ms-3">
-                <div class="col-auto"><span class="avatar avatar-xl"
-                    style="background-image: url({% static 'static/avatars/dummy.png' %})"></span>
+                <div class="col-auto">
+                    {% if userAdditionalInfo %}
+                      <span id="result_ProfilePicture" class="avatar avatar-xl"
+                        style="background-image: url({{userAdditionalInfo.profilePicture.url}})"></span>
+                    {% else %}
+                      <span id="result_ProfilePicture" class="avatar avatar-xl"
+                        style="background-image: url({% static 'static/avatars/dummy.png' %})"></span>
+                    {% endif %}
                 </div>
                 <div class="col-auto"><a href="#" id="profilePicture" data-type="picture" class="btn"
-                    data-bs-toggle="modal" data-bs-target="#modal-file">
+                    data-bs-toggle="modal" data-bs-target="#modal_changeProfilePicture">
                     Change picture
                   </a></div>
-                <div class="col-auto"><a href="#" class="btn btn-ghost-danger">
+                <div class="col-auto"><a href="#" id="input_deleteProfilePicture" class="btn btn-file-changeable btn-ghost-danger">
                     Delete picture
                   </a></div>
               </div>
@@ -90,7 +96,7 @@
       </div>
     </div>
   </div>
-  <div class="modal modal-blur fade" id="modal-file" tabindex="-1" style="display: none;" aria-hidden="true">
+  <div class="modal modal-blur fade" id="modal_changeProfilePicture" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
@@ -99,12 +105,14 @@
         </div>
         <div class="modal-body text-center">
           <div class="custom-file">
-            <input type="file" class="form-control" id="newPictureInput" accept="image/*">
+            <form id="form_changeProfilePicture">
+            <input type="file" class="form-control" id="input_changeProfilePicture" accept="image/*">
+            </form>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary file-changeable" id="changeProfilePicture">Save Changes</button>
+          <button type="button" class="btn btn-primary btn-file-changeable" data-object="changeProfilePicture" data-bs-dismiss="modal">Save Changes</button>
         </div>
       </div>
     </div>
@@ -232,7 +240,110 @@
     });
 
      //Add input edit event
-    $('.file-changeable').on('click', function () {
+    $('.btn-file-changeable').on('click', function () {
+
+      var selectedBtn = $(this);
+      var updateObject = selectedBtn.data('object');
+      var updateValue;
+      let updateFile;  
+      let updateData;        
+      var input;
+      var inputID;
+      var result;
+      var inputType; //'file' or 'info'
+      var action;
+      var processData;
+      var contentType;
+      var form;
+
+      //condition of each model
+      if ('changeProfilePicture' == updateObject){
+        inputID = 'input_changeProfilePicture'; //id of input which will be used without jquery
+        result = '#result_ProfilePicture';
+        action = 'update_userAdditionalInfo';
+        inputType= 'file';
+      }
+      else if ('deleteProfilePicture' == updateObject){
+        inputID = 'input_deleteProfilePicture'; //id of input which will be used without jquery
+        result = '#result_ProfilePicture';
+        action = 'delete_userAdditionalInfo';
+        inputType= 'file';
+      }
+      
+      //condition of each action and inputType
+
+
+      if ('update_userAdditionalInfo' == action){
+        if('file' == inputType){
+          updateData = new FormData();
+          input = document.getElementById(inputID);
+          updateData.append('updateFile', input.files[0]);
+          updateData.append('action', action);
+          updateData.append('updateObject', updateObject);
+          updateData.append('inputType', inputType);
+          
+          /*input = document.getElementById(inputID);
+          if (input.files.length > 0){
+            updateFile = input.files[0];
+          } */
+          updateValue = '';
+          processData = false;
+          contentType = false;
+        }
+        else if ('info' == inputType){
+          updateFile = ''
+          updateValue = input.val(); //path of local file
+          processData = true;
+          contentType = true;
+        }
+      }
+      else if ('delete_userAdditionalInfo' == action){ //type == 'delete'
+        updateFile  = '';
+        updateValue = '';
+        processData = true;
+        contentType = true;
+      }
+
+      // Send data to Django view using AJAX
+      // Get the CSRF token from the form
+      let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+      // update model
+      $.ajax({
+        url: window.location.href, // Replace with the actual URL of your Django view
+        type: 'POST',
+
+/*         data: {
+          //'action': action,
+          //'inputType': inputType,
+          //'updateObject': updateObject,
+          //'updateValue': updateValue,
+          'updateData': updateData,
+          //'updateFile': updateFile,
+        }, */
+
+        data: updateData,
+
+        processData: processData,
+        contentType: contentType,
+
+        //dataType: 'json',
+        beforeSend: function (xhr) {
+          xhr.setRequestHeader("X-CSRFToken", csrfToken);
+        },
+
+        success: function (response) {
+          newprofilePicture = response.data.profilePicture;
+          //$(result).style.backgroundImage = `url(${newprofilePicture})`;
+          $(result).css('backgroundImage', `url(${newprofilePicture})`);
+          //profilePicture.style.backgroundImage = "url({% static 'static/avatars/001.png' %})";
+        },
+
+        error: function (error) {
+          console.log('Error:', error);
+        }
+
+      });
 
     }); 
   });
