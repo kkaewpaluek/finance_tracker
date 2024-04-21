@@ -45,22 +45,17 @@
               <h3 class="card-title">Picture</h3>
               <div class="row align-items-center ms-3">
                 <div class="col-auto">
-                    {% if userAdditionalInfo %}
-                      <span id="result_ProfilePicture" class="avatar avatar-xl"
-                        style="background-image: url({{userAdditionalInfo.profilePicture.url}})"></span>
-                    {% else %}
-                      <span class="avatar avatar-xl"
-                        style="background-image: url({% static 'static/avatars/dummy.png' %})"></span>
-                    {% endif %}
+                    <span id="result_ProfilePicture" class="avatar avatar-xl"
+                      style="background-image: {% if userAdditionalInfo.profilePicture %} url({{userAdditionalInfo.profilePicture.url}}) {% else %} url({% static 'static/avatars/dummy.png' %}) {% endif %}"></span>
                 </div>
                 <div class="col row ms-auto">
                   <div class="col-auto"><a href="#" id="profilePicture" data-type="picture" class="btn"
                       data-bs-toggle="modal" data-bs-target="#modal_changeProfilePicture">
                       Change picture
                     </a></div>
-                  <div class="col-auto"><a href="#" id="input_deleteProfilePicture" class="btn btn-file-changeable btn-ghost-danger">
-                      Delete picture
-                    </a></div>
+                  <div class="col-auto"><a href="#" class="btn btn-ghost-danger" data-bs-toggle="modal" data-bs-target="#modal_deleteProfilePicture">
+                    Delete picture
+                  </a></div>
                 </div>
               </div>
               <h3 class="card-title mt-4">Username</h3>
@@ -98,6 +93,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal: changeProfilePicture -->
   <div class="modal modal-blur fade" id="modal_changeProfilePicture" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -115,6 +112,34 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="button" class="btn btn-primary btn-file-changeable" data-object="changeProfilePicture" data-bs-dismiss="modal">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal: deleteProfilePicture -->
+  <div class="modal modal-blur fade" id="modal_deleteProfilePicture" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status bg-danger"></div>
+        <div class="modal-body text-center py-4">
+          <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v4"></path><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path><path d="M12 16h.01"></path></svg>
+          <h3>Are you sure?</h3>
+          <div class="text-secondary">Do you really want to delete your profile picture? What you've done cannot be undone.</div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
+                  Cancel
+                </a></div>
+              <div class="col"><a href="#" class="btn btn-danger w-100 btn-file-changeable" data-bs-dismiss="modal" data-object="deleteProfilePicture">
+                  Delete
+                </a></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -258,52 +283,41 @@
       var contentType;
       var form;
 
-      //condition of each model
-      if ('changeProfilePicture' == updateObject){
-        inputID = 'input_changeProfilePicture'; //id of input which will be used without jquery
-        result = '#result_ProfilePicture';
-        action = 'update_userAdditionalInfo';
-        inputType= 'file';
-      }
-      else if ('deleteProfilePicture' == updateObject){
-        inputID = 'input_deleteProfilePicture'; //id of input which will be used without jquery
-        result = '#result_ProfilePicture';
-        action = 'delete_userAdditionalInfo';
-        inputType= 'file';
+      switch (updateObject){
+        case 'changeProfilePicture':
+          inputID = 'input_changeProfilePicture'; //id of input which will be used without jquery
+          result = '#result_ProfilePicture';
+          action = 'update_userAdditionalInfo';
+          inputType= 'file';
+          break;
+        case 'deleteProfilePicture':
+          result = '#result_ProfilePicture';
+          action = 'delete_userAdditionalInfo';
+          inputType= 'file';
+          break;
+        default:
+            // Handle the default case if updateObject doesn't match any case
+            break;
       }
       
+      updateData = new FormData();
+      updateData.append('action', action);
+      updateData.append('updateObject', updateObject);
+      updateData.append('inputType', inputType);
+
+      console.log(action)
       //condition of each action and inputType
-
-
       if ('update_userAdditionalInfo' == action){
         if('file' == inputType){
-          updateData = new FormData();
           input = document.getElementById(inputID);
           updateData.append('updateFile', input.files[0]);
-          updateData.append('action', action);
-          updateData.append('updateObject', updateObject);
-          updateData.append('inputType', inputType);
-          
-          /*input = document.getElementById(inputID);
-          if (input.files.length > 0){
-            updateFile = input.files[0];
-          } */
-          updateValue = '';
-          processData = false;
-          contentType = false;
+          console.log('update file')
         }
         else if ('info' == inputType){
-          updateFile = ''
+          updateFile = None
           updateValue = input.val(); //path of local file
-          processData = true;
-          contentType = true;
+          updateData.append('updateValue', updateValue);
         }
-      }
-      else if ('delete_userAdditionalInfo' == action){ //type == 'delete'
-        updateFile  = '';
-        updateValue = '';
-        processData = true;
-        contentType = true;
       }
 
       // Send data to Django view using AJAX
@@ -315,19 +329,10 @@
         url: window.location.href, // Replace with the actual URL of your Django view
         type: 'POST',
 
-/*         data: {
-          //'action': action,
-          //'inputType': inputType,
-          //'updateObject': updateObject,
-          //'updateValue': updateValue,
-          'updateData': updateData,
-          //'updateFile': updateFile,
-        }, */
-
         data: updateData,
 
-        processData: processData,
-        contentType: contentType,
+        processData: false,
+        contentType: false,
 
         //dataType: 'json',
         beforeSend: function (xhr) {
@@ -335,10 +340,24 @@
         },
 
         success: function (response) {
-          newprofilePicture = response.data.profilePicture;
-          //$(result).style.backgroundImage = `url(${newprofilePicture})`;
-          $(result).css('backgroundImage', `url(${newprofilePicture})`);
-          //profilePicture.style.backgroundImage = "url({% static 'static/avatars/001.png' %})";
+          console.log('update object:');
+          console.log(updateObject);
+
+          switch (updateObject){
+
+            case 'changeProfilePicture':
+              console.log('1');
+              newprofilePicture = response.data.profilePicture;
+              $(result).css('backgroundImage', `url(${newprofilePicture})`);
+              break;
+            case 'deleteProfilePicture':
+              console.log('2');
+              $(result).css('backgroundImage', "url({% static 'static/avatars/dummy.png' %})");
+              break;
+            default:
+              // Handle the default case if updateObject doesn't match any case
+              break;
+          }
         },
 
         error: function (error) {

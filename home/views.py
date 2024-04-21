@@ -493,35 +493,39 @@ def settings(request):
         
         else: #('update_userAdditionalInfo' == request.POST.get('action', None)) or ('delete_userAdditionalInfo' == request.POST.get('action', None)) :
             action = request.POST.get('action', None)
-            print(action)
             updateObject = request.POST.get('updateObject', None)
-            print(updateObject)
             inputType = request.POST.get('inputType', None)
 
-            if 'file' == inputType:
-                updateFile = request.FILES.get('updateFile', None)
-            else: #'info' == inputType:
-                updateValue = request.POST.get('updateValue', None)
+            if 'update_userAdditionalInfo' == action:
+                if 'file' == inputType:
+                    updateFile = request.FILES.get('updateFile', None)
+                else: #'info' == inputType:
+                    updateValue = request.POST.get('updateValue', None)
 
             try:
                 record = UserAdditionalInfo.objects.get(user=user)
             except:
                 record = None
 
-            if record:
-
+            if record: #UserAdditionalInfo exists
                 match updateObject:
                     case 'changeProfilePicture':
                         record.profilePicture = updateFile
                     case 'deleteProfilePicture':
-                        record.profilePicture = 'static/avatars/dummy.png'
-
+                        record.profilePicture = None
                 try:
                     record.save() 
+
                     # Serialize the record data before returning it in JsonResponse
-                    serialized_data = {
-                        'profilePicture': record.profilePicture.url,
-                    }
+                    match updateObject:
+                        case 'changeProfilePicture':
+                            serialized_data = {
+                                'profilePicture': record.profilePicture.url,
+                            }
+                            
+                        case 'deleteProfilePicture':
+                            serialized_data = None
+
                     return JsonResponse({'data': serialized_data}, status=200)
 
                 except IntegrityError as e:
@@ -530,7 +534,6 @@ def settings(request):
 
             else: #UserAdditionalInfo doesn't exist
                 if 'update_userAdditionalInfo' == action:
-                    
                    
                     match updateObject:
                         case 'changeProfilePicture':
