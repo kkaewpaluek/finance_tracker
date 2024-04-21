@@ -49,17 +49,19 @@
                       <span id="result_ProfilePicture" class="avatar avatar-xl"
                         style="background-image: url({{userAdditionalInfo.profilePicture.url}})"></span>
                     {% else %}
-                      <span id="result_ProfilePicture" class="avatar avatar-xl"
+                      <span class="avatar avatar-xl"
                         style="background-image: url({% static 'static/avatars/dummy.png' %})"></span>
                     {% endif %}
                 </div>
-                <div class="col-auto"><a href="#" id="profilePicture" data-type="picture" class="btn"
-                    data-bs-toggle="modal" data-bs-target="#modal_changeProfilePicture">
-                    Change picture
-                  </a></div>
-                <div class="col-auto"><a href="#" id="input_deleteProfilePicture" class="btn btn-file-changeable btn-ghost-danger">
-                    Delete picture
-                  </a></div>
+                <div class="col row ms-auto">
+                  <div class="col-auto"><a href="#" id="profilePicture" data-type="picture" class="btn"
+                      data-bs-toggle="modal" data-bs-target="#modal_changeProfilePicture">
+                      Change picture
+                    </a></div>
+                  <div class="col-auto"><a href="#" id="input_deleteProfilePicture" class="btn btn-file-changeable btn-ghost-danger">
+                      Delete picture
+                    </a></div>
+                </div>
               </div>
               <h3 class="card-title mt-4">Username</h3>
               <div class="row align-items-center ms-3">

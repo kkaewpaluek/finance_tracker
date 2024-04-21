@@ -21,11 +21,18 @@ def index_template(request):
     return render(request, 'pages/index.html', context)
 
 def index(request):
-    #user_is_admin = request.user.groups.filter(name='admin').exists()
+
+    user = request.user
+
+    try:
+        user_additional_info = UserAdditionalInfo.objects.get(user=user)
+    except:
+        user_additional_info = None
+
     context = {
         'parent': '',
         'segment': 'index',
-        #'user_is_admin': user_is_admin
+        'userAdditionalInfo': user_additional_info,
     }
     return render(request, 'pages/index_finance_tracker.html', context)
 
@@ -448,14 +455,12 @@ def settings(request):
     user = request.user
     user_id= request.user.id
 
-    print(user)
-
     if request.method == 'GET': # When load the URL first time
 
         try:
             user_additional_info = UserAdditionalInfo.objects.get(user=user)
         except:
-            userAdditionalInfo = None
+            user_additional_info = None
 
         print(user_additional_info)
         
