@@ -724,6 +724,8 @@ def finance_tracker_settings(request):
             newDescription = request.POST.get('newDescription', None)
             newEnabled = request.POST.get('newEnabled', None)
 
+            print(newName)
+
             selectedModel = request.POST.get('selectedModel', None)
             match selectedModel:
                 case 'PlatformCategory':
@@ -764,6 +766,8 @@ def finance_tracker_settings(request):
             cell_column = request.POST.get('cell_column', None)
 
             selectedModel = request.POST.get('selectedModel', None)
+            print(selectedModel)
+
             match selectedModel:
                 case 'PlatformCategory':
                     model = PlatformCategory

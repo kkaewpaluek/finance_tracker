@@ -136,10 +136,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Platform Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn" data-model="PlatformCategory"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="platformCategoryTable" class="table-setting" data-model="PlatformCategory" style="width:100%">
+                                    <table id="platformCategoryTable" class="table-setting table table-striped" data-model="PlatformCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -159,19 +159,18 @@
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                        <tfoot id="platformCategoryTfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
-                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
-                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-description" placeholder="Description"></td>
                                                 <td>
-                                                    <select id="newEnabled" class="form-select">
+                                                    <select class="form-select new-enabled">
                                                         <option value="True" selected>True</option>
                                                         <option value="False">False</option>
                                                     </select>
                                                 </td>
                                             </tr>
-
                                         </tfoot>
 
                                     </table>
@@ -187,10 +186,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Income Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn" data-model="IncomeCategory"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="incomeCategoryTable" class="table-setting" data-model="IncomeCategory" style="width:100%">
+                                    <table id="incomeCategoryTable" class="table-setting table table-striped" data-model="IncomeCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -210,19 +209,18 @@
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                        <tfoot id="incomeCategoryTfoot"  style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
-                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
-                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-description" placeholder="Description"></td>
                                                 <td>
-                                                    <select id="newEnabled" class="form-select">
+                                                    <select class="form-select new-enabled">
                                                         <option value="True" selected>True</option>
                                                         <option value="False">False</option>
                                                     </select>
                                                 </td>
                                             </tr>
-
                                         </tfoot>
 
                                     </table>
@@ -238,10 +236,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Expense Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn" data-model="ExpenseCategory"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="expenseCategoryTable" class="table-setting" data-model="ExpenseCategory" style="width:100%">
+                                    <table id="expenseCategoryTable" class="table-setting table table-striped" data-model="ExpenseCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -261,19 +259,18 @@
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                        <tfoot id="expenseCategoryTfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
-                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
-                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-description" placeholder="Description"></td>
                                                 <td>
-                                                    <select id="newEnabled" class="form-select">
+                                                    <select class="form-select new-enabled">
                                                         <option value="True" selected>True</option>
                                                         <option value="False">False</option>
                                                     </select>
                                                 </td>
                                             </tr>
-
                                         </tfoot>
 
                                     </table>
@@ -289,10 +286,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Saving Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn" data-model="SavingCategory"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="savingCategoryTable" class="table-setting" data-model="SavingCategory" style="width:100%">
+                                    <table id="savingCategoryTable" class="table-setting table table-striped" data-model="SavingCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -312,19 +309,18 @@
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                        <tfoot  id="savingCategoryTfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
-                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
-                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
+                                                <td><input type="text" class="form-control tfoot-input new-description" placeholder="Description"></td>
                                                 <td>
-                                                    <select id="newEnabled" class="form-select">
+                                                    <select class="form-select new-enabled">
                                                         <option value="True" selected>True</option>
                                                         <option value="False">False</option>
                                                     </select>
                                                 </td>
                                             </tr>
-
                                         </tfoot>
                                     </table>
                                     <div class="d-flex align-items-center">
@@ -357,11 +353,13 @@
     $(document).ready(function () {
 
         var busy = false;
-        var table = $('.table-setting')
-        var selectedModel = table.data('model');
+        var allTable = $('.table-setting');
+        var table;
+        var tfoot;
+        var selectedModel;
         var blurTimeout;
         
-        table.DataTable({
+        allTable.DataTable({
             "paging": false, // Disable pagination if needed
             "info": false, // Disable info text if needed
             "searching": false, // Disable search box if needed
@@ -372,14 +370,35 @@
         }); 
 
         //add class to all td
-        table.find('td').addClass('editable');
+        allTable.find('td').addClass('editable');
 
         //remove class editable from data-column="id"
-        table.find('td[data-column="id"]').removeClass('editable');
+        allTable.find('td[data-column="id"]').removeClass('editable');
         refreshTable();
 
         // Add Row button click event
         $('.add-row-btn').on('click', function () {
+
+            selectedModel = $(this).data('model');
+            console.log(selectedModel);
+            if ('PlatformCategory' == selectedModel){
+                table = $('#platformCategoryTable');
+                tfoot = $('#platformCategoryTfoot');
+            }
+            else if ('IncomeCategory' == selectedModel){
+                table = $('#incomeCategoryTable');
+                tfoot = $('#incomeCategoryTfoot');
+            }
+            else if ('ExpenseCategory' == selectedModel){
+                table = $('#expenseCategoryTable');
+                tfoot = $('#expenseCategoryTfoot');
+            }
+            else{ //('SavingCategory' == selectedModel){
+                table = $('#savingCategoryTable');
+                tfoot = $('#savingCategoryTfoot');
+            }
+
+
             if (!busy) {
 
                 busy = true;
@@ -387,25 +406,24 @@
                 // Remove existing handlers to prevent duplication when add-row-btn is clicked several times
                 $('.save-add-btn').off('click');
                 $('.cancel-add-btn').off('click');
-                $('.tfoot-input').off('keyup');
+                tfoot.off('keyup');
                 $(document).off('click');
 
-                table.find('tfoot').show();
+                tfoot.show();
                 $('.add-button-container').show();
 
                 event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
 
                 //Add button click event
-                $('#saveAddBtn').on('click', function () {
+                $('.save-add-btn').on('click', function () {
                     addNewItem();
                 });
 
-                $('#cancelAddBtn').on('click', function () {
+                $('cancel-add-btn').on('click', function () {
                     cancelAdding();
                 });
 
                 $('.tfoot-input').on('keyup', function (event) {
-                    console.log('keyup');
                     if (event.keyCode === 13) { // Enter key
                         addNewItem();
                     } 
@@ -417,7 +435,7 @@
                 // Click outside tfoot to cancel adding,  this is gross! might cause future bug
                 $(document).on('click', function (event) {
                     var target = $(event.target);
-                    if (!target.closest('tfoot').length && (!target.closest('#addButtonContainer')).length){
+                    if (!target.closest('tfoot').length && (!target.closest('.add-button-container')).length){
                         // Clicked outside the tfoot area, so call cancelAdding()
                         cancelAdding();
                     }
@@ -426,9 +444,9 @@
                 //---------- function for addRow ----------//
 
                 function addNewItem() {
-                    newName = $('#newName').val();
-                    newDescription = $('#newDescription').val();
-                    newEnabled = $('#newEnabled').val();
+                    newName = tfoot.find('.new-name').val();
+                    newDescription = tfoot.find('.new-description').val();
+                    newEnabled = tfoot.find('.new-enabled').val();
 
                     // Send data to Django view using AJAX
                     // Get the CSRF token from the form
@@ -451,20 +469,27 @@
                         success: function (response) {
                             console.log('Success addNewItem:', response);
                             newId = response.data.id;
+                            console.log(response.data.id);
+                            console.log(response.data.name);
+                            console.log(response.data.description);
+                            console.log(response.data.enabled);
+                            console.log(table);
+                            console.log(tfoot);
+
 
                             var newRow = $('<tr></tr>');
                             newRow.append('<td data-column="id">' + newId + '</td>');
-                            newRow.append(`<td data-id="${newId}" data-column="name" class="editable">` + $('#newName').val() + '</td>');
-                            newRow.append(`<td data-id="${newId}" data-column="description" class="editable">` + $('#newDescription').val() + '</td>');
-                            newRow.append(`<td data-id="${newId}" data-column="enabled" class="editable">` + $('#newEnabled').val() + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="name" class="editable new-name">` + response.data.name + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="description" class="editable new-description">` + response.data.description + '</td>');
+                            newRow.append(`<td data-id="${newId}" data-column="enabled" class="editable new-enabled">` + response.data.enabled + '</td>');
                             table.find('tbody').append(newRow);
 
                             //Clear input fields and hide the footer row
-                            $('#newName').val('');
-                            $('#newDescription').val('');
-                            $('#newEnabled').val('');
-                            table.find('tfoot').hide();
-                            $('#addButtonContainer').hide();
+                            $('.new-name').val('');
+                            $('.new-description').val('');
+                            $('.new-enabled').val('True');
+                            tfoot.hide();
+                            $('.add-button-container').hide();
 
                             refreshTable();
 
@@ -474,18 +499,18 @@
                             console.log('Error:', error);
                             busy = false;
                         }
-                    });
+                    }); 
 
                 }
 
                 function cancelAdding() {
                     console.log('cancel adding');
                     //Clear input fields and hide the footer row
-                    $('#newName').val('');
-                    $('#newDescription').val('');
-                    $('#newEnabled').val('');
+                    $('.new-name').val('');
+                    $('.new-description').val('');
+                    $('.new-enabled').val('');
                     table.find('tfoot').hide();
-                    $('#addButtonContainer').hide();
+                    $('.add-button-container').hide();
                     busy = false;
                 }
 
@@ -495,7 +520,29 @@
         });
 
         //Add cell edit event
-        table.on('click', 'tbody td.editable', function () {
+        allTable.on('click', 'tbody td.editable', function () {
+            
+            selectedModel = $(this).closest(allTable).data('model'); //closest table to td
+            if ('PlatformCategory' == selectedModel){
+                table = $('#platformCategoryTable');
+                tfoot = $('#platformCategoryTfoot');
+            }
+            else if ('IncomeCategory' == selectedModel){
+                table = $('#incomeCategoryTable');
+                tfoot = $('#incomeCategoryTfoot');
+            }
+            else if ('ExpenseCategory' == selectedModel){
+                table = $('#expenseCategoryTable');
+                tfoot = $('#expenseCategoryTfoot');
+            }
+            else{ //('SavingCategory' == selectedModel){
+                table = $('#savingCategoryTable');
+                tfoot = $('#savingCategoryTfoot');
+            }
+            console.log(selectedModel);
+            console.log(table);
+            console.log(tfoot);
+
             if (!busy) {
                 busy = true;
 
@@ -620,6 +667,7 @@
                 function updateCellValue(cell, input) {
                     var updateValue = input.val();
                     console.log(updateValue);
+                    console.log(selectedModel);
 
                     // Send data to Django view using AJAX
                     // Get the CSRF token from the form
@@ -668,7 +716,7 @@
 
         function refreshTable() {
 
-            const rows = table.find('tr'); // Find rows within the table using jQuery
+            const rows = allTable.find('tr'); // Find rows within the table using jQuery
 
             rows.each(function () { // Loop through rows using jQuery each()
                 const cellEnabled = $(this).find('td[data-column="enabled"]'); // Select cell within the current row
