@@ -49,8 +49,8 @@
                     <div class="card">
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
-                                <li class="nav-item">
-                                    <a href="#tabs-home-3" class="nav-link active"
+                                <li class="nav-item" role = "representation">
+                                    <a href="#tabs-platform" class="nav-link active"
                                         data-bs-toggle="tab"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -68,9 +68,9 @@
                                         </svg>
                                         Platform</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="#tabs-profile-3" class="nav-link"
-                                        data-bs-toggle="tab"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                                <!-- <li class="nav-item">
+                                    <a href="#tabs-goalbudget" class="nav-link"
+                                        data-bs-toggle="tab">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
@@ -81,9 +81,9 @@
                                                 d="M9 17.67c-.62 .36 -1 .82 -1 1.33c0 1.1 1.8 2 4 2s4 -.9 4 -2c0 -.5 -.38 -.97 -1 -1.33" />
                                         </svg>
                                         Goal/Budget Category</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="#tabs-profile-3" class="nav-link"
+                                </li> -->
+                                <li class="nav-item" role = "representation">
+                                    <a href="#tabs-income" class="nav-link"
                                         data-bs-toggle="tab"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -94,10 +94,10 @@
                                                 d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12" />
                                             <path d="M20 12v4h-4a2 2 0 0 1 0 -4h4" />
                                         </svg>
-                                        Income Category</a>
+                                        Income</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="#tabs-profile-3" class="nav-link"
+                                <li class="nav-item" role = "representation">
+                                    <a href="#tabs-expense" class="nav-link"
                                         data-bs-toggle="tab"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -110,10 +110,10 @@
                                             <path d="M16 12h4v4m-4 0a2 2 0 0 1 -2 -2" />
                                             <path d="M3 3l18 18" />
                                         </svg>
-                                        Expense Category</a>
+                                        Expense</a>
                                 </li>
-                                <li class="nav-item">
-                                    <a href="#tabs-profile-3" class="nav-link"
+                                <li class="nav-item" role = "representation">
+                                    <a href="#tabs-saving" class="nav-link"
                                         data-bs-toggle="tab"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -125,61 +125,216 @@
                                             <path
                                                 d="M16 4v3.803a6.019 6.019 0 0 1 2.658 3.197h1.341a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-1.342c-.336 .95 -.907 1.8 -1.658 2.473v2.027a1.5 1.5 0 0 1 -3 0v-.583a6.04 6.04 0 0 1 -1 .083h-4a6.04 6.04 0 0 1 -1 -.083v.583a1.5 1.5 0 0 1 -3 0v-2l0 -.027a6 6 0 0 1 4 -10.473h2.5l4.5 -3h0z" />
                                         </svg>
-                                        Saving Category</a>
+                                        Saving</a>
                                 </li>
                             </ul>
                         </div>
                         <div class="card-body">
                             <div class="tab-content">
-                                <div class="tab-pane active show" id="tabs-home-3">
-                                    <div class="d-flex">
-                                        <div class="ms-auto"><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                <!-- tabs-platform -->
+                                <div class="tab-pane active show" id="tabs-platform" role="tabpanel">
+                                    <div class="col align-items-center d-flex">
+                                        <div class="row"><h2>Platform Category</h2></div>
+                                        <div class="row ms-auto">
+                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                        </div>
+                                    </div>
+                                    <table id="platformCategoryTable" class="table-setting" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Enabled</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in platform %}
+
+                                            <tr>
+                                                <td data-column="id">{{ item.id }}</td>
+                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                            <tr>
+                                                <td></td>
+                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
+                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td>
+                                                    <select id="newEnabled" class="form-select">
+                                                        <option value="True" selected>True</option>
+                                                        <option value="False">False</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+
+                                        </tfoot>
+
+                                    </table>
+                                    <div class="d-flex align-items-center">
+                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
+                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
+                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        </div>
                                     </div>
                                 </div>
-                                <table id="platformTable" class="table-setting" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Name</th>
-                                            <th>Description</th>
-                                            <th>Enabled</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in platform %}
+                                <!-- tabs-income -->
+                                <div class="tab-pane" id="tabs-income" role="tabpanel">
+                                    <div class="col align-items-center d-flex">
+                                        <div class="row"><h2>Income Category</h2></div>
+                                        <div class="row ms-auto">
+                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                        </div>
+                                    </div>
+                                    <table id="incomeCategoryTable" class="table-setting" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Enabled</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in platform %}
 
-                                        <tr>
-                                            <td data-column="id">{{ item.id }}</td>
-                                            <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                            <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
-                                            <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    <tfoot style="display: none"> <!-- initially hidden -->
-                                        <tr>
-                                            <td></td>
-                                            <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
-                                            <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
-                                            <td>
-                                                <select id="newEnabled" class="form-select">
-                                                    <option value="True" selected>True</option>
-                                                    <option value="False">False</option>
-                                                </select>
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td data-column="id">{{ item.id }}</td>
+                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                            <tr>
+                                                <td></td>
+                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
+                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td>
+                                                    <select id="newEnabled" class="form-select">
+                                                        <option value="True" selected>True</option>
+                                                        <option value="False">False</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
 
-                                    </tfoot>
+                                        </tfoot>
 
-                                </table>
-                                
-                                <div class="d-flex align-items-center">
-                                    <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
-                                        <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
-                                        <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                    </table>
+                                    <div class="d-flex align-items-center">
+                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
+                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
+                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        </div>
                                     </div>
                                 </div>
+                                <!-- tabs-expense -->
+                                <div class="tab-pane" id="tabs-expense" role="tabpanel">
+                                    <div class="col align-items-center d-flex">
+                                        <div class="row"><h2>Expense Category</h2></div>
+                                        <div class="row ms-auto">
+                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                        </div>
+                                    </div>
+                                    <table id="expenseCategoryTable" class="table-setting" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Enabled</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in platform %}
 
+                                            <tr>
+                                                <td data-column="id">{{ item.id }}</td>
+                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                            <tr>
+                                                <td></td>
+                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
+                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td>
+                                                    <select id="newEnabled" class="form-select">
+                                                        <option value="True" selected>True</option>
+                                                        <option value="False">False</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+
+                                        </tfoot>
+
+                                    </table>
+                                    <div class="d-flex align-items-center">
+                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
+                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
+                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- tabs-saving -->
+                                <div class="tab-pane" id="tabs-saving" role="tabpanel">
+                                    <div class="col align-items-center d-flex">
+                                        <div class="row"><h2>Saving Category</h2></div>
+                                        <div class="row ms-auto">
+                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                        </div>
+                                    </div>
+                                    <table id="savingCategoryTable" class="table-setting" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Enabled</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in platform %}
+
+                                            <tr>
+                                                <td data-column="id">{{ item.id }}</td>
+                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot style="display: none"> <!-- initially hidden -->
+                                            <tr>
+                                                <td></td>
+                                                <td><input type="text" id="newName" class="form-control tfoot-input" placeholder="Name"></td>
+                                                <td><input type="text" id="newDescription" class="form-control tfoot-input" placeholder="Description"></td>
+                                                <td>
+                                                    <select id="newEnabled" class="form-select">
+                                                        <option value="True" selected>True</option>
+                                                        <option value="False">False</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+
+                                        </tfoot>
+
+                                    </table>
+                                    <div class="d-flex align-items-center">
+                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
+                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
+                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
