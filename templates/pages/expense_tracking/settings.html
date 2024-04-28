@@ -136,10 +136,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Platform Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="platformCategoryTable" class="table-setting" style="width:100%">
+                                    <table id="platformCategoryTable" class="table-setting" data-model="PlatformCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -149,7 +149,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for item in platform %}
+                                            {% for item in platformCategory %}
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
@@ -176,9 +176,9 @@
 
                                     </table>
                                     <div class="d-flex align-items-center">
-                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
-                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
-                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        <div class="add-button-container col-auto ms-auto" style="display: none"> <!-- initially hidden -->
+                                            <button type="button" class="save-add-btn btn btn-success btn-primary ">Add</button>
+                                            <button type="button" class="cancel-add-btn btn btn-danger btn-secondary ">Cancel</button>
                                         </div>
                                     </div>
                                 </div>
@@ -187,10 +187,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Income Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="incomeCategoryTable" class="table-setting" style="width:100%">
+                                    <table id="incomeCategoryTable" class="table-setting" data-model="IncomeCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -200,7 +200,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for item in platform %}
+                                            {% for item in incomeCategory %}
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
@@ -227,9 +227,9 @@
 
                                     </table>
                                     <div class="d-flex align-items-center">
-                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
-                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
-                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        <div class="add-button-container col-auto ms-auto" style="display: none"> <!-- initially hidden -->
+                                            <button type="button" class="save-add-btn btn btn-success btn-primary ">Add</button>
+                                            <button type="button" class="cancel-add-btn btn btn-danger btn-secondary ">Cancel</button>
                                         </div>
                                     </div>
                                 </div>
@@ -238,10 +238,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Expense Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="expenseCategoryTable" class="table-setting" style="width:100%">
+                                    <table id="expenseCategoryTable" class="table-setting" data-model="ExpenseCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -251,7 +251,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for item in platform %}
+                                            {% for item in expenseCategory %}
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
@@ -278,9 +278,9 @@
 
                                     </table>
                                     <div class="d-flex align-items-center">
-                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
-                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
-                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        <div class="add-button-container col-auto ms-auto" style="display: none"> <!-- initially hidden -->
+                                            <button type="button" class="save-add-btn btn btn-success btn-primary ">Add</button>
+                                            <button type="button" class="cancel-add-btn btn btn-danger btn-secondary ">Cancel</button>
                                         </div>
                                     </div>
                                 </div>
@@ -289,10 +289,10 @@
                                     <div class="col align-items-center d-flex">
                                         <div class="row"><h2>Saving Category</h2></div>
                                         <div class="row ms-auto">
-                                            <div><button id="addRowBtn" class="btn btn-primary"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
+                                            <div><button class="btn btn-primary add-row-btn"><svg class="p-0" xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg></button></div>
                                         </div>
                                     </div>
-                                    <table id="savingCategoryTable" class="table-setting" style="width:100%">
+                                    <table id="savingCategoryTable" class="table-setting" data-model="SavingCategory" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>ID</th>
@@ -302,7 +302,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for item in platform %}
+                                            {% for item in savingCategory %}
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
@@ -326,12 +326,11 @@
                                             </tr>
 
                                         </tfoot>
-
                                     </table>
                                     <div class="d-flex align-items-center">
-                                        <div id="addButtonContainer" style="display: none" class="col-auto ms-auto"> <!-- initially hidden -->
-                                            <button id="saveAddBtn" type="button" class="btn btn-success btn-primary ">Add</button>
-                                            <button id="cancelAddBtn" type="button" class="btn btn-danger btn-secondary ">Cancel</button>
+                                        <div class="add-button-container col-auto ms-auto" style="display: none"> <!-- initially hidden -->
+                                            <button type="button" class="save-add-btn btn btn-success btn-primary ">Add</button>
+                                            <button type="button" class="cancel-add-btn btn btn-danger btn-secondary ">Cancel</button>
                                         </div>
                                     </div>
                                 </div>
@@ -359,6 +358,7 @@
 
         var busy = false;
         var table = $('.table-setting')
+        var selectedModel = table.data('model');
         var blurTimeout;
         
         table.DataTable({
@@ -379,19 +379,19 @@
         refreshTable();
 
         // Add Row button click event
-        $('#addRowBtn').on('click', function () {
+        $('.add-row-btn').on('click', function () {
             if (!busy) {
 
                 busy = true;
 
-                // Remove existing handlers to prevent duplication when addRowBtn is clicked several times
-                $('#saveAddBtn').off('click');
-                $('#cancelAddBtn').off('click');
+                // Remove existing handlers to prevent duplication when add-row-btn is clicked several times
+                $('.save-add-btn').off('click');
+                $('.cancel-add-btn').off('click');
                 $('.tfoot-input').off('keyup');
                 $(document).off('click');
 
                 table.find('tfoot').show();
-                $('#addButtonContainer').show();
+                $('.add-button-container').show();
 
                 event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
 
@@ -416,10 +416,8 @@
 
                 // Click outside tfoot to cancel adding,  this is gross! might cause future bug
                 $(document).on('click', function (event) {
-                    console.log('document');
                     var target = $(event.target);
                     if (!target.closest('tfoot').length && (!target.closest('#addButtonContainer')).length){
-                        console.log('document_inside');
                         // Clicked outside the tfoot area, so call cancelAdding()
                         cancelAdding();
                     }
@@ -428,9 +426,6 @@
                 //---------- function for addRow ----------//
 
                 function addNewItem() {
-
-                    console.log('addNewItem');
-
                     newName = $('#newName').val();
                     newDescription = $('#newDescription').val();
                     newEnabled = $('#newEnabled').val();
@@ -444,6 +439,7 @@
                         type: 'POST',
                         data: {
                             'action': 'add_new_item',
+                            'selectedModel': selectedModel,
                             'newName': newName,
                             'newDescription': newDescription,
                             'newEnabled': newEnabled,
@@ -635,6 +631,7 @@
                         type: 'POST',
                         data: {
                             'action': 'update_item',
+                            'selectedModel': selectedModel,
                             'updateValue': updateValue,
                             'cell_id': cell_id,
                             'cell_column': cell_column,

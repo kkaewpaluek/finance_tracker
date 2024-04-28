@@ -6,7 +6,10 @@ from django.views.generic import CreateView
 from django.http import JsonResponse
 from django.db.utils import IntegrityError  # Import IntegrityError for error handling
 from django.contrib.auth.models import User
-from .models import Platform
+from .models import PlatformCategory
+from .models import IncomeCategory
+from .models import ExpenseCategory
+from .models import SavingCategory
 from .models import UserAdditionalInfo
 
 
@@ -699,11 +702,19 @@ def icons(request):
 def finance_tracker_settings(request):
 
     if request.method == 'GET': # When load the URL first time
-        platform = Platform.objects.all() # Fetch all Platform objects
+
+        platformCategory = PlatformCategory.objects.all() # Fetch all Platform objects
+        incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
+        expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
+        savingCategory = SavingCategory.objects.all() # Fetch all Platform objects
+
         context = {
             'parent': '',
             'segment': 'finance_tracker_settings',
-            'platform': platform
+            'platformCategory': platformCategory,
+            'incomeCategory': incomeCategory,
+            'expenseCategory': expenseCategory,
+            'savingCategory': savingCategory
         }
         return render(request, 'pages/expense_tracking/settings.html', context)
     
@@ -713,7 +724,18 @@ def finance_tracker_settings(request):
             newDescription = request.POST.get('newDescription', None)
             newEnabled = request.POST.get('newEnabled', None)
 
-            record = Platform.objects.create(
+            selectedModel = request.POST.get('selectedModel', None)
+            match selectedModel:
+                case 'PlatformCategory':
+                    model = PlatformCategory
+                case 'IncomeCategory':
+                    model = IncomeCategory
+                case 'ExpenseCategory':
+                    model = ExpenseCategory
+                case 'SavingCategory':
+                    model = SavingCategory   
+
+            record = model.objects.create(
                 name=newName,
                 description=newDescription,
                 enabled=newEnabled,
@@ -741,7 +763,18 @@ def finance_tracker_settings(request):
             cell_id = request.POST.get('cell_id', None)
             cell_column = request.POST.get('cell_column', None)
 
-            record = Platform.objects.get(id=int(cell_id))
+            selectedModel = request.POST.get('selectedModel', None)
+            match selectedModel:
+                case 'PlatformCategory':
+                    model = PlatformCategory
+                case 'IncomeCategory':
+                    model = IncomeCategory
+                case 'ExpenseCategory':
+                    model = ExpenseCategory
+                case 'SavingCategory':
+                    model = SavingCategory 
+
+            record = model.objects.get(id=int(cell_id))
             
             match cell_column:
                 case 'name':
@@ -768,8 +801,6 @@ def finance_tracker_settings(request):
             except IntegrityError as e:
                 print(f'Error: {e}')  # Print the specific IntegrityError for debugging
                 return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
-
-
     
 
 def summary_income_expense(request):
