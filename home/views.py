@@ -10,6 +10,7 @@ from .models import PlatformCategory
 from .models import IncomeCategory
 from .models import ExpenseCategory
 from .models import SavingCategory
+from .models import DebugCategory
 from .models import UserAdditionalInfo
 
 
@@ -707,6 +708,7 @@ def finance_tracker_settings(request):
         incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
         expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
         savingCategory = SavingCategory.objects.all() # Fetch all Platform objects
+        debugCategory = SavingCategory.objects.all() # Fetch all Platform objects
 
         context = {
             'parent': '',
@@ -714,7 +716,8 @@ def finance_tracker_settings(request):
             'platformCategory': platformCategory,
             'incomeCategory': incomeCategory,
             'expenseCategory': expenseCategory,
-            'savingCategory': savingCategory
+            'savingCategory': savingCategory,
+            'debugCategory': debugCategory
         }
         return render(request, 'pages/expense_tracking/settings.html', context)
     
@@ -736,6 +739,8 @@ def finance_tracker_settings(request):
                     model = ExpenseCategory
                 case 'SavingCategory':
                     model = SavingCategory   
+                case 'DebugCategory':
+                    model = DebugCategory
 
             record = model.objects.create(
                 name=newName,
@@ -777,6 +782,8 @@ def finance_tracker_settings(request):
                     model = ExpenseCategory
                 case 'SavingCategory':
                     model = SavingCategory 
+                case 'DebugCategory':
+                    model = DebugCategory 
 
             record = model.objects.get(id=int(cell_id))
             

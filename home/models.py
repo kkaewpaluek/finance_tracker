@@ -56,6 +56,19 @@ class SavingCategory(models.Model):
     #define method
     def __str__(self):
         return f"{self.name} (User: {self.user.username})"
+    
+class DebugCategory(models.Model): 
+    
+    name = models.CharField(max_length=100) #CharField is a type of field that can store information
+    description = models.CharField(max_length=300)
+    enabled = models.BooleanField(default=True)
+
+    #create ForeignKey so ever list made will link to user
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+
+    #define method
+    def __str__(self):
+        return f"{self.name} (User: {self.user.username})"
 
 
 class UserAdditionalInfo(models.Model): 
