@@ -353,19 +353,26 @@
 
 {% block extrajs %}
 <script>
+
+
     $(document).ready(function () {
 
         var busy = false;
         var table = $('.table-setting')
         var blurTimeout;
+        
         table.DataTable({
             "paging": false, // Disable pagination if needed
             "info": false, // Disable info text if needed
             "searching": false, // Disable search box if needed
-            "columnDefs": [
-                { "targets": "_all", "className": "editable" } // Add editable class to all columns
-            ]
-        });
+            "autoWidth": false,
+            /*"columnDefs": [
+               { "targets": "_all", "className": "editable" } // Add editable class to all columns
+            ] */
+        }); 
+
+        //add class to all td
+        table.find('td').addClass('editable');
 
         //remove class editable from data-column="id"
         table.find('td[data-column="id"]').removeClass('editable');
