@@ -373,7 +373,7 @@
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot  id="debugCategoryTfoot" style="display: none"> <!-- initially hidden -->
+                                        <tfoot  id="debugCategoryTfoot" class="container-add-btn-and-tfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
                                                 <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
@@ -387,7 +387,7 @@
                                             </tr>
                                         </tfoot>
                                     </table>
-                                    <div class="d-flex align-items-center">
+                                    <div class="container-add-btn-and-tfoot d-flex align-items-center">
                                         <div class="add-button-container col-auto ms-auto" style="display: none"> <!-- initially hidden -->
                                             <button type="button" class="save-add-btn btn btn-success btn-primary ">Add</button>
                                             <button type="button" class="cancel-add-btn btn btn-danger btn-secondary ">Cancel</button>
@@ -418,6 +418,7 @@
 
         var busy = false;
         var allTable = $('.table-setting');
+        var containerAddBtnAndTfoot = $('.container-add-btn-and-tfoot');
         var table;
         var tfoot;
         var selectedModel;
@@ -480,31 +481,37 @@
                 tfoot.show();
                 $('.add-button-container').show();
 
-                event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
+                containerAddBtnAndTfoot.focus();
+                //console.log(containerAddBtnAndTfoot);
+
+                //event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
 
                 //Add button click event
                 $('.save-add-btn').on('click', function () {
+                    console.log('save is clicked');
                     addNewItem();
+                    clearTimeout(blurTimeout);
                 });
 
-                $('cancel-add-btn').on('click', function () {
+                $('.cancel-add-btn').on('click', function () {
+                    console.log('cancel is clicked');
                     cancelAdding();
+                    clearTimeout(blurTimeout);
                 });
 
-                $('.tfoot-input').on('keyup', function (event) {
+                containerAddBtnAndTfoot.on('keyup', function (event) {
                     if (event.keyCode === 13) { // Enter key
                         addNewItem();
+                        clearTimeout(blurTimeout);
                     } 
                     else if (event.keyCode === 27) { // Escape key
                         cancelAdding();
+                        clearTimeout(blurTimeout);
                     }
                 });
 
-                // Click outside tfoot to cancel adding,  this is gross! might cause future bug
                 $(document).on('click', function (event) {
-                    var target = $(event.target);
-                    if (!target.closest('tfoot').length && (!target.closest('.add-button-container')).length){
-                        // Clicked outside the tfoot area, so call cancelAdding()
+                    if (!$(event.target).closest('.container-add-btn-and-tfoot').length && !$(event.target).closest('.add-row-btn').length) {
                         cancelAdding();
                     }
                 });
@@ -512,6 +519,7 @@
                 //---------- function for addRow ----------//
 
                 function addNewItem() {
+                    console.log('counting');
                     newName = tfoot.find('.new-name').val();
                     newDescription = tfoot.find('.new-description').val();
                     newEnabled = tfoot.find('.new-enabled').val();
@@ -576,8 +584,8 @@
                     //Clear input fields and hide the footer row
                     $('.new-name').val('');
                     $('.new-description').val('');
-                    $('.new-enabled').val('');
-                    table.find('tfoot').hide();
+                    $('.new-enabled').val('True');
+                    tfoot.hide();
                     $('.add-button-container').hide();
                     busy = false;
                 }
@@ -664,6 +672,7 @@
                             // keyup event 'Enter' is handled by selection on the dropdown
 
                             if (event.keyCode === 27) { // Escape key
+                                event.preventDefault(); 
                                 cancelEdit(cell, currentValue);
                             }
                             clearTimeout(blurTimeout);
@@ -713,8 +722,10 @@
 
                         input.on('keyup', function (event) {
                             if (event.keyCode === 13) { // Enter key
+                                event.preventDefault(); 
                                 updateCellValue(cell, input);
                             } else if (event.keyCode === 27) { // Escape key
+                                event.preventDefault(); 
                                 cancelEdit(cell, currentValue);
                             }
                             clearTimeout(blurTimeout);
