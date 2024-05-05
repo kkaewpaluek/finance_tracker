@@ -127,7 +127,7 @@
                                         </svg>
                                         Saving</a>
                                 </li>
-                                <li class="nav-item" role = "representation">
+                                <li class="nav-item" role = "representation" style="display:none">
                                     <a href="#tabs-debug" class="nav-link"
                                         data-bs-toggle="tab"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                         <svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  
@@ -481,32 +481,23 @@
                 tfoot.show();
                 $('.add-button-container').show();
 
-                containerAddBtnAndTfoot.focus();
-                //console.log(containerAddBtnAndTfoot);
-
-                //event.stopPropagation(); // Stop the click event from propagating further, this is gross! might cause future bug
-
                 //Add button click event
                 $('.save-add-btn').on('click', function () {
                     console.log('save is clicked');
                     addNewItem();
-                    clearTimeout(blurTimeout);
                 });
 
                 $('.cancel-add-btn').on('click', function () {
                     console.log('cancel is clicked');
                     cancelAdding();
-                    clearTimeout(blurTimeout);
                 });
 
                 containerAddBtnAndTfoot.on('keyup', function (event) {
                     if (event.keyCode === 13) { // Enter key
                         addNewItem();
-                        clearTimeout(blurTimeout);
                     } 
                     else if (event.keyCode === 27) { // Escape key
                         cancelAdding();
-                        clearTimeout(blurTimeout);
                     }
                 });
 

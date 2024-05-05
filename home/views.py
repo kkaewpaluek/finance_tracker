@@ -708,7 +708,7 @@ def finance_tracker_settings(request):
         incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
         expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
         savingCategory = SavingCategory.objects.all() # Fetch all Platform objects
-        debugCategory = SavingCategory.objects.all() # Fetch all Platform objects
+        debugCategory = DebugCategory.objects.all() # Fetch all Platform objects
 
         context = {
             'parent': '',
