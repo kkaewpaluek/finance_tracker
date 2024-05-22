@@ -86,12 +86,12 @@ class DebugCategory(models.Model):
 
 class IncomeExpenseData(models.Model): 
 
-    transaction_date_time = models.DateTimeField(default=timezone.now) 
+    transactionDateTime = models.DateTimeField(default=timezone.now) 
 
     category = models.CharField(max_length=100)
 
-    raw_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency_choices = (
+    rawAmount = models.DecimalField(max_digits=10, decimal_places=2)
+    currencyChoices = (
         ('THB', 'THB - Thai Baht'),
         ('USD', 'USD - United States Dollar'),
         ('EUR', 'EUR - Euro'),
@@ -99,18 +99,18 @@ class IncomeExpenseData(models.Model):
         ('PHP', 'PHP - Philippine Peso'),
         # Add more currency choices as needed
     )
-    raw_currency = models.CharField(max_length=3, choices=currency_choices)
+    rawCurrency = models.CharField(max_length=3, choices=currencyChoices)
 
     note = models.CharField(max_length=300)
 
-    last_edit = models.DateTimeField(default=timezone.now)
-    last_edit_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  
+    lastEdit = models.DateTimeField(default=timezone.now)
+    lastEditBy = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)  
 
     #define method
     def __str__(self):
         return f"{self.name} (User: {self.user.username})"
     
-class SavingData(models.Model): 
+class AssetData(models.Model): 
 
     category = models.CharField(max_length=100)
 

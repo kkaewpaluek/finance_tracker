@@ -6,12 +6,14 @@ from django.views.generic import CreateView
 from django.http import JsonResponse
 from django.db.utils import IntegrityError  # Import IntegrityError for error handling
 from django.contrib.auth.models import User
+from .models import UserAdditionalInfo
 from .models import PlatformCategory
 from .models import IncomeCategory
 from .models import ExpenseCategory
 from .models import SavingCategory
 from .models import DebugCategory
-from .models import UserAdditionalInfo
+from .models import IncomeExpenseData
+from .models import AssetData
 
 
 
@@ -836,11 +838,67 @@ def data_goal_budget(request):
     return render(request, 'pages/expense_tracking/data_goal_budget.html', context)
 
 def data_income_expense(request):
+    
+    #if request.method == 'GET': # When load the URL first time
+
+    incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
+
     context = {
-        'parent': 'data_table',
+        'parent': '',
         'segment': 'data_income_expense',
+        'IncomeExpenseData': incomeExpenseData
     }
     return render(request, 'pages/expense_tracking/data_income_expense.html', context)
+    """ 
+    else: #request.method = post, #action = 'update_item'
+        updateValue = request.POST.get('updateValue', None)
+        cell_id = request.POST.get('cell_id', None)
+        cell_column = request.POST.get('cell_column', None)
+
+        selectedModel = request.POST.get('selectedModel', None)
+        print(selectedModel)
+
+        match selectedModel:
+            case 'PlatformCategory':
+                model = PlatformCategory
+            case 'IncomeCategory':
+                model = IncomeCategory
+            case 'ExpenseCategory':
+                model = ExpenseCategory
+            case 'SavingCategory':
+                model = SavingCategory 
+            case 'DebugCategory':
+                model = DebugCategory 
+
+        record = model.objects.get(id=int(cell_id))
+        
+        match cell_column:
+            case 'name':
+                record.name = updateValue
+            case 'description':
+                record.description = updateValue
+            case 'enabled':
+                record.enabled = updateValue
+
+        record.user = request.user
+
+        try:
+            record.save()
+            print('Saved updateValue')
+            # Serialize the record data before returning it in JsonResponse
+            serialized_data = {
+                'id': record.id,
+                'name': record.name,
+                'description': record.description,
+                'enabled': record.enabled,
+            }
+            return JsonResponse({'data': serialized_data})
+
+        except IntegrityError as e:
+            print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+            return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
+ """
+
 
 def data_asset(request):
     context = {
