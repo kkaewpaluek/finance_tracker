@@ -86,8 +86,7 @@ class DebugCategory(models.Model):
 
 class IncomeExpenseData(models.Model): 
 
-    transaction_date_time = models.DateTimeField(default=timezone.now)
-    log_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)    
+    transaction_date_time = models.DateTimeField(default=timezone.now) 
 
     category = models.CharField(max_length=100)
 
@@ -112,7 +111,7 @@ class IncomeExpenseData(models.Model):
         return f"{self.name} (User: {self.user.username})"
     
 class SavingData(models.Model): 
-    
+
     category = models.CharField(max_length=100)
 
     amount = models.DecimalField(max_digits=10, decimal_places=2)
