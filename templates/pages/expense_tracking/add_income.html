@@ -3,5 +3,197 @@
 
 {% block title %} - Add {% endblock title %}
 
-{% block content %}
+
+{% block content %}{% csrf_token %}
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        Add Income
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="row g-0">
+                    <!--             <div class="col-3 d-none d-md-block border-end">
+              <div class="card-body">
+                <h4 class="subheader">Business settings</h4>
+                <div class="list-group list-group-transparent">
+                  <a href="{% url 'settings' %}" class="list-group-item list-group-item-action d-flex align-items-center active">My Account</a>
+                  <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">My Notifications</a>
+                  <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">Connected Apps</a>
+                  <a href="{% url 'settings_plan' %}" class="list-group-item list-group-item-action d-flex align-items-center">Plans</a>
+                  <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">Billing & Invoices</a>
+                </div>
+                <h4 class="subheader mt-4">Experience</h4>
+                <div class="list-group list-group-transparent">
+                  <a href="#" class="list-group-item list-group-item-action">Give Feedback</a>
+                </div>
+              </div>
+            </div> -->
+                    <div class="col d-flex flex-column">
+                        <div class="card-body">
+                            <!-- Transaction Date & Time -->
+                            <h3 class="card-title mt-4">Transaction Date & Time</h3>
+                            <div class="row align-items-center ms-3">
+                                <div class="col-auto">
+                                    <div class="input-icon mb-2">
+                                        <input class="form-control" placeholder="Select a date" id="datepicker-icon"
+                                            value="">
+                                        <span
+                                            class="input-icon-addon"><!-- Download SVG icon from http://tabler-icons.io/i/calendar -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path
+                                                    d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z">
+                                                </path>
+                                                <path d="M16 3v4"></path>
+                                                <path d="M8 3v4"></path>
+                                                <path d="M4 11h16"></path>
+                                                <path d="M11 15h1"></path>
+                                                <path d="M12 15v3"></path>
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <button id="reset-button" class="btn btn-primary mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="icon m-0 icon-tabler icons-tabler-outline icon-tabler-refresh">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+                                            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Raw Amount & Currency -->
+                            <h3 class="card-title mt-4">Raw Amount & Currency</h3>
+                            <div>
+                                <div class="row align-items-center g-2 ms-3">
+                                    <div class="col-auto ">
+                                        <input id="inputRawAmount" data-object="RawAmount" type="number" step="10"
+                                            class="input-editable form-control w-auto" value="">
+                                    </div>
+                                    <div class="col-auto ">
+                                        <select id="inputRawCurrency" data-object="RawCurrency" class="input-editable form-control w-auto">
+                                            {% for code, item in currencyChoices %}
+                                                <option value="{{ code }}">{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Platform -->
+                            <h3 class="card-title mt-4">Platform</h3>
+                            <div>
+                                <div class="row align-items-center g-2 ms-3">
+                                    <div class="col-auto ">
+                                        <select id="inputPlatform" data-object="platform" class="input-editable form-control w-auto">
+                                            {% for item in platformCategory %}
+                                                <option value="{{ item }}">{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Category -->
+                            <h3 class="card-title mt-4">Category</h3>
+                            <div>
+                                <div class="row align-items-center g-2 ms-3">
+                                    <div class="col-auto ">
+                                        <select id="inputPlatform" data-object="platform" class="input-editable form-control w-auto">
+                                            {% for item in incomeCategory %}
+                                                <option value="{{ item }}">{{ item }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Note -->
+                            <h3 class="card-title mt-3">Note</h3>
+                            <div>
+                                <div class="row align-items-center g-2 ms-3">
+                                    <div class="col-auto ">
+                                        <input id="inputNote" data-object="note" type="text"
+                                            class="input-editable form-control w-auto" value="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent mt-auto">
+                            <div class="btn-list justify-content-end">
+                                <a href="#" class="btn">
+                                    Cancel
+                                </a>
+                                <a href="#" class="btn btn-primary">
+                                    Submit
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'includes/footer.html' %}
+</div>
+
 {% endblock content %}
+
+
+{% block extrajs %}
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dateInput = document.getElementById('datepicker-icon');
+        const resetButton = document.getElementById('reset-button');
+
+        // Function to set the input value to today's date
+        function setToday() {
+            const today = new Date().toISOString().split('T')[0];
+            dateInput.value = today;
+        }
+
+        // Set the initial value to today's date
+        setToday();
+
+        // Initialize Litepicker
+        window.Litepicker && (new Litepicker({
+            element: dateInput,
+            buttonText: {
+                previousMonth: `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" />
+                    </svg>`,
+                nextMonth: `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" />
+                    </svg>`
+            },
+        }));
+
+        // Add event listener to the reset button
+        resetButton.addEventListener('click', setToday);
+    });
+</script>
+
+{% endblock extrajs %}

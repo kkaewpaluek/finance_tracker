@@ -840,13 +840,16 @@ def data_goal_budget(request):
 def data_income_expense(request):
     
     #if request.method == 'GET': # When load the URL first time
-
     incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
+
+    # Access the currency choices from the model
+    currencyChoices = IncomeExpenseData.currencyChoices
 
     context = {
         'parent': '',
         'segment': 'data_income_expense',
-        'IncomeExpenseData': incomeExpenseData
+        'incomeExpenseData': incomeExpenseData,
+        'currencyChoices': currencyChoices,  # Pass the currency choices to the context
     }
     return render(request, 'pages/expense_tracking/data_income_expense.html', context)
     """ 
@@ -908,22 +911,62 @@ def data_asset(request):
     return render(request, 'pages/expense_tracking/data_asset.html', context)
 
 def add_income(request):
+
+    #if request.method == 'GET': # When load the URL first time
+    platformCategory = PlatformCategory.objects.all()
+    incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
+    incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
+
+    # Access the currency choices from the model
+    currencyChoices = IncomeExpenseData.currencyChoices
+
     context = {
-        'parent': 'add',
-        'segment': 'add_income',
+        'parent': '',
+        'segment': 'data_income_expense',
+        'platformCategory': platformCategory,
+        'incomeCategory': incomeCategory,
+        'incomeExpenseData': incomeExpenseData,
+        'currencyChoices': currencyChoices,  # Pass the currency choices to the context
     }
     return render(request, 'pages/expense_tracking/add_income.html', context)
 
 def add_expense(request):
+
+   #if request.method == 'GET': # When load the URL first time
+    platformCategory = PlatformCategory.objects.all()
+    expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
+    incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
+
+    # Access the currency choices from the model
+    currencyChoices = IncomeExpenseData.currencyChoices
+
     context = {
         'parent': 'add',
         'segment': 'add_expense',
+        'platformCategory': platformCategory,
+        'expenseCategory': expenseCategory,
+        'incomeExpenseData': incomeExpenseData,
+        'currencyChoices': currencyChoices,  # Pass the currency choices to the context
     }
     return render(request, 'pages/expense_tracking/add_expense.html', context)
 
 def add_saving(request):
+
+   #if request.method == 'GET': # When load the URL first time
+    platformCategory = PlatformCategory.objects.all()
+    savingCategory = SavingCategory.objects.all() # Fetch all Platform objects
+    incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
+
+    # Access the currency choices from the model
+    currencyChoices = IncomeExpenseData.currencyChoices
+
     context = {
         'parent': 'add',
         'segment': 'add_saving',
+        'platformCategory': platformCategory,
+        'savingCategory': savingCategory,
+        'incomeExpenseData': incomeExpenseData,
+        'currencyChoices': currencyChoices,  # Pass the currency choices to the context
     }
+
     return render(request, 'pages/expense_tracking/add_saving.html', context)

@@ -27,7 +27,7 @@ class PlatformCategory(models.Model):
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"{self.name}"
     
 
 class IncomeCategory(models.Model): 
@@ -41,7 +41,7 @@ class IncomeCategory(models.Model):
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"{self.name}"
     
 
 class ExpenseCategory(models.Model): 
@@ -55,7 +55,7 @@ class ExpenseCategory(models.Model):
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"{self.name}"
     
     
 class SavingCategory(models.Model): 
@@ -69,7 +69,7 @@ class SavingCategory(models.Model):
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"{self.name}"
     
 class DebugCategory(models.Model): 
     
@@ -82,12 +82,13 @@ class DebugCategory(models.Model):
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"{self.name}"
 
 class IncomeExpenseData(models.Model): 
 
     transactionDateTime = models.DateTimeField(default=timezone.now) 
 
+    platform = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
 
     rawAmount = models.DecimalField(max_digits=10, decimal_places=2)
@@ -108,7 +109,7 @@ class IncomeExpenseData(models.Model):
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"{self.category}"
     
 class AssetData(models.Model): 
 
@@ -135,6 +136,6 @@ class AssetData(models.Model):
 
     #define method
     def __str__(self):
-        return f"{self.name} (User: {self.user.username})"
+        return f"{self.category}"
 
     
