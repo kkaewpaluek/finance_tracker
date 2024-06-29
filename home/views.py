@@ -6,6 +6,7 @@ from django.views.generic import CreateView
 from django.http import JsonResponse
 from django.db.utils import IntegrityError  # Import IntegrityError for error handling
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from .models import UserAdditionalInfo
 from .models import PlatformCategory
 from .models import IncomeCategory
@@ -14,10 +15,7 @@ from .models import SavingCategory
 from .models import DebugCategory
 from .models import IncomeExpenseData
 from .models import AssetData
-
-
-
-from django.contrib.auth.decorators import login_required
+import datetime
 
 def index_template(request):
     context = {
@@ -839,68 +837,61 @@ def data_goal_budget(request):
 
 def data_income_expense(request):
     
-    #if request.method == 'GET': # When load the URL first time
-    incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
+    if request.method == 'GET': # When load the URL first time
+        incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
 
-    # Access the currency choices from the model
-    currencyChoices = IncomeExpenseData.currencyChoices
+        # Access the currency choices from the model
+        currencyChoices = IncomeExpenseData.currencyChoices
 
-    context = {
-        'parent': '',
-        'segment': 'data_income_expense',
-        'incomeExpenseData': incomeExpenseData,
-        'currencyChoices': currencyChoices,  # Pass the currency choices to the context
-    }
-    return render(request, 'pages/expense_tracking/data_income_expense.html', context)
-    """ 
+        context = {
+            'parent': '',
+            'segment': 'data_income_expense',
+            'incomeExpenseData': incomeExpenseData,
+            'currencyChoices': currencyChoices,  # Pass the currency choices to the context
+        }
+        return render(request, 'pages/expense_tracking/data_income_expense.html', context)
+    
     else: #request.method = post, #action = 'update_item'
         updateValue = request.POST.get('updateValue', None)
         cell_id = request.POST.get('cell_id', None)
         cell_column = request.POST.get('cell_column', None)
 
-        selectedModel = request.POST.get('selectedModel', None)
-        print(selectedModel)
+        record = IncomeExpenseData.objects.get(id=int(cell_id))
 
-        match selectedModel:
-            case 'PlatformCategory':
-                model = PlatformCategory
-            case 'IncomeCategory':
-                model = IncomeCategory
-            case 'ExpenseCategory':
-                model = ExpenseCategory
-            case 'SavingCategory':
-                model = SavingCategory 
-            case 'DebugCategory':
-                model = DebugCategory 
-
-        record = model.objects.get(id=int(cell_id))
-        
         match cell_column:
-            case 'name':
-                record.name = updateValue
-            case 'description':
-                record.description = updateValue
-            case 'enabled':
-                record.enabled = updateValue
+            case 'transactionDateTime':
+                record.transactionDateTime = updateValue
+            case 'category':
+                record.category = updateValue
+            case 'rawAmount':
+                record.rawAmount = updateValue
+            case 'rawCurrency':
+                record.rawCurrency = updateValue
+            case 'note':
+                record.note = updateValue
+            
+        record.lastEdit = datetime.datetime.now()
+        record.lastEditBy = request.user
 
-        record.user = request.user
 
         try:
             record.save()
             print('Saved updateValue')
             # Serialize the record data before returning it in JsonResponse
             serialized_data = {
-                'id': record.id,
-                'name': record.name,
-                'description': record.description,
-                'enabled': record.enabled,
+                'transactionDateTime': record.transactionDateTime,
+                'category': record.category,
+                'rawAmount': record.rawAmount,
+                'rawCurrency': record.rawCurrency,
+                'note': record.note,
+                'lastEdit': record.lastEdit,
             }
             return JsonResponse({'data': serialized_data})
 
         except IntegrityError as e:
             print(f'Error: {e}')  # Print the specific IntegrityError for debugging
             return JsonResponse({'Error': 'Cannot pass new object(s) to the model'}, status=400)
- """
+
 
 
 def data_asset(request):

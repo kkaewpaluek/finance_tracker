@@ -128,6 +128,7 @@
                                         Saving</a>
                                 </li>
                                 <li class="nav-item" role = "representation" style="display:none">
+                                <!-- <li class="nav-item" role = "representation"> -->
                                     <a href="#tabs-debug" class="nav-link"
                                         data-bs-toggle="tab"><!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                         <svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  
@@ -168,13 +169,13 @@
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
-                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
-                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                                <td data-id="{{item.id}}" data-column="name" class = "editable">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description" class = "editable">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled" class = "editable">{{ item.enabled }}</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot id="platformCategoryTfoot" style="display: none"> <!-- initially hidden -->
+                                        <tfoot id="platformCategoryTfoot" class="container-add-btn-and-tfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
                                                 <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
@@ -218,13 +219,13 @@
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
-                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
-                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                                <td data-id="{{item.id}}" data-column="name" class = "editable">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description" class = "editable">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled" class = "editable">{{ item.enabled }}</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot id="incomeCategoryTfoot"  style="display: none"> <!-- initially hidden -->
+                                        <tfoot id="incomeCategoryTfoot" class="container-add-btn-and-tfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
                                                 <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
@@ -268,13 +269,13 @@
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
-                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
-                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                                <td data-id="{{item.id}}" data-column="name" class = "editable">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description" class = "editable">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled" class = "editable">{{ item.enabled }}</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot id="expenseCategoryTfoot" style="display: none"> <!-- initially hidden -->
+                                        <tfoot id="expenseCategoryTfoot" class="container-add-btn-and-tfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
                                                 <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
@@ -318,13 +319,13 @@
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
-                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
-                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                                <td data-id="{{item.id}}" data-column="name" class = "editable">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description" class = "editable">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled" class = "editable">{{ item.enabled }}</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
-                                        <tfoot  id="savingCategoryTfoot" style="display: none"> <!-- initially hidden -->
+                                        <tfoot  id="savingCategoryTfoot" class="container-add-btn-and-tfoot" style="display: none"> <!-- initially hidden -->
                                             <tr>
                                                 <td></td>
                                                 <td><input type="text" class="form-control tfoot-input new-name" placeholder="Name"></td>
@@ -367,9 +368,9 @@
 
                                             <tr>
                                                 <td data-column="id">{{ item.id }}</td>
-                                                <td data-id="{{item.id}}" data-column="name">{{ item.name }}</td>
-                                                <td data-id="{{item.id}}" data-column="description">{{ item.description }}</td>
-                                                <td data-id="{{item.id}}" data-column="enabled">{{ item.enabled }}</td>
+                                                <td data-id="{{item.id}}" data-column="name" class = "editable">{{ item.name }}</td>
+                                                <td data-id="{{item.id}}" data-column="description" class = "editable">{{ item.description }}</td>
+                                                <td data-id="{{item.id}}" data-column="enabled" class = "editable">{{ item.enabled }}</td>
                                             </tr>
                                             {% endfor %}
                                         </tbody>
@@ -434,12 +435,12 @@
             ] */
         }); 
 
-        //add class to all td
+/*         //add class to all td
         allTable.find('td').addClass('editable');
 
         //remove class editable from data-column="id"
         allTable.find('td[data-column="id"]').removeClass('editable');
-        refreshTable();
+        refreshTable(); */
 
         // Add Row button click event
         $('.add-row-btn').on('click', function () {
@@ -791,13 +792,7 @@
             const rows = allTable.find('tr'); // Find rows within the table using jQuery
 
             rows.each(function () { // Loop through rows using jQuery each()
-                const cellEnabled = $(this).find('td[data-column="enabled"]'); // Select cell within the current row
-                if (cellEnabled.text().trim() === 'False') { // Use jQuery methods for text content
-                    $(this).addClass('table_disabled'); // Add class using jQuery
-                }
-                else {
-                    $(this).removeClass('table_disabled');
-                }
+                $(this).removeClass('table_disabled');
             });
 
         }
