@@ -843,15 +843,10 @@ def data_income_expense(request):
         # Access the currency choices from the model
         currencyChoices = [choice[0] for choice in IncomeExpenseData.currencyChoices]
 
-        platformCategoryChoices = list(PlatformCategory.objects.values_list('name', flat=True))
-        incomeCategoryChoices = list(IncomeCategory.objects.values_list('name', flat=True))
-        expenseCategoryChoices = list(ExpenseCategory.objects.values_list('name', flat=True))
-        savingCategoryChoices = list(SavingCategory.objects.values_list('name', flat=True))
-        print(currencyChoices)
-        print(platformCategoryChoices)
-        print(incomeCategoryChoices)
-        print(expenseCategoryChoices)
-        print(savingCategoryChoices)
+        platformCategoryChoices = list(PlatformCategory.objects.filter(enabled=True).values_list('name', flat=True))
+        incomeCategoryChoices = list(IncomeCategory.objects.filter(enabled=True).values_list('name', flat=True))
+        expenseCategoryChoices = list(ExpenseCategory.objects.filter(enabled=True).values_list('name', flat=True))
+        savingCategoryChoices = list(SavingCategory.objects.filter(enabled=True).values_list('name', flat=True))
 
         context = {
             'parent': '',

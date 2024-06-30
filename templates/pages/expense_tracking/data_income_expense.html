@@ -139,14 +139,6 @@
                 var expenseCategoryChoices = convertTextToArray(($('#expenseCategoryChoices').text()));
                 var savingCategoryChoices = convertTextToArray(($('#savingCategoryChoices').text()));
 
-                // Log the results (optional)
-                console.log('Currency Choices:', currencyChoices);
-                console.log('Platform Category Choices:', platformCategoryChoices);
-                console.log('Income Category Choices:', incomeCategoryChoices);
-                console.log('Expense Category Choices:', expenseCategoryChoices);
-                console.log('Saving Category Choices:', savingCategoryChoices);
-                console.log(currentValue);
-
                 if (cell_column === 'platform' || cell_column === 'category' || cell_column === 'rawCurrency') {
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
@@ -160,19 +152,22 @@
                         var select = $('<select class="editable-select form-select" value="' + currentValue + '">');
 
                         if (cell_column === 'platform') {
-                            console.log('111');
-                            var choices = platformCategoryChoices
+                            var choices = ifListContainingValue(currentValue, platformCategoryChoices);
+                            console.log(choices);
                         }
                         else if (cell_column === 'category') {
-                            console.log('222');
                             let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
-                            let categoryChoiceNames = ['incomeCategoryChoices', 'expenseCategoryChoices', 'savingCategoryChoices'];
-                            let categoryChoices = findListContatiningValue(currentValue, allCategoryChoices, categoryChoiceNames);
-                            var choices = categoryChoices
+                            var choices = findListContainingValue(currentValue, allCategoryChoices);
                         }
                         else if (cell_column === 'rawCurrency') {
-                            console.log('333');
-                            var choices = currencyChoices
+                            var choices = ifListContainingValue(currentValue, currencyChoices);
+                        }
+
+                        //if current Value is not an enable item on the list anymore then cancel edit to avoid ruining the data record
+                        if (choices.length === 0){
+                            cancelEdit(cell, currentValue);
+                            clearTimeout(blurTimeout);
+                            return 0;
                         }
 
                         console.log(choices);
@@ -328,21 +323,13 @@
 
         //---------- function for entire table ----------//
 
-        function convertTextToArray(text){
-            // Remove the leading and trailing brackets from the string
-            text = text.slice(1, -1);
-            console.log(text);
-
-            // Split the string by commas to create an array
-            var strArray = text.split(',');
-            console.log(strArray);
-
-            // Trim any extra whitespace and surrounding quotes from each item
-            var resultArray = strArray.map(function(item) {
+        function convertTextToArray(text){ 
+            text = text.slice(1, -1); // Remove the leading and trailing brackets from the string
+            var strArray = text.split(','); // Split the string by commas to create an array
+            var resultArray = strArray.map(function(item) { // Trim any extra whitespace and surrounding quotes from each item
                 return item.trim().replace(/^['"](.*)['"]$/, '$1');
             });
 
-            // Trim any extra whitespace from each item
             return resultArray;
         }
 
@@ -363,25 +350,27 @@
         }
 
         // Function to check which lists contain the value
-        function findListContatiningValue(value, lists, listNames) {
-            console.log('findListContatiningValue');
-            console.log(value);
-            console.log(lists);
-            console.log(listNames);
-
-
+        function findListContainingValue(value, lists) {
             let listsContainingValue = [];
 
             lists.forEach((list, index) => {
                 if (list.includes(value)) {
-                    listsContainingValue.push(listNames[index]);
+                    listsContainingValue.push(...list);
                 }
             });
 
             return listsContainingValue;
         }
 
+        function ifListContainingValue(value, list){
+            var resultList = [];
 
+            if (list.includes(value.trim())) {
+                resultList = list;
+            }
+
+            return resultList;
+        }
 
     });
 </script>
