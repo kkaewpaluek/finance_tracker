@@ -841,13 +841,27 @@ def data_income_expense(request):
         incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
 
         # Access the currency choices from the model
-        currencyChoices = IncomeExpenseData.currencyChoices
+        currencyChoices = [choice[0] for choice in IncomeExpenseData.currencyChoices]
+
+        platformCategoryChoices = list(PlatformCategory.objects.values_list('name', flat=True))
+        incomeCategoryChoices = list(IncomeCategory.objects.values_list('name', flat=True))
+        expenseCategoryChoices = list(ExpenseCategory.objects.values_list('name', flat=True))
+        savingCategoryChoices = list(SavingCategory.objects.values_list('name', flat=True))
+        print(currencyChoices)
+        print(platformCategoryChoices)
+        print(incomeCategoryChoices)
+        print(expenseCategoryChoices)
+        print(savingCategoryChoices)
 
         context = {
             'parent': '',
             'segment': 'data_income_expense',
             'incomeExpenseData': incomeExpenseData,
             'currencyChoices': currencyChoices,  # Pass the currency choices to the context
+            'platformCategoryChoices': platformCategoryChoices,
+            'incomeCategoryChoices': incomeCategoryChoices,
+            'expenseCategoryChoices': expenseCategoryChoices,
+            'savingCategoryChoices': savingCategoryChoices,
         }
         return render(request, 'pages/expense_tracking/data_income_expense.html', context)
     
@@ -872,7 +886,6 @@ def data_income_expense(request):
             
         record.lastEdit = datetime.datetime.now()
         record.lastEditBy = request.user
-
 
         try:
             record.save()

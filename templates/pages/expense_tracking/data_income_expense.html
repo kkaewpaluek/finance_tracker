@@ -37,12 +37,19 @@
 
                 <div class="col-md-15">
 
+                    <div id="currencyChoices" hidden>{{ currencyChoices | safe }}</div>
+                    <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices | safe }}</div>
+                    <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices | safe }}</div>
+                    <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices | safe }}</div>
+                    <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices | safe }}</div>
+
                     <table id="incomeExpenseDataTable" class="table-data table table-striped"
                         data-model="IncomeExpenseData" style="width:100%">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Transaction</th>
+                                <th>Platform</th>
                                 <th>Category</th>
                                 <th>Raw Amount</th>
                                 <th>Raw Currency</th>
@@ -56,11 +63,12 @@
 
                             <tr>
                                 <td data-column="id">{{ item.id }}</td>
-                                <td data-id="{{item.id}}" data-column="transactionDateTime" class = "editable">{{ item.transactionDateTime }}</td>
-                                <td data-id="{{item.id}}" data-column="category" class = "editable">{{ item.category }}</td>
-                                <td data-id="{{item.id}}" data-column="rawAmount" class = "editable">{{ item.rawAmount }}</td>
-                                <td data-id="{{item.id}}" data-column="rawCurrency" class = "editable">{{ item.rawCurrency }}</td>
-                                <td data-id="{{item.id}}" data-column="note" class = "editable">{{ item.note }}</td>
+                                <td data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{item.transactionDateTime }}</td>
+                                <td data-id="{{item.id}}" data-column="platform" class="editable">{{ item.platform }}
+                                <td data-id="{{item.id}}" data-column="category" class="editable">{{ item.category }}</td>
+                                <td data-id="{{item.id}}" data-column="rawAmount" class="editable">{{ item.rawAmount }}</td>
+                                <td data-id="{{item.id}}" data-column="rawCurrency" class="editable">{{item.rawCurrency}}</td>
+                                <td data-id="{{item.id}}" data-column="note" class="editable">{{ item.note }}</td>
                                 <td data-id="{{item.id}}" data-column="lastEdit">{{ item.lastEdit }}</td>
                                 <td data-id="{{item.id}}" data-column="lastEditBy">{{ item.lastEditBy }}</td>
                             </tr>
@@ -102,14 +110,14 @@
             ] */
         });
 
-/*         //add class to all td
-        allTable.find('td').addClass('editable');
-
-        //remove class editable from data-column="id", "LastEdit", and "LastEditBy"
-        allTable.find('td[data-column="id"]').removeClass('editable');
-        allTable.find('td[data-column="LastEdit"]').removeClass('editable');
-        allTable.find('td[data-column="LastEditBy"]').removeClass('editable');
-        refreshTable(); */
+        /*         //add class to all td
+                allTable.find('td').addClass('editable');
+        
+                //remove class editable from data-column="id", "LastEdit", and "LastEditBy"
+                allTable.find('td[data-column="id"]').removeClass('editable');
+                allTable.find('td[data-column="LastEdit"]').removeClass('editable');
+                allTable.find('td[data-column="LastEditBy"]').removeClass('editable');
+                refreshTable(); */
 
 
         //Add cell edit event
@@ -124,58 +132,149 @@
                 var cell_id = cell.data('id');
                 var cell_column = cell.data('column');
 
+                // Extract and parse the content
+                var currencyChoices = convertTextToArray(($('#currencyChoices').text()));
+                var platformCategoryChoices = convertTextToArray(($('#platformCategoryChoices').text()));
+                var incomeCategoryChoices = convertTextToArray(($('#incomeCategoryChoices').text()));
+                var expenseCategoryChoices = convertTextToArray(($('#expenseCategoryChoices').text()));
+                var savingCategoryChoices = convertTextToArray(($('#savingCategoryChoices').text()));
 
-                if (!cell.hasClass('editing')) {
-                    cell.addClass('editing');
+                // Log the results (optional)
+                console.log('Currency Choices:', currencyChoices);
+                console.log('Platform Category Choices:', platformCategoryChoices);
+                console.log('Income Category Choices:', incomeCategoryChoices);
+                console.log('Expense Category Choices:', expenseCategoryChoices);
+                console.log('Saving Category Choices:', savingCategoryChoices);
+                console.log(currentValue);
 
-                    $('.saveBtn').remove();
-                    $('.cancelBtn').remove();
+                if (cell_column === 'platform' || cell_column === 'category' || cell_column === 'rawCurrency') {
+                    if (!cell.hasClass('editing')) {
+                        cell.addClass('editing');
 
-                    var container = $('<div class="input-btn-container"></div>');
-                    var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
-                    container.append(input);
+                        $('.saveBtn').remove();
+                        $('.cancelBtn').remove();
 
-                    var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
-                    var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
-                    container.append(saveBtn);
-                    container.append(cancelBtn);
+                        var container = $('<div class="input-btn-container"></div>');
 
-                    cell.html(container);
+                        // Create the dropdown with options
+                        var select = $('<select class="editable-select form-select" value="' + currentValue + '">');
 
-                    input.focus();
-                    input.get(0).setSelectionRange(0, input.val().length);
-
-                    // Event delegation for Save and Cancel buttons
-                    container.on('click', '.saveBtn', function () {
-                        updateCellValue(cell, input);
-                        clearTimeout(blurTimeout);
-                    });
-
-                    container.on('click', '.cancelBtn', function () {
-                        cancelEdit(cell, currentValue);
-                        clearTimeout(blurTimeout);
-                    });
-
-                    input.on('keyup', function (event) {
-                        if (event.keyCode === 13) { // Enter key
-                            event.preventDefault();
-                            updateCellValue(cell, input);
-                        } else if (event.keyCode === 27) { // Escape key
-                            event.preventDefault();
-                            cancelEdit(cell, currentValue);
+                        if (cell_column === 'platform') {
+                            console.log('111');
+                            var choices = platformCategoryChoices
                         }
-                        clearTimeout(blurTimeout);
-                    });
+                        else if (cell_column === 'category') {
+                            console.log('222');
+                            let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
+                            let categoryChoiceNames = ['incomeCategoryChoices', 'expenseCategoryChoices', 'savingCategoryChoices'];
+                            let categoryChoices = findListContatiningValue(currentValue, allCategoryChoices, categoryChoiceNames);
+                            var choices = categoryChoices
+                        }
+                        else if (cell_column === 'rawCurrency') {
+                            console.log('333');
+                            var choices = currencyChoices
+                        }
 
-                    // Blur event handling
-                    input.on('blur', function () {
-                        blurTimeout = setTimeout(function () {
+                        console.log(choices);
+
+                        choices.forEach(function (option) {
+                            var choicesElement = $('<option value="' + option + '"' + (currentValue === option ? ' selected' : '') + '>' + option + '</option>');
+                            select.append(choicesElement);
+                        });
+
+                        container.append(select);
+
+                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
+                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
+                        container.append(saveBtn);
+                        container.append(cancelBtn);
+
+                        cell.html(container);
+
+                        select.focus(); // Focus on the dropdown
+
+                        // Event delegation for Save and Cancel buttons (similar to before)
+                        container.on('click', '.saveBtn', function () {
+                            updateCellValue(cell, select);
+                            clearTimeout(blurTimeout);
+                        });
+
+                        container.on('click', '.cancelBtn', function () {
                             cancelEdit(cell, currentValue);
-                        }, 100); // Delay in milliseconds
-                    });
+                            clearTimeout(blurTimeout);
+                        });
 
+                        select.on('keyup', function (event) {
+
+                            // keyup event 'Enter' is handled by selection on the dropdown
+
+                            if (event.keyCode === 27) { // Escape key
+                                event.preventDefault();
+                                cancelEdit(cell, currentValue);
+                            }
+                            clearTimeout(blurTimeout);
+                        });
+
+                        // Blur event handling
+                        select.on('blur', function () {
+                            blurTimeout = setTimeout(function () {
+                                cancelEdit(cell, currentValue);
+                            }, 100); // Delay in milliseconds
+                        });
+                    }
                 }
+                else {
+                    if (!cell.hasClass('editing')) {
+                        cell.addClass('editing');
 
+                        $('.saveBtn').remove();
+                        $('.cancelBtn').remove();
+
+                        var container = $('<div class="input-btn-container"></div>');
+                        var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
+                        container.append(input);
+
+                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
+                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
+                        container.append(saveBtn);
+                        container.append(cancelBtn);
+
+                        cell.html(container);
+
+                        input.focus();
+                        input.get(0).setSelectionRange(0, input.val().length);
+
+                        // Event delegation for Save and Cancel buttons
+                        container.on('click', '.saveBtn', function () {
+                            updateCellValue(cell, input);
+                            clearTimeout(blurTimeout);
+                        });
+
+                        container.on('click', '.cancelBtn', function () {
+                            cancelEdit(cell, currentValue);
+                            clearTimeout(blurTimeout);
+                        });
+
+                        input.on('keyup', function (event) {
+                            if (event.keyCode === 13) { // Enter key
+                                event.preventDefault();
+                                updateCellValue(cell, input);
+                            } else if (event.keyCode === 27) { // Escape key
+                                event.preventDefault();
+                                cancelEdit(cell, currentValue);
+                            }
+                            clearTimeout(blurTimeout);
+                        });
+
+                        // Blur event handling
+                        input.on('blur', function () {
+                            blurTimeout = setTimeout(function () {
+                                cancelEdit(cell, currentValue);
+                            }, 100); // Delay in milliseconds
+                        });
+
+                    }
+                }
 
 
                 //---------- function for editable ----------//
@@ -223,10 +322,29 @@
                     cell.removeClass('editing'); // Remove editing class
                     busy = false;
                 }
+
             }
         });
 
         //---------- function for entire table ----------//
+
+        function convertTextToArray(text){
+            // Remove the leading and trailing brackets from the string
+            text = text.slice(1, -1);
+            console.log(text);
+
+            // Split the string by commas to create an array
+            var strArray = text.split(',');
+            console.log(strArray);
+
+            // Trim any extra whitespace and surrounding quotes from each item
+            var resultArray = strArray.map(function(item) {
+                return item.trim().replace(/^['"](.*)['"]$/, '$1');
+            });
+
+            // Trim any extra whitespace from each item
+            return resultArray;
+        }
 
         function refreshTable() {
 
@@ -243,6 +361,27 @@
             });
 
         }
+
+        // Function to check which lists contain the value
+        function findListContatiningValue(value, lists, listNames) {
+            console.log('findListContatiningValue');
+            console.log(value);
+            console.log(lists);
+            console.log(listNames);
+
+
+            let listsContainingValue = [];
+
+            lists.forEach((list, index) => {
+                if (list.includes(value)) {
+                    listsContainingValue.push(listNames[index]);
+                }
+            });
+
+            return listsContainingValue;
+        }
+
+
 
     });
 </script>
