@@ -47,8 +47,9 @@
                             <div class="row align-items-center ms-3">
                                 <div class="col-auto">
                                     <div class="input-icon mb-2">
-                                        <input class="form-control" placeholder="Select a date" id="datepicker-icon"
-                                            value="">
+                                        <input type="text" class="form-control" placeholder="Select a date" id="datetimepicker" value="">
+                                        <!-- <input class="form-control" placeholder="Select a date" id="datepicker-icon"
+                                            value=""> -->
                                         <span
                                             class="input-icon-addon"><!-- Download SVG icon from http://tabler-icons.io/i/calendar -->
                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
@@ -117,7 +118,7 @@
                             <div>
                                 <div class="row align-items-center g-2 ms-3">
                                     <div class="col-auto ">
-                                        <select id="inputPlatform" data-object="platform" class="input-editable form-control w-auto">
+                                        <select id="inputCategory" data-object="platform" class="input-editable form-control w-auto">
                                             {% for item in incomeCategory %}
                                                 <option value="{{ item }}">{{ item }}</option>
                                             {% endfor %}
@@ -163,6 +164,35 @@
 
 
 <script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const picker = new tempusDominus.TempusDominus(document.getElementById('datetimepicker'), {
+            display: {
+                components: {
+                    calendar: true,
+                    date: true,
+                    month: true,
+                    year: true,
+                    decades: true,
+                    clock: true,
+                    hours: true,
+                    minutes: true,
+                    seconds: false,
+                },
+                icons: {
+                    time: 'fa fa-clock'
+                }
+            },
+            useCurrent: true, // Default value for 'useCurrent' is true, you can adjust it as needed
+            localization: {
+                locale: 'en',
+                format: 'yyyy-MM-DD HH:mm' // Format according to Django's DateTimeField
+            }
+        });
+    });
+
+
+
     document.addEventListener("DOMContentLoaded", function () {
         const dateInput = document.getElementById('datepicker-icon');
         const resetButton = document.getElementById('reset-button');

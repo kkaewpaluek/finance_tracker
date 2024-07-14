@@ -848,6 +848,9 @@ def data_income_expense(request):
         expenseCategoryChoices = list(ExpenseCategory.objects.filter(enabled=True).values_list('name', flat=True))
         savingCategoryChoices = list(SavingCategory.objects.filter(enabled=True).values_list('name', flat=True))
 
+        #test = IncomeExpenseData.objects.get(id=1).transactionDateTime
+        #print(test)
+
         context = {
             'parent': '',
             'segment': 'data_income_expense',

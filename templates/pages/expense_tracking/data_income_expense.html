@@ -63,7 +63,7 @@
 
                             <tr>
                                 <td data-column="id">{{ item.id }}</td>
-                                <td data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{item.transactionDateTime }}</td>
+                                <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{item.transactionDateTime|date:"Y-m-d H:i"}}</td>
                                 <td data-id="{{item.id}}" data-column="platform" class="editable">{{ item.platform }}
                                 <td data-id="{{item.id}}" data-column="category" class="editable">{{ item.category }}</td>
                                 <td data-id="{{item.id}}" data-column="rawAmount" class="editable">{{ item.rawAmount }}</td>
@@ -88,7 +88,6 @@
 
 {% block extrajs %}
 <script>
-
 
     $(document).ready(function () {
 
@@ -139,6 +138,7 @@
                 var expenseCategoryChoices = convertTextToArray(($('#expenseCategoryChoices').text()));
                 var savingCategoryChoices = convertTextToArray(($('#savingCategoryChoices').text()));
 
+                // Drop-down list
                 if (cell_column === 'platform' || cell_column === 'category' || cell_column === 'rawCurrency') {
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
@@ -218,6 +218,116 @@
                         });
                     }
                 }
+                //Date-Time Input 
+                else if (cell_column === 'transactionDateTime'){
+                    if (!cell.hasClass('editing')) {
+                        cell.addClass('editing');
+
+                        $('.saveBtn').remove();
+                        $('.cancelBtn').remove();
+
+                        // Create the container and input elements using jQuery
+                        var container = $('<div class="input-btn-container"></div>');
+                        var input = $('<input class="editable-input form-control">');
+                        //var input = $('<input class="editable-input form-control" value="' + currentValue + '">');
+                        container.append(input);
+
+                        // Convert the jQuery input to a native DOM element
+                        const inputElement = input[0];
+
+                        // Parse the initial date value from the input field using moment.js with your custom format
+                        //const initialDate = moment(currentValue, 'YYYY-MM-DD HH:mm').toISOString();
+
+                        console.log(currentValue);
+                        // Initialize Tempus Dominus with the correct options
+                        const picker = new tempusDominus.TempusDominus(inputElement, {
+                            display: {
+                                components: {
+                                    calendar: true,
+                                    date: true,
+                                    month: true,
+                                    year: true,
+                                    decades: true,
+                                    clock: true,
+                                    hours: true,
+                                    minutes: true,
+                                    seconds: false,
+                                },
+                                icons: {
+                                    time: 'fa fa-clock'
+                                }
+                            },
+                            useCurrent: false, // Default value for 'useCurrent' is true, you can adjust it as needed
+
+                            localization: {
+                                locale: 'en',
+                                //This format command doesn't work somehow. Need to enforce the format separatly.
+                                //format: 'YYYY-MM-DD HH:mm' // Adjust the format token according to Tempus Dominus conventions
+
+                            }
+                        });
+
+                        // Set the initial value of the input field using Moment.js to enforce the format
+                        if (currentValue.trim() !== '') {
+                            const initialDate = moment(currentValue, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DD HH:mm');
+                            input.val(initialDate); // Set the input value with the formatted date
+                        }
+
+                        // Show the picker initially
+                        picker.show();
+
+                        // Move the picker popup to the custom container
+                        const pickerPopup = document.querySelector('.tempus-dominus-widget');
+                        container.append(pickerPopup);
+ 
+                        // Create Save and Cancel buttons using jQuery
+                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
+                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
+
+                        // Append the buttons to the picker's widget container
+                        $(pickerPopup).append(saveBtn);
+                        $(pickerPopup).append(cancelBtn); 
+
+                        // Append the main container to the cell
+                        cell.html(container);
+
+                        // Set focus to the input and select its content
+                        input.focus();
+                        input.get(0).setSelectionRange(0, input.val().length);
+
+                        // Event delegation for Save and Cancel buttons
+                        container.on('click', '.saveBtn', function () {
+                            updateCellValue(cell, input);
+                            clearTimeout(blurTimeout);
+                        });
+
+                        container.on('click', '.cancelBtn', function () {
+                            cancelEdit(cell, currentValue);
+                            clearTimeout(blurTimeout);
+                        });
+
+                        input.on('keyup', function (event) {
+                            if (event.keyCode === 13) { // Enter key
+                                event.preventDefault();
+                                updateCellValue(cell, input);
+                            } else if (event.keyCode === 27) { // Escape key
+                                event.preventDefault();
+                                cancelEdit(cell, currentValue);
+                            }
+                            clearTimeout(blurTimeout);
+                        });
+
+/*                         // Blur event handling
+                        input.on('blur', function () {
+                            blurTimeout = setTimeout(function () {
+                                cancelEdit(cell, currentValue);
+                            }, 100); // Delay in milliseconds
+                        }); */
+
+                    }
+                }
+
+                // Input
                 else {
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
@@ -229,8 +339,8 @@
                         var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
                         container.append(input);
 
-                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
-                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
+                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
+                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
                         container.append(saveBtn);
                         container.append(cancelBtn);
 
