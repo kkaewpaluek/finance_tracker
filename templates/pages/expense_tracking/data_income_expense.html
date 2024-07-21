@@ -98,6 +98,7 @@
         var table;
         var selectedModel;
         var blurTimeout;
+        var gPicker;
 
         console.log(allTable);
 
@@ -111,20 +112,8 @@
             ] */
         });
 
-        /*         //add class to all td
-                allTable.find('td').addClass('editable');
-        
-                //remove class editable from data-column="id", "LastEdit", and "LastEditBy"
-                allTable.find('td[data-column="id"]').removeClass('editable');
-                allTable.find('td[data-column="LastEdit"]').removeClass('editable');
-                allTable.find('td[data-column="LastEditBy"]').removeClass('editable');
-                refreshTable(); */
-
-
         //Add cell edit event
         allTable.on('click', 'tbody td.editable', function () {
-
-
             if (!busy) {
                 busy = true;
 
@@ -237,10 +226,6 @@
                         // Convert the jQuery input to a native DOM element
                         const inputElement = input[0];
 
-                        // Parse the initial date value from the input field using moment.js with your custom format
-                        //const initialDate = moment(currentValue, 'YYYY-MM-DD HH:mm').toISOString();
-
-                        console.log(currentValue);
                         // Initialize Tempus Dominus with the correct options
                         const picker = new tempusDominus.TempusDominus(inputElement, {
                             display: {
@@ -269,8 +254,7 @@
                             }
                         });
 
-                        // Set the initial value of the input field using Moment.js to enforce the format
-                        console.log(currentValue);
+                        // Parse the initial date value from the input field using moment.js with your custom format
                         if (currentValue.trim() !== '') {
                             const initialDate = moment(currentValue, 'MM/DD/YYYY, HH:mm A').format('MM/DD/YYYY, HH:mm A');
                             input.val(initialDate); // Set the input value with the formatted date
@@ -300,21 +284,25 @@
                         // Event delegation for Save and Cancel buttons
                         container.on('click', '.saveBtn', function () {
                             /* updateCellValue(cell, input); */
+                            gPicker = picker;
                             var selectedDate = picker.dates.lastPicked.toString();
-                            updateCellDate(cell, formatDate(selectedDate)); 
+                            updateCellValue(cell, selectedDate); 
                             clearTimeout(blurTimeout);
                         });
 
                         container.on('click', '.cancelBtn', function () {
+                            gPicker = picker;
                             cancelEdit(cell, currentValue);
                             clearTimeout(blurTimeout);
                         });
 
                         input.on('keyup', function (event) {
+                            gPicker = picker;
                             if (event.keyCode === 13) { // Enter key
                                 event.preventDefault();
                                 updateCellValue(cell, input);
-                            } else if (event.keyCode === 27) { // Escape key
+                            } 
+                            else if (event.keyCode === 27) { // Escape key
                                 event.preventDefault();
                                 cancelEdit(cell, currentValue);
                             }
@@ -350,6 +338,8 @@
 
                         cell.html(container);
 
+                        console.log(cell);
+
                         input.focus();
                         input.get(0).setSelectionRange(0, input.val().length);
 
@@ -362,13 +352,14 @@
                         container.on('click', '.cancelBtn', function () {
                             cancelEdit(cell, currentValue);
                             clearTimeout(blurTimeout);
-                        });
+                        }); 
 
                         input.on('keyup', function (event) {
                             if (event.keyCode === 13) { // Enter key
                                 event.preventDefault();
                                 updateCellValue(cell, input.val());
-                            } else if (event.keyCode === 27) { // Escape key
+                            } 
+                            else if (event.keyCode === 27) { // Escape key
                                 event.preventDefault();
                                 cancelEdit(cell, currentValue);
                             }
@@ -389,8 +380,16 @@
                 //---------- function for editable ----------//
 
                 function updateCellValue(cell, input) {
-                    var updateValue = input;
-                    console.log(updateValue);
+                    if(cell_column === 'transactionDateTime'){
+                        var updateValueForDatabase = formatPickerDateForPython(input);
+                        var updateValueForTable = formatPickerDateForTable(input);
+                        //hide calendar box
+                        gPicker.hide();
+                    }
+                    else{
+                        var updateValueForDatabase = input;
+                        var updateValueForTable = input;
+                    }
 
                     // Send data to Django view using AJAX
                     // Get the CSRF token from the form
@@ -402,7 +401,7 @@
                         type: 'POST',
                         data: {
                             'action': 'update_item',
-                            'updateValue': updateValue,
+                            'updateValue': updateValueForDatabase,
                             'cell_id': cell_id,
                             'cell_column': cell_column,
                         },
@@ -411,7 +410,7 @@
                             xhr.setRequestHeader("X-CSRFToken", csrfToken);
                         },
                         success: function (response) {
-                            cell.text(updateValue);
+                            cell.text(updateValueForTable);
                             cell.removeClass('editing'); // Remove editing class
                             console.log('Success updateCellValue:', response);
                             refreshTable();
@@ -424,72 +423,13 @@
                             busy = false;
                         }
                     });
-                }
-
-                function updateCellDate(cell, input) {
-                    var updateValue = input;
-                    console.log(updateValue);
-
-                    // Send data to Django view using AJAX
-                    // Get the CSRF token from the form
-                    let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-
-                    // update model
-                    $.ajax({
-                        url: window.location.href, // Replace with the actual URL of your Django view
-                        type: 'POST',
-                        data: {
-                            'action': 'update_item',
-                            'updateValue': updateValue,
-                            'cell_id': cell_id,
-                            'cell_column': cell_column,
-                        },
-                        //dataType: 'json',
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader("X-CSRFToken", csrfToken);
-                        },
-                        success: function (response) {
-                            cell.text(updateValue);
-                            cell.removeClass('editing'); // Remove editing class
-                            console.log('Success updateCellValue:', response);
-                            refreshTable();
-                            busy = false;
-
-                        },
-                        error: function (error) {
-                            console.log('Error:', error);
-                            cell.removeClass('editing'); // Remove editing class
-                            busy = false;
-                        }
-                    });
-                }
-
-                function formatDate(dateString) {
-                    // Parse the date string into a Date object
-                    var date = new Date(dateString);
-
-                    // Extract individual components
-                    var year = date.getFullYear();
-                    var month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-indexed
-                    var day = ('0' + date.getDate()).slice(-2);
-                    var hours = ('0' + date.getHours()).slice(-2);
-                    var minutes = ('0' + date.getMinutes()).slice(-2);
-                    var seconds = ('0' + date.getSeconds()).slice(-2);
-                    var milliseconds = ('00' + date.getMilliseconds()).slice(-3);
-                    
-                    // Format timezone offset
-                    var timezoneOffset = -date.getTimezoneOffset();
-                    var sign = timezoneOffset >= 0 ? '+' : '-';
-                    var offsetHours = ('0' + Math.floor(Math.abs(timezoneOffset) / 60)).slice(-2);
-                    var offsetMinutes = ('0' + (Math.abs(timezoneOffset) % 60)).slice(-2);
-                    var timezone = `${sign}${offsetHours}:${offsetMinutes}`;
-
-                    // Construct the formatted date string
-                    var formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}${timezone}`;
-                    return formattedDate;
                 }
 
                 function cancelEdit(cell, currentValue) {
+                    if(cell_column === 'transactionDateTime'){
+                        //hide calendar box
+                        gPicker.hide();
+                    }
                     cell.text(currentValue);
                     cell.removeClass('editing'); // Remove editing class
                     busy = false;
@@ -499,6 +439,42 @@
         });
 
         //---------- function for entire table ----------//
+
+        //input  -> "Wed Jul 17 2024 18:17:08 GMT+0700 (Indochina Time)"
+        //output -> "2024-07-17 18:17:08.000+07:00"
+        function formatPickerDateForPython(dateString) {
+            // Parse the date string into a Date object
+            var date = new Date(dateString);
+
+            // Extract individual components
+            var year = date.getFullYear();
+            var month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-indexed
+            var day = ('0' + date.getDate()).slice(-2);
+            var hours = ('0' + date.getHours()).slice(-2);
+            var minutes = ('0' + date.getMinutes()).slice(-2);
+            var seconds = ('0' + date.getSeconds()).slice(-2);
+            var milliseconds = ('00' + date.getMilliseconds()).slice(-3);
+            
+            // Format timezone offset
+            var timezoneOffset = -date.getTimezoneOffset();
+            var sign = timezoneOffset >= 0 ? '+' : '-';
+            var offsetHours = ('0' + Math.floor(Math.abs(timezoneOffset) / 60)).slice(-2);
+            var offsetMinutes = ('0' + (Math.abs(timezoneOffset) % 60)).slice(-2);
+            var timezone = `${sign}${offsetHours}:${offsetMinutes}`;
+
+            // Construct the formatted date string
+            var formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}${timezone}`;
+            return formattedDate;
+        }
+
+        function formatPickerDateForTable(dateString) {
+            // Parse the date string into a Moment object
+            var momentDate = moment(dateString);
+
+            // Format the date according to the specified format
+            var formattedDate = momentDate.format('MM/DD/YYYY, hh:mm A');
+            return formattedDate;
+        }
 
         function convertTextToArray(text){ 
             text = text.slice(1, -1); // Remove the leading and trailing brackets from the string
@@ -512,8 +488,8 @@
 
         function refreshTable() {
 
+            //update cs of 'enabled' column
             const rows = allTable.find('tr'); // Find rows within the table using jQuery
-
             rows.each(function () { // Loop through rows using jQuery each()
                 const cellEnabled = $(this).find('td[data-column="enabled"]'); // Select cell within the current row
                 if (cellEnabled.text().trim() === 'False') { // Use jQuery methods for text content
@@ -523,7 +499,6 @@
                     $(this).removeClass('table_disabled');
                 }
             });
-
         }
 
         // Function to check which lists contain the value
