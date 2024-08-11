@@ -241,8 +241,15 @@
                                     seconds: false,
                                 },
                                 icons: {
-                                    time: 'fa fa-clock'
-                                }
+                                    time: 'fas fa-clock',
+                                    date: 'fas fa-calendar',
+                                },
+                                buttons: {
+                                    today: true,
+                                    //clear: true,
+                                    close: true,
+                                },
+                                //sideBySide: true, // This will display date and time side by side
                             },
                             useCurrent: false, // Default value for 'useCurrent' is true, you can adjust it as needed
 
@@ -254,9 +261,12 @@
                             }
                         });
 
+
+
                         // Parse the initial date value from the input field using moment.js with your custom format
                         if (currentValue.trim() !== '') {
-                            const initialDate = moment(currentValue, 'MM/DD/YYYY, HH:mm A').format('MM/DD/YYYY, HH:mm A');
+                            const initialDate = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
+                            //const initialDateDisplay = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
                             input.val(initialDate); // Set the input value with the formatted date
                         }
 
@@ -385,6 +395,8 @@
                         var updateValueForTable = formatPickerDateForTable(input);
                         //hide calendar box
                         gPicker.hide();
+                        console.log(updateValueForDatabase);
+                        console.log(updateValueForTable);
                     }
                     else{
                         var updateValueForDatabase = input;
@@ -443,6 +455,8 @@
         //input  -> "Wed Jul 17 2024 18:17:08 GMT+0700 (Indochina Time)"
         //output -> "2024-07-17 18:17:08.000+07:00"
         function formatPickerDateForPython(dateString) {
+            console.log(dateString);
+            console.log("---");
             // Parse the date string into a Date object
             var date = new Date(dateString);
 

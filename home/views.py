@@ -867,12 +867,14 @@ def data_income_expense(request):
         updateValue = request.POST.get('updateValue', None)
         cell_id = request.POST.get('cell_id', None)
         cell_column = request.POST.get('cell_column', None)
-
+        print(updateValue)
         record = IncomeExpenseData.objects.get(id=int(cell_id))
 
         match cell_column:
             case 'transactionDateTime':
                 record.transactionDateTime = updateValue
+                print("cell_column")
+                print(record.transactionDateTime)
             case 'category':
                 record.category = updateValue
             case 'rawAmount':
@@ -881,6 +883,9 @@ def data_income_expense(request):
                 record.rawCurrency = updateValue
             case 'note':
                 record.note = updateValue
+            case _:
+                print("cell_column not found")
+            
             
         record.lastEdit = datetime.datetime.now()
         record.lastEditBy = request.user
