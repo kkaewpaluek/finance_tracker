@@ -63,7 +63,7 @@
 
                             <tr>
                                 <td data-column="id">{{ item.id }}</td>
-                                <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{ item.transactionDateTime|date:"m/d/Y, h:i A" }}</td>
+                                <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{item.transactionDateTime|date:"m/d/Y, h:i A" }}</td>
                                 <!-- <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{ item.transactionDateTime}}</td>
                                  -->
                                 <td data-id="{{item.id}}" data-column="platform" class="editable">{{ item.platform }}
@@ -225,9 +225,18 @@
 
                         // Convert the jQuery input to a native DOM element
                         const inputElement = input[0];
+                        let initialDate;
+                        // Parse the initial date value from the input field using moment.js with your custom format
+                        if (currentValue !== '') {
+                            console.log(currentValue);
+                            initialDate = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
+                            //const initialDateDisplay = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
+                            input.val(initialDate); // Set the input value with the formatted date
+                        }
 
                         // Initialize Tempus Dominus with the correct options
                         const picker = new tempusDominus.TempusDominus(inputElement, {
+  
                             display: {
                                 components: {
                                     calendar: true,
@@ -252,6 +261,7 @@
                                 //sideBySide: true, // This will display date and time side by side
                             },
                             useCurrent: false, // Default value for 'useCurrent' is true, you can adjust it as needed
+                            defaultDate: initialDate,
 
                             localization: {
                                 locale: 'en',
@@ -260,15 +270,6 @@
 
                             }
                         });
-
-
-
-                        // Parse the initial date value from the input field using moment.js with your custom format
-                        if (currentValue.trim() !== '') {
-                            const initialDate = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
-                            //const initialDateDisplay = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
-                            input.val(initialDate); // Set the input value with the formatted date
-                        }
 
                         // Show the picker initially
                         picker.show();
