@@ -938,6 +938,7 @@ def add_income(request):
         return render(request, 'pages/expense_tracking/add_income.html', context)
     
     else:
+            print('at view.py')
             addTransactionDateTime = request.POST.get('transactionDateTime', None)
             addPlatform = request.POST.get('platform', None)
             addCategory = request.POST.get('category', None)

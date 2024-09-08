@@ -46,7 +46,8 @@
                             <div class="row align-items-center ms-3">
                                 <div class="col-auto">
                                     <div class="input-icon mb-2">
-                                        <input type="text" class="form-control" placeholder="Select a date" id="inputTransactionDatetime" value="">
+                                        <input type="text" class="form-control" placeholder="Select a date"
+                                            id="inputTransactionDatetime" value="">
                                         <!-- <input class="form-control" placeholder="Select a date" id="datepicker-icon"
                                             value=""> -->
                                         <span
@@ -68,7 +69,7 @@
                                     </div>
                                 </div>
                                 <div class="col-auto">
-<!--                                     <button id="reset-button" class="btn btn-primary mb-2">
+                                    <!--                                     <button id="reset-button" class="btn btn-primary mb-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
@@ -89,9 +90,10 @@
                                             class="input-editable form-control w-auto" value="">
                                     </div>
                                     <div class="col-auto ">
-                                        <select id="inputRawCurrency" data-object="RawCurrency" class="input-editable form-control w-auto">
+                                        <select id="inputRawCurrency" data-object="RawCurrency"
+                                            class="input-editable form-control w-auto">
                                             {% for code, item in currencyChoices %}
-                                                <option value="{{ code }}">{{ item }}</option>
+                                            <option value="{{ code }}">{{ item }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -103,9 +105,10 @@
                             <div>
                                 <div class="row align-items-center g-2 ms-3">
                                     <div class="col-auto ">
-                                        <select id="inputPlatform" data-object="platform" class="input-editable form-control w-auto">
+                                        <select id="inputPlatform" data-object="platform"
+                                            class="input-editable form-control w-auto">
                                             {% for item in platformCategory %}
-                                                <option value="{{ item }}">{{ item }}</option>
+                                            <option value="{{ item }}">{{ item }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -117,9 +120,10 @@
                             <div>
                                 <div class="row align-items-center g-2 ms-3">
                                     <div class="col-auto ">
-                                        <select id="inputCategory" data-object="platform" class="input-editable form-control w-auto">
+                                        <select id="inputCategory" data-object="platform"
+                                            class="input-editable form-control w-auto">
                                             {% for item in incomeCategory %}
-                                                <option value="{{ item }}">{{ item }}</option>
+                                            <option value="{{ item }}">{{ item }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -141,7 +145,7 @@
                             <div class="btn-list justify-content-end">
                                 <button id="cancelButton" class="btn">
                                     Cancel
-                                </button> 
+                                </button>
                                 <button id="addButton" class="btn btn-primary">
                                     Add
                                 </button>
@@ -164,12 +168,18 @@
 
 <script>
 
+    //initially set date-time to today
+    inputTransactionDatetime = $('#inputTransactionDatetime');
+    const todayDateTime = new Date().toISOString();//.split('T')[0];
+
+    inputPlatform = $('#inputPlatform');
+    inputCategory = $('#inputCategory');
+    inputRawAmount = $('#inputRawAmount');
+    inputRawCurrency = $('#inputRawCurrency');
+    inputNote = $('#inputNote');
+
     document.addEventListener("DOMContentLoaded", function () {
-        
-        //initially set date-time to today
-        const dateInput = document.getElementById('inputTransactionDatetime');
-        const todayDateTime = new Date().toISOString();//.split('T')[0];
-        dateInput.value = todayDateTime; 
+        inputTransactionDatetime.val(todayDateTime);
         const picker = new tempusDominus.TempusDominus(document.getElementById('inputTransactionDatetime'), {
             display: {
                 components: {
@@ -204,80 +214,174 @@
 
     //Add button click event
     $('#addButton').on('click', function () {
-        console.log('Add is clicked');
-        addNewItem();
+
+        successMessage = '';
+        failMessage = '';
+
+        if ('' !== inputTransactionDatetime.val() && '' !== inputPlatform.val() && '' !== inputCategory.val() && '' !== inputRawAmount.val() && '' !== inputRawCurrency.val()) {
+            //&& inputPlatform.val() === '' && inputCategory.val() === '' && inputRawAmount.val() === '' && inputRawCurrency.val() === '') {
+
+
+            //inputTransactionDatetime = formatPickerDateForPython($('#inputTransactionDatetime').val());
+            inputTransactionDatetimeValue = formatPickerDateForPython(inputTransactionDatetime.val());
+
+            // Send data to Django view using AJAX
+            // Get the CSRF token from the form
+            let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+            $.ajax({
+                url: window.location.href, // Replace with the actual URL of your Django view
+                type: 'POST',
+                data: {
+                    'transactionDateTime': inputTransactionDatetimeValue,
+                    'platform': inputPlatform.val(),
+                    'category': inputCategory.val(),
+                    'rawAmount': inputRawAmount.val(),
+                    'rawCurrency': inputRawCurrency.val(),
+                    'note': inputNote.val(),
+                },
+                //dataType: 'json',
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                },
+                success: function (response) {
+                    console.log('Success addNewItem:', response);
+                    responseTransactionDateTime = response.data.transactionDateTime;
+                    responseTransactionPlatform = response.data.platform;
+                    responseTransactionCategory = response.data.category;
+                    responseTransactionRawAmount = response.data.rawAmount;
+                    responseTransactionRawCurrency = response.data.rawCurrency;
+
+                    successMessage = responseTransactionRawAmount + '' + responseTransactionRawCurrency + ' has been successfully added under ' + responseTransactionCategory;
+                    successToast(successMessage);
+
+                    inputTransactionDatetime.val(todayDateTime);
+                    inputPlatform.prop('selectedIndex', 0);
+                    inputCategory.prop('selectedIndex', 0);
+                    inputRawAmount.val('');
+                    inputRawCurrency.prop('selectedIndex', 0);
+                    inputNote.val('');
+
+                },
+                error: function (error) {
+                    console.log('Error:', error);
+
+                }
+            });
+        }
+        else {
+            if ('' == inputTransactionDatetime.val()) {
+                failMessage = " 'Raw Amount & Currency' cannot be empty. \n";
+            }
+            if ('' == inputRawAmount.val()) {
+                failMessage = failMessage + " 'Raw Amount' cannot be empty. \n";
+            }
+            if ('' == inputRawCurrency.val()) {
+                failMessage = failMessage + " 'Raw Currency' cannot be empty. \n";
+            }
+            if ('' == inputPlatform.val()) {
+                failMessage = failMessage + " 'Platform' cannot be empty. \n";
+            }
+            if ('' == inputCategory.val()) {
+                failMessage = failMessage + " 'Category' cannot be empty. \n";
+            }
+
+            failToast(failMessage);
+        }
     });
 
-    function addNewItem() {
+    //Add button click event
+    $('#cancelButton').on('click', function () {
+        // Force reload from server
+        location.reload(true);
+    });
 
-        inputTransactionDatetime = $('#inputTransactionDatetime').val();
-        inputPlatform = $('#inputPlatform').val();
-        inputCategory = $('#inputCategory').val();
-        inputRawAmount = $('#inputRawAmount').val();
-        inputRawCurrency = $('#inputRawCurrency').val();        
-        inputNote = $('#inputNote').val();
-
-        // Send data to Django view using AJAX
-        // Get the CSRF token from the form
-        let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-
-        $.ajax({
-            url: window.location.href, // Replace with the actual URL of your Django view
-            type: 'POST',
-            data: {
-                'transactionDateTime': inputTransactionDatetime,
-                'platform': inputPlatform,
-                'category': inputCategory,
-                'rawAmount': inputRawAmount,
-                'rawCurrency': inputRawCurrency,
-                'note': inputNote,
-            },
-            //dataType: 'json',
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", csrfToken);
-            },
-            success: function (response) {
-                console.log('Success addNewItem:', response);
-                responseTransactionDateTime = response.data.transactionDateTime;
-                responseTransactionPlatform = response.data.platform;
-                responseTransactionCategory = response.data.category;
-                responseTransactionRawAmount = response.data.rawAmount;
-                responseTransactionRawCurrency = response.data.rawCurrency;
-
-                // Create toast HTML and append it to the body
-                var toastHtml = `
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    {{responseTransactionRawAmount}} {{responseTransactionRawCurrency}} has been successfully added under {{category}}
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                            </div>
+    function successToast(messageText) {
+        // Create toast HTML and append it to the body
+        var toastHtml = `
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+                <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${messageText}
                         </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
-                `;
-                
-                // Append toast to body
-                $('body').append(toastHtml);
-                
-                // Show toast notification
-                var toastEl = document.getElementById('successToast');
-                var toast = new bootstrap.Toast(toastEl);
-                toast.show();
+                </div>
+            </div>
+        `;
 
-                // Optionally, remove the toast element after it disappears
-                toastEl.addEventListener('hidden.bs.toast', function () {
-                    $(toastEl).closest('.toast-container').remove(); // Remove the toast container
-                });
+        // Append toast to body
+        $('body').append(toastHtml);
 
-            },
-            error: function (error) {
-                console.log('Error:', error);
+        // Show toast notification
+        var toastEl = document.getElementById('successToast');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
 
-            }
-        }); 
+        // Optionally, remove the toast element after it disappears
+        toastEl.addEventListener('hidden.bs.toast', function () {
+            $(toastEl).closest('.toast-container').remove(); // Remove the toast container
+        });
+    }
 
+    function failToast(messageText) {
+        // Create toast HTML and append it to the body
+        var toastHtml = `
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+                <div id="failToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="6000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${messageText}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Append toast to body
+        $('body').append(toastHtml);
+
+        // Show toast notification
+        var toastEl = document.getElementById('failToast');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+
+        // Optionally, remove the toast element after it disappears
+        toastEl.addEventListener('hidden.bs.toast', function () {
+            $(toastEl).closest('.toast-container').remove(); // Remove the toast container
+        });
+    }
+
+
+    //input  -> "Wed Jul 17 2024 18:17:08 GMT+0700 (Indochina Time)"
+    //output -> "2024-07-17 18:17:08.000+07:00"
+    function formatPickerDateForPython(dateString) {
+        console.log(dateString);
+        console.log("---");
+        // Parse the date string into a Date object
+        var date = new Date(dateString);
+
+        // Extract individual components
+        var year = date.getFullYear();
+        var month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-indexed
+        var day = ('0' + date.getDate()).slice(-2);
+        var hours = ('0' + date.getHours()).slice(-2);
+        var minutes = ('0' + date.getMinutes()).slice(-2);
+        var seconds = ('0' + date.getSeconds()).slice(-2);
+        var milliseconds = ('00' + date.getMilliseconds()).slice(-3);
+
+        // Format timezone offset
+        var timezoneOffset = -date.getTimezoneOffset();
+        var sign = timezoneOffset >= 0 ? '+' : '-';
+        var offsetHours = ('0' + Math.floor(Math.abs(timezoneOffset) / 60)).slice(-2);
+        var offsetMinutes = ('0' + (Math.abs(timezoneOffset) % 60)).slice(-2);
+        var timezone = `${sign}${offsetHours}:${offsetMinutes}`;
+
+        // Construct the formatted date string
+        var formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}${timezone}`;
+        return formattedDate;
     }
 
 </script>
