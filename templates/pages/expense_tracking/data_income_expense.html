@@ -214,29 +214,26 @@
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
 
-                        $('.saveBtn').remove();
-                        $('.cancelBtn').remove();
+                        // Remove existing buttons if any
+                        $('.saveBtn, .cancelBtn').remove();
 
                         // Create the container and input elements using jQuery
-                        var container = $('<div class="input-btn-container"></div>');
+                        var container = $('<div class="input-btn-container" tabindex="0"></div>');
                         var input = $('<input class="editable-input form-control">');
-                        //var input = $('<input class="editable-input form-control" value="' + currentValue + '">');
                         container.append(input);
 
                         // Convert the jQuery input to a native DOM element
                         const inputElement = input[0];
                         let initialDate;
+
                         // Parse the initial date value from the input field using moment.js with your custom format
                         if (currentValue !== '') {
-                            console.log(currentValue);
                             initialDate = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
-                            //const initialDateDisplay = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
                             input.val(initialDate); // Set the input value with the formatted date
                         }
 
                         // Initialize Tempus Dominus with the correct options
                         const picker = new tempusDominus.TempusDominus(inputElement, {
-  
                             display: {
                                 components: {
                                     calendar: true,
@@ -255,19 +252,12 @@
                                 },
                                 buttons: {
                                     today: true,
-                                    //clear: true,
-                                    //close: true,
                                 },
-                                //sideBySide: true, // This will display date and time side by side
                             },
-                            useCurrent: false, // Default value for 'useCurrent' is true, you can adjust it as needed
+                            useCurrent: false,
                             defaultDate: initialDate,
-
                             localization: {
                                 locale: 'en',
-                                //This format command doesn't work somehow. Need to enforce the format separatly.
-                                //format: 'YYYY-MM-DD HH:mm' // Adjust the format token according to Tempus Dominus conventions
-
                             }
                         });
 
@@ -276,58 +266,70 @@
 
                         // Move the picker popup to the custom container
                         const pickerPopup = document.querySelector('.tempus-dominus-widget');
-                        container.append(pickerPopup);
- 
-                        // Create Save and Cancel buttons using jQuery
-                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
-                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
+                        if (pickerPopup) {
+                            container.append(pickerPopup);
 
-                        // Append the buttons to the picker's widget container
-                        $(pickerPopup).append(saveBtn);
-                        $(pickerPopup).append(cancelBtn); 
+                            // Create and append Save and Cancel buttons using jQuery
+                            var saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
+                            var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
+                            $(pickerPopup).append(saveBtn).append(cancelBtn);
+                        } else {
+                            console.error('Picker popup element is not defined.');
+                        }
 
                         // Append the main container to the cell
                         cell.html(container);
 
                         // Set focus to the input and select its content
                         input.get(0).setSelectionRange(0, input.val().length);
+                        input.trigger('focus');
+
+                        console.log('ready');
+
+                        // Track if the blur event should cancel editing
+                        let shouldCancelEdit = true;
+
+                        // Delay variable for blur handling
+                        let blurTimeout;
 
                         // Event delegation for Save and Cancel buttons
                         container.on('click', '.saveBtn', function () {
-                            /* updateCellValue(cell, input); */
                             gPicker = picker;
                             var selectedDate = picker.dates.lastPicked.toString();
                             updateCellValue(cell, selectedDate); 
-                            clearTimeout(blurTimeout);
+                            clearTimeout(blurTimeout); // Clear any existing timeout
+                            document.removeEventListener('mousedown', handleMouseDown_forDateTime);
                         });
 
                         container.on('click', '.cancelBtn', function () {
                             gPicker = picker;
                             cancelEdit(cell, currentValue);
-                            clearTimeout(blurTimeout);
+                            clearTimeout(blurTimeout); // Clear any existing timeout
+                            document.removeEventListener('mousedown', handleMouseDown_forDateTime);
                         });
 
-                        input.on('keyup', function (event) {
-                            gPicker = picker;
-                            if (event.keyCode === 13) { // Enter key
-                                event.preventDefault();
-                                updateCellValue(cell, input);
-                            } 
-                            else if (event.keyCode === 27) { // Escape key
-                                event.preventDefault();
-                                cancelEdit(cell, currentValue);
+                        // Focus and blur event handling for the input field
+                        input.on('focus', function() {
+                            shouldCancelEdit = false; // Prevent cancellation while focusing
+                        });
+
+                        // Define the event handler function separately
+                        function handleMouseDown_forDateTime(event) {
+                            // Check if the click is outside the input and picker
+                            if (!$(event.target).closest('.input-btn-container').length) {
+                                gPicker = picker;
+                                clearTimeout(blurTimeout); // Clear any existing timeout
+                                blurTimeout = setTimeout(function () {
+                                    cancelEdit(cell, currentValue);
+                                    document.removeEventListener('mousedown', handleMouseDown_forDateTime);
+                                }, 100); // Delay in milliseconds
                             }
-                            clearTimeout(blurTimeout);
-                        });
+                        }
 
-/*                         // Blur event handling
-                        input.on('blur', function () {
-                            blurTimeout = setTimeout(function () {
-                                cancelEdit(cell, currentValue);
-                            }, 100); // Delay in milliseconds
-                        }); */
-
+                        // Attach the event listener
+                        document.addEventListener('mousedown', handleMouseDown_forDateTime);
                     }
+
                 }
 
                 // Input
