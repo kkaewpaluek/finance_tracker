@@ -919,23 +919,58 @@ def data_asset(request):
 
 def add_income(request):
 
-    #if request.method == 'GET': # When load the URL first time
-    platformCategory = PlatformCategory.objects.all()
-    incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
-    incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
+    if request.method == 'GET': # When load the URL first time
+        platformCategory = PlatformCategory.objects.all()
+        incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
+        incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
 
-    # Access the currency choices from the model
-    currencyChoices = IncomeExpenseData.currencyChoices
+        # Access the currency choices from the model
+        currencyChoices = IncomeExpenseData.currencyChoices
 
-    context = {
-        'parent': '',
-        'segment': 'data_income_expense',
-        'platformCategory': platformCategory,
-        'incomeCategory': incomeCategory,
-        'incomeExpenseData': incomeExpenseData,
-        'currencyChoices': currencyChoices,  # Pass the currency choices to the context
-    }
-    return render(request, 'pages/expense_tracking/add_income.html', context)
+        context = {
+            'parent': '',
+            'segment': 'data_income_expense',
+            'platformCategory': platformCategory,
+            'incomeCategory': incomeCategory,
+            'incomeExpenseData': incomeExpenseData,
+            'currencyChoices': currencyChoices,  # Pass the currency choices to the context
+        }
+        return render(request, 'pages/expense_tracking/add_income.html', context)
+    
+    else:
+            addTransactionDateTime = request.POST.get('transactionDateTime', None)
+            addPlatform = request.POST.get('platform', None)
+            addCategory = request.POST.get('category', None)
+            addRawAmount = request.POST.get('rawAmount', None)
+            addRawCurrency = request.POST.get('rawCurrency', None)
+            addNote = request.POST.get('note', None)
+
+            record = IncomeExpenseData.objects.create(
+                transactionDateTime = addTransactionDateTime,
+                platform = addPlatform,
+                category = addCategory,
+                rawAmount = addRawAmount,
+                rawCurrency = addRawCurrency,
+                note = addNote,
+                lastEdit = datetime.datetime.now(),
+                lastEditBy = request.user
+            )
+            try:
+                record.save()
+
+            except IntegrityError as e:
+                print(f'Error: {e}')  # Print the specific IntegrityError for debugging
+                return JsonResponse({'Error': 'Cannot add new item'}, status=400)
+
+            serialized_data = {
+                'transactionDateTime': record.transactionDateTime,
+                'platform': record.platform,
+                'category': record.category,
+                'rawAmount': record.rawAmount,
+                'rawCurrency': record.rawCurrency,
+                'note': record.note
+            }
+            return JsonResponse({'data': serialized_data}, status=200)
 
 def add_expense(request):
 

@@ -5,7 +5,6 @@
 
 
 {% block content %}{% csrf_token %}
-
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -47,7 +46,7 @@
                             <div class="row align-items-center ms-3">
                                 <div class="col-auto">
                                     <div class="input-icon mb-2">
-                                        <input type="text" class="form-control" placeholder="Select a date" id="datetimepicker" value="">
+                                        <input type="text" class="form-control" placeholder="Select a date" id="inputTransactionDatetime" value="">
                                         <!-- <input class="form-control" placeholder="Select a date" id="datepicker-icon"
                                             value=""> -->
                                         <span
@@ -140,12 +139,12 @@
                         </div>
                         <div class="card-footer bg-transparent mt-auto">
                             <div class="btn-list justify-content-end">
-                                <a href="#" class="btn">
+                                <button id="cancelButton" class="btn">
                                     Cancel
-                                </a>
-                                <a href="#" class="btn btn-primary">
-                                    Submit
-                                </a>
+                                </button> 
+                                <button id="addButton" class="btn btn-primary">
+                                    Add
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -168,10 +167,10 @@
     document.addEventListener("DOMContentLoaded", function () {
         
         //initially set date-time to today
-        const dateInput = document.getElementById('datetimepicker');
+        const dateInput = document.getElementById('inputTransactionDatetime');
         const todayDateTime = new Date().toISOString();//.split('T')[0];
         dateInput.value = todayDateTime; 
-        const picker = new tempusDominus.TempusDominus(document.getElementById('datetimepicker'), {
+        const picker = new tempusDominus.TempusDominus(document.getElementById('inputTransactionDatetime'), {
             display: {
                 components: {
                     calendar: true,
@@ -203,39 +202,84 @@
         });
     });
 
+    //Add button click event
+    $('#addButton').on('click', function () {
+        console.log('Add is clicked');
+        addNewItem();
+    });
 
+    function addNewItem() {
 
-    /* document.addEventListener("DOMContentLoaded", function () {
-        const dateInput = document.getElementById('datepicker-icon');
-        const resetButton = document.getElementById('reset-button');
+        inputTransactionDatetime = $('#inputTransactionDatetime').val();
+        inputPlatform = $('#inputPlatform').val();
+        inputCategory = $('#inputCategory').val();
+        inputRawAmount = $('#inputRawAmount').val();
+        inputRawCurrency = $('#inputRawCurrency').val();        
+        inputNote = $('#inputNote').val();
 
-        // Function to set the input value to today's date
-        function setToday() {
-            const today = new Date().toISOString().split('T')[0];
-            dateInput.value = today;
-        }
+        // Send data to Django view using AJAX
+        // Get the CSRF token from the form
+        let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
 
-        // Set the initial value to today's date
-        setToday();
-
-        // Initialize Litepicker
-        window.Litepicker && (new Litepicker({
-            element: dateInput,
-            buttonText: {
-                previousMonth: `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" />
-                    </svg>`,
-                nextMonth: `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" />
-                    </svg>`
+        $.ajax({
+            url: window.location.href, // Replace with the actual URL of your Django view
+            type: 'POST',
+            data: {
+                'transactionDateTime': inputTransactionDatetime,
+                'platform': inputPlatform,
+                'category': inputCategory,
+                'rawAmount': inputRawAmount,
+                'rawCurrency': inputRawCurrency,
+                'note': inputNote,
             },
-        }));
+            //dataType: 'json',
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", csrfToken);
+            },
+            success: function (response) {
+                console.log('Success addNewItem:', response);
+                responseTransactionDateTime = response.data.transactionDateTime;
+                responseTransactionPlatform = response.data.platform;
+                responseTransactionCategory = response.data.category;
+                responseTransactionRawAmount = response.data.rawAmount;
+                responseTransactionRawCurrency = response.data.rawCurrency;
 
-        // Add event listener to the reset button
-        resetButton.addEventListener('click', setToday);
-    }); */
+                // Create toast HTML and append it to the body
+                var toastHtml = `
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                        <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    {{responseTransactionRawAmount}} {{responseTransactionRawCurrency}} has been successfully added under {{category}}
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Append toast to body
+                $('body').append(toastHtml);
+                
+                // Show toast notification
+                var toastEl = document.getElementById('successToast');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+
+                // Optionally, remove the toast element after it disappears
+                toastEl.addEventListener('hidden.bs.toast', function () {
+                    $(toastEl).closest('.toast-container').remove(); // Remove the toast container
+                });
+
+            },
+            error: function (error) {
+                console.log('Error:', error);
+
+            }
+        }); 
+
+    }
+
 </script>
 
 {% endblock extrajs %}
