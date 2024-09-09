@@ -10,11 +10,15 @@
     <div class="page-header d-print-none">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
-                <div class="col">
-                    <h2 class="page-title">
-                        Add Income
+                    <h2 class="col-auto page-title">
+                        Add
                     </h2>
-                </div>
+                    <button id="expenseButton" class="col-auto btn btn-outline-danger active ms-3">
+                        Expense
+                    </button>
+                    <button id="incomeButton" class="col-auto btn btn-outline-success ms-2 me-auto">
+                        Income
+                    </button>
             </div>
         </div>
     </div>
@@ -85,9 +89,15 @@
                             <h3 class="card-title mt-4">Raw Amount & Currency</h3>
                             <div>
                                 <div class="row align-items-center g-2 ms-3">
+                                    <div id="substractSymbol" class="col-auto">
+                                        <h2 class="p-0 m-0"> - </h2>
+                                    </div>
+                                    <div id="addSymbol" class="col-auto" hidden>
+                                        <h2 class="p-0 m-0"> + </h2>
+                                    </div>
                                     <div class="col-auto ">
-                                        <input id="inputRawAmount" data-object="RawAmount" type="number" step="10"
-                                            class="input-editable form-control w-auto" value="">
+                                        <input id="inputRawAmount" data-object="RawAmount" type="number" min="0" step="10"
+                                            class="input-editable form-control col-auto w-auto" value="">
                                     </div>
                                     <div class="col-auto ">
                                         <select id="inputRawCurrency" data-object="RawCurrency"
@@ -120,12 +130,18 @@
                             <div>
                                 <div class="row align-items-center g-2 ms-3">
                                     <div class="col-auto ">
-                                        <select id="inputCategory" data-object="platform"
+                                        <select id="inputExpenseCategory" data-object="platform"
                                             class="input-editable form-control w-auto">
-                                            {% for item in incomeCategory %}
+                                            {% for item in expenseCategory %}
                                             <option value="{{ item }}">{{ item }}</option>
                                             {% endfor %}
                                         </select>
+                                        <select id="inputIncomeCategory" data-object="platform"
+                                        class="input-editable form-control w-auto" hidden>
+                                        {% for item in incomeCategory %}
+                                        <option value="{{ item }}">{{ item }}</option>
+                                        {% endfor %}
+                                    </select>
                                     </div>
                                 </div>
                             </div>
@@ -168,12 +184,16 @@
 
 <script>
 
+    bExpense = true;
+    bIncome = false;
+
     //initially set date-time to today
     inputTransactionDatetime = $('#inputTransactionDatetime');
     const todayDateTime = new Date().toISOString();//.split('T')[0];
 
     inputPlatform = $('#inputPlatform');
-    inputCategory = $('#inputCategory');
+    inputExpenseCategory = $('#inputExpenseCategory');
+    inputIncomeCategory = $('#inputIncomeCategory');
     inputRawAmount = $('#inputRawAmount');
     inputRawCurrency = $('#inputRawCurrency');
     inputNote = $('#inputNote');
@@ -212,11 +232,75 @@
         });
     });
 
+    $('#expenseButton').on('click', function(){
+        //Activate expenseButton
+        $(this).removeClass('active'); //remove before add to avoid adding double hidden
+        $(this).addClass('active');
+
+        //Deactivate incomeButton
+        $('#incomeButton').removeClass('active');
+
+        //Hide inputIncomeCategory
+        $('#inputIncomeCategory').removeAttr('hidden'); //remove before add to avoid adding double hidden
+        $('#inputIncomeCategory').attr('hidden', true);
+
+        //Show inputExpenseCategory
+        $('#inputExpenseCategory').removeAttr('hidden');  
+
+        //Show substractSymbol
+        $('#substractSymbol').removeAttr('hidden');
+
+        //Hide addSymbol
+        $('#addSymbol').removeAttr('hidden'); //remove before add to avoid adding double hidden
+        $('#addSymbol').attr('hidden', true);
+
+        //Set Boolean
+        bIncome = false;
+        bExpense = true;  
+    });
+
+    $('#incomeButton').on('click', function(){
+        //Activate incomeButton
+        $(this).removeClass('active'); //remove before add to avoid adding double hidden
+        $(this).addClass('active');
+
+        //Deactivate expenseButton
+        $('#expenseButton').removeClass('active');
+
+        //Hide inputExpenseCategory
+        $('#inputExpenseCategory').removeAttr('hidden', true); //remove before add to avoid adding double hidden
+        $('#inputExpenseCategory').attr('hidden', true);
+
+        //Show inputIncomeCategory
+        $('#inputIncomeCategory').removeAttr('hidden');
+
+        //Hide substractSymbol
+        $('#substractSymbol').removeAttr('hidden'); //remove before add to avoid adding double hidden
+        $('#substractSymbol').attr('hidden', true);
+
+        //Show addSymbol
+        $('#addSymbol').removeAttr('hidden');
+        
+        //Set Boolean
+        bExpense = false;
+        bIncome = true; 
+    });
+
     //Add button click event
     $('#addButton').on('click', function () {
 
         successMessage = '';
         failMessage = '';
+
+        if(bExpense){
+            inputCategory = inputExpenseCategory;
+        }
+        else if(bIncome){
+            inputCategory = inputIncomeCategory;
+        }
+        else{
+            failMessage('Oops! Something went wrong. Contact the admin!')
+        }
 
         if ('' !== inputTransactionDatetime.val() && '' !== inputPlatform.val() && '' !== inputCategory.val() && '' !== inputRawAmount.val() && '' !== inputRawCurrency.val()) {
             //&& inputPlatform.val() === '' && inputCategory.val() === '' && inputRawAmount.val() === '' && inputRawCurrency.val() === '') {
@@ -224,6 +308,16 @@
 
             //inputTransactionDatetime = formatPickerDateForPython($('#inputTransactionDatetime').val());
             inputTransactionDatetimeValue = formatPickerDateForPython(inputTransactionDatetime.val());
+            if (bExpense){
+                inputRawAmountValue = (-1) * inputRawAmount.val();
+            }
+            else if (bIncome){
+                inputRawAmountValue = inputRawAmount.val();
+            }
+            else{
+                failMessage('Oops! Something went wrong. Contact the admin!')
+            }
+            
 
             // Send data to Django view using AJAX
             // Get the CSRF token from the form

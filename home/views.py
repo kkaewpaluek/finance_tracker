@@ -917,11 +917,12 @@ def data_asset(request):
     }
     return render(request, 'pages/expense_tracking/data_asset.html', context)
 
-def add_income(request):
+def add_income_expense(request):
 
     if request.method == 'GET': # When load the URL first time
         platformCategory = PlatformCategory.objects.all()
         incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
+        expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
         incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
 
         # Access the currency choices from the model
@@ -932,10 +933,11 @@ def add_income(request):
             'segment': 'data_income_expense',
             'platformCategory': platformCategory,
             'incomeCategory': incomeCategory,
+            'expenseCategory': expenseCategory,
             'incomeExpenseData': incomeExpenseData,
             'currencyChoices': currencyChoices,  # Pass the currency choices to the context
         }
-        return render(request, 'pages/expense_tracking/add_income.html', context)
+        return render(request, 'pages/expense_tracking/add_income_expense.html', context)
     
     else:
             print('at view.py')
@@ -972,26 +974,6 @@ def add_income(request):
                 'note': record.note
             }
             return JsonResponse({'data': serialized_data}, status=200)
-
-def add_expense(request):
-
-   #if request.method == 'GET': # When load the URL first time
-    platformCategory = PlatformCategory.objects.all()
-    expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
-    incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
-
-    # Access the currency choices from the model
-    currencyChoices = IncomeExpenseData.currencyChoices
-
-    context = {
-        'parent': 'add',
-        'segment': 'add_expense',
-        'platformCategory': platformCategory,
-        'expenseCategory': expenseCategory,
-        'incomeExpenseData': incomeExpenseData,
-        'currencyChoices': currencyChoices,  # Pass the currency choices to the context
-    }
-    return render(request, 'pages/expense_tracking/add_expense.html', context)
 
 def add_saving(request):
 

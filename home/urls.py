@@ -125,7 +125,6 @@ urlpatterns = [
     path('data_goal_budget/', views.data_goal_budget, name='data_goal_budget'),
     path('data_income_expense/', views.data_income_expense, name='data_income_expense'),
     path('data_asset/', views.data_asset, name='data_asset'),
-    path('add_income/', views.add_income, name='add_income'),
-    path('add_expense/', views.add_expense, name='add_expense'),
+    path('add_income_expense/', views.add_income_expense, name='add_income_expense'),
     path('add_saving/', views.add_saving, name='add_saving'),
 ]
