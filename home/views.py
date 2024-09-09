@@ -901,6 +901,7 @@ def data_income_expense(request):
                 'rawCurrency': record.rawCurrency,
                 'note': record.note,
                 'lastEdit': record.lastEdit,
+                'lastEditBy': record.lastEditBy.username,
             }
             return JsonResponse({'data': serialized_data})
 

@@ -71,8 +71,8 @@
                                 <td data-id="{{item.id}}" data-column="rawAmount" class="editable">{{ item.rawAmount }}</td>
                                 <td data-id="{{item.id}}" data-column="rawCurrency" class="editable">{{item.rawCurrency}}</td>
                                 <td data-id="{{item.id}}" data-column="note" class="editable">{{ item.note }}</td>
-                                <td data-id="{{item.id}}" data-column="lastEdit">{{ item.lastEdit|date:"m/d/Y, h:i A" }}</td>
-                                <td data-id="{{item.id}}" data-column="lastEditBy">{{ item.lastEditBy }}</td>
+                                <td id="lastEdit-{{item.id}}" data-id="{{item.id}}" data-column="lastEdit">{{ item.lastEdit|date:"m/d/Y, h:i A" }}</td>
+                                <td id="lastEditBy-{{item.id}}" data-id="{{item.id}}" data-column="lastEditBy">{{ item.lastEditBy }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -425,9 +425,21 @@
                             xhr.setRequestHeader("X-CSRFToken", csrfToken);
                         },
                         success: function (response) {
+
+                            //update last edit info
+                            console.log($('#lastEdit-' + cell_id));
+                            console.log($('#lastEditBy-' + cell_id));
+                            console.log(response.data.lastEdit);
+                            console.log(response.data.lastEditBy);
+                            $('#lastEdit-' + cell_id).text(formatPickerDateForTable(response.data.lastEdit));
+                            $('#lastEditBy-' + cell_id).text(response.data.lastEditBy);
+
+                            //update cell value on the table
                             cell.text(updateValueForTable);
                             cell.removeClass('editing'); // Remove editing class
                             console.log('Success updateCellValue:', response);
+
+                            //refresh for format
                             refreshTable();
                             busy = false;
 
