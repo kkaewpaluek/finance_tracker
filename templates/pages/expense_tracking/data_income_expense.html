@@ -62,7 +62,7 @@
                             {% for item in incomeExpenseData %}
 
                             <tr>
-                                <td data-column="id">{{ item.id }}</td>
+                                <td data-column="id" class="text-muted">{{ item.id }}</td>
                                 <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{item.transactionDateTime|date:"m/d/Y, h:i A" }}</td>
                                 <!-- <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{ item.transactionDateTime}}</td>
                                  -->
@@ -71,8 +71,8 @@
                                 <td data-id="{{item.id}}" data-column="rawAmount" class="editable">{{ item.rawAmount }}</td>
                                 <td data-id="{{item.id}}" data-column="rawCurrency" class="editable">{{item.rawCurrency}}</td>
                                 <td data-id="{{item.id}}" data-column="note" class="editable">{{ item.note }}</td>
-                                <td id="lastEdit-{{item.id}}" data-id="{{item.id}}" data-column="lastEdit">{{ item.lastEdit|date:"m/d/Y, h:i A" }}</td>
-                                <td id="lastEditBy-{{item.id}}" data-id="{{item.id}}" data-column="lastEditBy">{{ item.lastEditBy }}</td>
+                                <td id="lastEdit-{{item.id}}" data-id="{{item.id}}" data-column="lastEdit" class="text-muted">{{ item.lastEdit|date:"m/d/Y, h:i A" }}</td>
+                                <td id="lastEditBy-{{item.id}}" data-id="{{item.id}}" data-column="lastEditBy" class="text-muted">{{ item.lastEditBy }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
