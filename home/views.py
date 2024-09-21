@@ -843,7 +843,8 @@ def data_income_expense(request):
         # Access the currency choices from the model
         currencyChoices = [choice[0] for choice in IncomeExpenseData.currencyChoices]
 
-        platformCategoryChoices = list(PlatformCategory.objects.filter(enabled=True).values_list('name', flat=True))
+        platformCategoryChoices = PlatformCategory.objects.all().values('id', 'name', 'enabled')
+        #platformCategoryChoices = list(PlatformCategory.objects.filter(enabled=True).values_list('name', flat=True))
         incomeCategoryChoices = list(IncomeCategory.objects.filter(enabled=True).values_list('name', flat=True))
         expenseCategoryChoices = list(ExpenseCategory.objects.filter(enabled=True).values_list('name', flat=True))
         savingCategoryChoices = list(SavingCategory.objects.filter(enabled=True).values_list('name', flat=True))
@@ -856,25 +857,45 @@ def data_income_expense(request):
             'segment': 'data_income_expense',
             'incomeExpenseData': incomeExpenseData,
             'currencyChoices': currencyChoices,  # Pass the currency choices to the context
-            'platformCategoryChoices': platformCategoryChoices,
+            'platformCategoryChoices': list(platformCategoryChoices),  # Convert QuerySet to list of dicts
+            #'platformCategoryChoices': platformCategoryChoices,
             'incomeCategoryChoices': incomeCategoryChoices,
             'expenseCategoryChoices': expenseCategoryChoices,
             'savingCategoryChoices': savingCategoryChoices,
         }
         return render(request, 'pages/expense_tracking/data_income_expense.html', context)
     
-    else: #request.method = post, #action = 'update_item'
+    else: #request.method = post
+
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        print("test")
+        #if request.POST.get('action', None) == 'update_item':
         updateValue = request.POST.get('updateValue', None)
+        #else #request.POST.get('action', None) == 'update_object':
+            #updateObject = request.POST.get('updateObject', None)
+
+        print(updateValue)
+        
         cell_id = request.POST.get('cell_id', None)
         cell_column = request.POST.get('cell_column', None)
-        print(updateValue)
+
+        
         record = IncomeExpenseData.objects.get(id=int(cell_id))
+        print(record.platform)
+
+        test = PlatformCategory.objects.get(id=int(updateValue))
+        print("test = ")
+        print(test)
 
         match cell_column:
             case 'transactionDateTime':
                 record.transactionDateTime = updateValue
                 print("cell_column")
                 print(record.transactionDateTime)
+            case 'platform':
+                record.platform = test
             case 'category':
                 record.category = updateValue
             case 'rawAmount':
@@ -889,6 +910,7 @@ def data_income_expense(request):
             
         record.lastEdit = datetime.datetime.now()
         record.lastEditBy = request.user
+            
 
         try:
             record.save()

@@ -88,7 +88,7 @@ class IncomeExpenseData(models.Model):
 
     transactionDateTime = models.DateTimeField(default=timezone.now) 
 
-    platform = models.CharField(max_length=100)
+    platform = models.ForeignKey(PlatformCategory, on_delete=models.CASCADE)
     category = models.CharField(max_length=100)
 
     rawAmount = models.DecimalField(max_digits=10, decimal_places=2)

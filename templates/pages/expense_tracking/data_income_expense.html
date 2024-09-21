@@ -37,8 +37,8 @@
 
                 <div class="col-md-15">
 
-                    <div id="currencyChoices" hidden>{{ currencyChoices | safe }}</div>
-                    <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices | safe }}</div>
+                    <div id="currencyChoices" hidden>{{ currencyChoices | safe }}</div>                    
+                    <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices|json_script:"platformCategoryChoices" }}</div>
                     <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices | safe }}</div>
                     <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices | safe }}</div>
                     <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices | safe }}</div>
@@ -121,13 +121,39 @@
                 var currentValue = cell.text();
                 var cell_id = cell.data('id');
                 var cell_column = cell.data('column');
+                var data_type;
+                var choices;
+
+                switch(cell_column){
+                    case 'transactionDateTime':
+                        dataType = "dateTime";
+                        break;    
+                    case 'platform':
+                        dataType = "option";
+                        break;
+                    case 'category':
+                        dataType = "option";
+                        break;
+                    case 'rawAmount':
+                        dataType = "text";      
+                        break;                  
+                    case 'rawCurrency':
+                        dataType = "option";
+                        break;     
+                    case 'note':
+                        dataType = "text";
+                        break;
+                    default:
+                        console.log("dataType is not defined")
+                }
 
                 // Extract and parse the content
                 var currencyChoices = convertTextToArray(($('#currencyChoices').text()));
-                var platformCategoryChoices = convertTextToArray(($('#platformCategoryChoices').text()));
+                //var platformCategoryChoices = convertTextToArray(($('#platformCategoryChoices').text()));
                 var incomeCategoryChoices = convertTextToArray(($('#incomeCategoryChoices').text()));
                 var expenseCategoryChoices = convertTextToArray(($('#expenseCategoryChoices').text()));
                 var savingCategoryChoices = convertTextToArray(($('#savingCategoryChoices').text()));
+                var platformCategoryChoices = JSON.parse(document.getElementById('platformCategoryChoices').textContent);
 
                 // Drop-down list
                 if (cell_column === 'platform' || cell_column === 'category' || cell_column === 'rawCurrency') {
@@ -143,15 +169,15 @@
                         var select = $('<select class="editable-select form-select" value="' + currentValue + '">');
 
                         if (cell_column === 'platform') {
-                            var choices = ifListContainingValue(currentValue, platformCategoryChoices);
-                            console.log(choices);
+                            //var choices = ifListContainingValue(currentValue, platformCategoryChoices);
+                            choices = platformCategoryChoices;
                         }
                         else if (cell_column === 'category') {
                             let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
-                            var choices = findListContainingValue(currentValue, allCategoryChoices);
+                            choices = findListContainingValue(currentValue, allCategoryChoices);
                         }
                         else if (cell_column === 'rawCurrency') {
-                            var choices = ifListContainingValue(currentValue, currencyChoices);
+                            choices = ifListContainingValue(currentValue, currencyChoices);
                         }
 
                         //if current Value is not an enable item on the list anymore then cancel edit to avoid ruining the data record
@@ -161,10 +187,9 @@
                             return 0;
                         }
 
-                        console.log(choices);
-
+                        console.log(choices.name);
                         choices.forEach(function (option) {
-                            var choicesElement = $('<option value="' + option + '"' + (currentValue === option ? ' selected' : '') + '>' + option + '</option>');
+                            var choicesElement = $('<option value="' + option.name + '"' + (currentValue === option.name ? ' selected' : '') + '>' + option.name + '</option>');
                             select.append(choicesElement);
                         });
 
@@ -181,7 +206,12 @@
 
                         // Event delegation for Save and Cancel buttons (similar to before)
                         container.on('click', '.saveBtn', function () {
-                            updateCellValue(cell, select.val());
+
+                            var selectedObject = choices.find(function(option){
+                                return option.name === select.val();
+                            });
+
+                            updateCellValue(cell, selectedObject);
                             clearTimeout(blurTimeout);
                         });
 
@@ -398,8 +428,11 @@
                         var updateValueForTable = formatPickerDateForTable(input);
                         //hide calendar box
                         gPicker.hide();
+                    }
+                    else if(cell_column === 'platform' || cell_column === 'category' || cell_column === 'rawCurrency'){
+                        var updateValueForDatabase = input.id;
+                        var updateValueForTable = input.name;
                         console.log(updateValueForDatabase);
-                        console.log(updateValueForTable);
                     }
                     else{
                         var updateValueForDatabase = input;
@@ -410,13 +443,16 @@
                     // Get the CSRF token from the form
                     let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
 
+                    console.log(cell_column);
+
                     // update model
                     $.ajax({
                         url: window.location.href, // Replace with the actual URL of your Django view
                         type: 'POST',
                         data: {
                             'action': 'update_item',
-                            'updateValue': updateValueForDatabase,
+                            'type' : dataType ,
+                            'updateValue':  updateValueForDatabase,  // Convert array to JSON,
                             'cell_id': cell_id,
                             'cell_column': cell_column,
                         },
@@ -451,6 +487,8 @@
                         }
                     });
                 }
+
+                
 
                 function cancelEdit(cell, currentValue) {
                     if(cell_column === 'transactionDateTime'){
@@ -546,9 +584,7 @@
         function ifListContainingValue(value, list){
             var resultList = [];
 
-            if (list.includes(value.trim())) {
-                resultList = list;
-            }
+            resultList = list.filter(item => item.name !== value.trim());
 
             return resultList;
         }
