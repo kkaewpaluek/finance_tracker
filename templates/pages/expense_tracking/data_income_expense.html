@@ -37,11 +37,13 @@
 
                 <div class="col-md-15">
 
-                    <div id="currencyChoices" hidden>{{ currencyChoices | safe }}</div>                    
+                    <div id="temp_currencyChoices" hidden>{{ currencyChoices | safe }}</div>  
+                    <div id="currencyChoices" hidden>{{ currencyChoices |json_script:"currencyChoices"  }}</div>  
+                        
                     <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices|json_script:"platformCategoryChoices" }}</div>
-                    <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices | safe }}</div>
-                    <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices | safe }}</div>
-                    <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices | safe }}</div>
+                    <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices|json_script:"incomeCategoryChoices" }}</div>
+                    <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices|json_script:"expenseCategoryChoices" }}</div>
+                    <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices|json_script:"savingCategoryChoices" }}</div>
 
                     <table id="incomeExpenseDataTable" class="table-data table table-striped"
                         data-model="IncomeExpenseData" style="width:100%">
@@ -122,41 +124,43 @@
                 var cell_id = cell.data('id');
                 var cell_column = cell.data('column');
                 var data_type;
-                var choices;
+                var bSubList = false;
 
+                //define dataType from cell_column
                 switch(cell_column){
                     case 'transactionDateTime':
                         dataType = "dateTime";
                         break;    
                     case 'platform':
-                        dataType = "option";
+                        dataType = "list";
                         break;
                     case 'category':
-                        dataType = "option";
+                        dataType = "list";
                         break;
                     case 'rawAmount':
                         dataType = "text";      
                         break;                  
                     case 'rawCurrency':
-                        dataType = "option";
+                        dataType = "list";
+                        bSubList = true;
                         break;     
                     case 'note':
                         dataType = "text";
                         break;
                     default:
-                        console.log("dataType is not defined")
+                        dataType = "none";
                 }
 
                 // Extract and parse the content
-                var currencyChoices = convertTextToArray(($('#currencyChoices').text()));
-                //var platformCategoryChoices = convertTextToArray(($('#platformCategoryChoices').text()));
-                var incomeCategoryChoices = convertTextToArray(($('#incomeCategoryChoices').text()));
-                var expenseCategoryChoices = convertTextToArray(($('#expenseCategoryChoices').text()));
-                var savingCategoryChoices = convertTextToArray(($('#savingCategoryChoices').text()));
+                
+                var currencyChoices = JSON.parse(document.getElementById('currencyChoices').textContent);
                 var platformCategoryChoices = JSON.parse(document.getElementById('platformCategoryChoices').textContent);
+                var incomeCategoryChoices = JSON.parse(document.getElementById('incomeCategoryChoices').textContent);
+                var expenseCategoryChoices = JSON.parse(document.getElementById('expenseCategoryChoices').textContent);
+                var savingCategoryChoices = JSON.parse(document.getElementById('savingCategoryChoices').textContent);
 
                 // Drop-down list
-                if (cell_column === 'platform' || cell_column === 'category' || cell_column === 'rawCurrency') {
+                if ('list' === dataType) {
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
 
@@ -168,28 +172,41 @@
                         // Create the dropdown with options
                         var select = $('<select class="editable-select form-select" value="' + currentValue + '">');
 
-                        if (cell_column === 'platform') {
-                            //var choices = ifListContainingValue(currentValue, platformCategoryChoices);
+                        var choices, choicesName;
+
+                        if ('platform' === cell_column) {
                             choices = platformCategoryChoices;
                         }
-                        else if (cell_column === 'category') {
+                        else if ('category' === cell_column) {
                             let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
                             choices = findListContainingValue(currentValue, allCategoryChoices);
                         }
-                        else if (cell_column === 'rawCurrency') {
-                            choices = ifListContainingValue(currentValue, currencyChoices);
+                        else if ('rawCurrency' === cell_column) {
+                            choices = currencyChoices;
                         }
+                        
+                        // Populate choicesName with appropriate values
+                        choicesName = bSubList 
+                            ? choices.map(choice => choice[0]) //if it's a sublist then it'll run this line
+                            : choices.map(choice => choice.name); //if it's not a sublist then it'll run this line
+
+                        console.log(choicesName);
 
                         //if current Value is not an enable item on the list anymore then cancel edit to avoid ruining the data record
-                        if (choices.length === 0){
+                        if (!choices || choices.length === 0){
+                            failToast("<b>Fail</b> to edit. The current selected option has been disabled.");
                             cancelEdit(cell, currentValue);
                             clearTimeout(blurTimeout);
                             return 0;
                         }
 
-                        console.log(choices.name);
-                        choices.forEach(function (option) {
-                            var choicesElement = $('<option value="' + option.name + '"' + (currentValue === option.name ? ' selected' : '') + '>' + option.name + '</option>');
+                        // Iterate over choicesName to create and append option elements
+                        choicesName.forEach(function (option) {
+                            var choicesElement = $('<option>', {
+                                value: option, // Set the value attribute
+                                text: option // Set the displayed text
+                                }); 
+                            // Append each option to the select element
                             select.append(choicesElement);
                         });
 
@@ -205,12 +222,17 @@
                         select.focus(); // Focus on the dropdown
 
                         // Event delegation for Save and Cancel buttons (similar to before)
+                        var selectedObject
                         container.on('click', '.saveBtn', function () {
 
-                            var selectedObject = choices.find(function(option){
-                                return option.name === select.val();
-                            });
+                            if (bSubList) {
+                                selectedObject = currencyChoices.find(choice => choice[0] === option);
+                            }
 
+                            else{
+                                selectedObject = choices.find(option => option.name === select.val());
+                            }
+                    
                             updateCellValue(cell, selectedObject);
                             clearTimeout(blurTimeout);
                         });
@@ -240,7 +262,7 @@
                     }
                 }
                 //Date-Time Input 
-                else if (cell_column === 'transactionDateTime'){
+                else if ('dateTime' === dataType){
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
 
@@ -362,8 +384,7 @@
 
                 }
 
-                // Input
-                else {
+                else if ('text' === dataType){
                     if (!cell.hasClass('editing')) {
                         cell.addClass('editing');
 
@@ -419,24 +440,34 @@
                     }
                 }
 
+                else{ //('none' === dataType)
+                    console.log("dataType is not defined.");
+                    failToast("<b>Error</b> <br> Please contact your admin.");
+                }
 
                 //---------- function for editable ----------//
-
                 function updateCellValue(cell, input) {
-                    if(cell_column === 'transactionDateTime'){
+                    var updateValueForDatabase;
+                    var updateValueForTable;
+                    if('dateTime' === datatype){
                         var updateValueForDatabase = formatPickerDateForPython(input);
                         var updateValueForTable = formatPickerDateForTable(input);
                         //hide calendar box
                         gPicker.hide();
                     }
-                    else if(cell_column === 'platform' || cell_column === 'category' || cell_column === 'rawCurrency'){
-                        var updateValueForDatabase = input.id;
-                        var updateValueForTable = input.name;
-                        console.log(updateValueForDatabase);
+                    else if('list' === datatype){
+                        if(bSubList){
+                            updateValueForDatabase = input[0];
+                            updateValueForTable = input[0];
+                        }
+                        else{
+                        updateValueForDatabase = input.id;
+                        updateValueForTable = input.name;
+                        }
                     }
                     else{
-                        var updateValueForDatabase = input;
-                        var updateValueForTable = input;
+                        updateValueForDatabase = input;
+                        updateValueForTable = input;
                     }
 
                     // Send data to Django view using AJAX
@@ -451,6 +482,7 @@
                         type: 'POST',
                         data: {
                             'action': 'update_item',
+                            'is_sublist': bSubList,
                             'type' : dataType ,
                             'updateValue':  updateValueForDatabase,  // Convert array to JSON,
                             'cell_id': cell_id,
@@ -590,5 +622,64 @@
         }
 
     });
+
+    function successToast(messageText) {
+        // Create toast HTML and append it to the body
+        var toastHtml = `
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+                <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${messageText}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Append toast to body
+        $('body').append(toastHtml);
+
+        // Show toast notification
+        var toastEl = document.getElementById('successToast');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+
+        // Optionally, remove the toast element after it disappears
+        toastEl.addEventListener('hidden.bs.toast', function () {
+            $(toastEl).closest('.toast-container').remove(); // Remove the toast container
+        });
+    }
+
+    function failToast(messageText) {
+        // Create toast HTML and append it to the body
+        var toastHtml = `
+            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
+                <div id="failToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="6000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${messageText}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Append toast to body
+        $('body').append(toastHtml);
+
+        // Show toast notification
+        var toastEl = document.getElementById('failToast');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+
+        // Optionally, remove the toast element after it disappears
+        toastEl.addEventListener('hidden.bs.toast', function () {
+            $(toastEl).closest('.toast-container').remove(); // Remove the toast container
+        });
+    }
+
 </script>
 {% endblock extrajs %}

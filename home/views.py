@@ -841,13 +841,11 @@ def data_income_expense(request):
         incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
 
         # Access the currency choices from the model
-        currencyChoices = [choice[0] for choice in IncomeExpenseData.currencyChoices]
-
+        currencyChoices = IncomeExpenseData.currencyChoices
         platformCategoryChoices = PlatformCategory.objects.all().values('id', 'name', 'enabled')
-        #platformCategoryChoices = list(PlatformCategory.objects.filter(enabled=True).values_list('name', flat=True))
-        incomeCategoryChoices = list(IncomeCategory.objects.filter(enabled=True).values_list('name', flat=True))
-        expenseCategoryChoices = list(ExpenseCategory.objects.filter(enabled=True).values_list('name', flat=True))
-        savingCategoryChoices = list(SavingCategory.objects.filter(enabled=True).values_list('name', flat=True))
+        incomeCategoryChoices = IncomeCategory.objects.all().values('id', 'name', 'enabled')
+        expenseCategoryChoices = ExpenseCategory.objects.all().values('id', 'name', 'enabled')
+        savingCategoryChoices = SavingCategory.objects.all().values('id', 'name', 'enabled')
 
         #test = IncomeExpenseData.objects.get(id=1).transactionDateTime
         #print(test)
@@ -856,12 +854,11 @@ def data_income_expense(request):
             'parent': '',
             'segment': 'data_income_expense',
             'incomeExpenseData': incomeExpenseData,
-            'currencyChoices': currencyChoices,  # Pass the currency choices to the context
+            'currencyChoices': list(currencyChoices),  # Convert QuerySet to list of dicts
             'platformCategoryChoices': list(platformCategoryChoices),  # Convert QuerySet to list of dicts
-            #'platformCategoryChoices': platformCategoryChoices,
-            'incomeCategoryChoices': incomeCategoryChoices,
-            'expenseCategoryChoices': expenseCategoryChoices,
-            'savingCategoryChoices': savingCategoryChoices,
+            'incomeCategoryChoices': list(incomeCategoryChoices), # Convert QuerySet to list of dicts
+            'expenseCategoryChoices': list(expenseCategoryChoices), # Convert QuerySet to list of dicts
+            'savingCategoryChoices': list(savingCategoryChoices), # Convert QuerySet to list of dicts
         }
         return render(request, 'pages/expense_tracking/data_income_expense.html', context)
     
@@ -870,43 +867,47 @@ def data_income_expense(request):
         if not request.user.is_authenticated:
             return redirect('login')
 
-        print("test")
-        #if request.POST.get('action', None) == 'update_item':
         updateValue = request.POST.get('updateValue', None)
-        #else #request.POST.get('action', None) == 'update_object':
-            #updateObject = request.POST.get('updateObject', None)
-
-        print(updateValue)
-        
+        dataType = request.POST.get('dataType', None)
+        bSubList = request.POST.get('bSubList', None) 
         cell_id = request.POST.get('cell_id', None)
         cell_column = request.POST.get('cell_column', None)
 
         
         record = IncomeExpenseData.objects.get(id=int(cell_id))
-        print(record.platform)
 
-        test = PlatformCategory.objects.get(id=int(updateValue))
-        print("test = ")
-        print(test)
+        # Get updateObject if dataType is 'list'
+        if 'list' == dataType:
+            if 'true' == bSubList:
+                updateObject = PlatformCategory.objects.get(id=int(updateValue)) #still need to fix this. it needs to be different as it's not a modal.
+            else:
+                updateObject = PlatformCategory.objects.get(id=int(updateValue))
 
-        match cell_column:
-            case 'transactionDateTime':
-                record.transactionDateTime = updateValue
-                print("cell_column")
-                print(record.transactionDateTime)
-            case 'platform':
-                record.platform = test
-            case 'category':
-                record.category = updateValue
-            case 'rawAmount':
-                record.rawAmount = updateValue
-            case 'rawCurrency':
-                record.rawCurrency = updateValue
-            case 'note':
-                record.note = updateValue
-            case _:
-                print("cell_column not found")
-            
+        # Create a mapping for cell_column to record attributes
+        column_model_list_mapping = {
+            'transactionDateTime': None,
+            'platform': PlatformCategory,
+            'category': updateObject,
+            'rawAmount': updateValue,
+            'rawCurrency': updateObject,
+            'note': updateValue
+        }
+
+        # Create a mapping for cell_column to record attributes
+        column_attributes_mapping = {
+            'transactionDateTime': updateValue,
+            'platform': updateObject,
+            'category': updateObject,
+            'rawAmount': updateValue,
+            'rawCurrency': updateObject,
+            'note': updateValue
+        }
+
+        # Update the record if cell_column is valid
+        if cell_column in column_attributes_mapping:
+            setattr(record, cell_column, column_attributes_mapping[cell_column])
+        else:
+            print("cell_column not found")
             
         record.lastEdit = datetime.datetime.now()
         record.lastEditBy = request.user
