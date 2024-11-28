@@ -95,14 +95,16 @@
 
     $(document).ready(function () {
 
-        var busy = false;
-        var allTable = $('.table-data');
-        var table;
-        var selectedModel;
-        var blurTimeout;
-        var gPicker;
+        let busy = false;
+        let allTable = $('.table-data');
+        let table;
+        let selectedModel;
+        let blurTimeout;
+        let gPicker;
+        let bUserIsAuthenticated = {{ UserIsAuthenticated|yesno:"true,false"}};
 
-        console.log(allTable);
+        //console.log(allTable);
+        //console.log(bUserIsAuthenticated);
 
         allTable.DataTable({
             "paging": false, // Disable pagination if needed
@@ -116,423 +118,430 @@
 
         //Add cell edit event
         allTable.on('click', 'tbody td.editable', function () {
-            if (!busy) {
-                busy = true;
+            if (bUserIsAuthenticated){
+                if (!busy) {
+                    busy = true;
 
-                var cell = $(this);
-                var currentValue = cell.text();
-                var cell_id = cell.data('id');
-                var cell_column = cell.data('column');
-                var data_type;
-                var bSubList = false;
+                    let cell = $(this);
+                    let currentValue = cell.text();
+                    let cell_id = cell.data('id');
+                    let cell_column = cell.data('column');
+                    let data_type;
+                    let bSubList = false;
 
-                //define dataType from cell_column
-                switch(cell_column){
-                    case 'transactionDateTime':
-                        dataType = "dateTime";
-                        break;    
-                    case 'platform':
-                        dataType = "list";
-                        break;
-                    case 'category':
-                        dataType = "list";
-                        break;
-                    case 'rawAmount':
-                        dataType = "text";      
-                        break;                  
-                    case 'rawCurrency':
-                        dataType = "list";
-                        bSubList = true;
-                        break;     
-                    case 'note':
-                        dataType = "text";
-                        break;
-                    default:
-                        dataType = "none";
-                }
-
-                // Extract and parse the content
-                
-                var currencyChoices = JSON.parse(document.getElementById('currencyChoices').textContent);
-                var platformCategoryChoices = JSON.parse(document.getElementById('platformCategoryChoices').textContent);
-                var incomeCategoryChoices = JSON.parse(document.getElementById('incomeCategoryChoices').textContent);
-                var expenseCategoryChoices = JSON.parse(document.getElementById('expenseCategoryChoices').textContent);
-                var savingCategoryChoices = JSON.parse(document.getElementById('savingCategoryChoices').textContent);
-
-                // Drop-down list
-                if ('list' === dataType) {
-                    if (!cell.hasClass('editing')) {
-                        cell.addClass('editing');
-
-                        $('.saveBtn').remove();
-                        $('.cancelBtn').remove();
-
-                        var container = $('<div class="input-btn-container"></div>');
-
-                        // Create the dropdown with options
-                        var select = $('<select class="editable-select form-select" value="' + currentValue + '">');
-
-                        var choices, choicesName;
-
-                        if ('platform' === cell_column) {
-                            choices = platformCategoryChoices;
-                        }
-                        else if ('category' === cell_column) {
-                            let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
-                            choices = findListContainingValue(currentValue, allCategoryChoices);
-                        }
-                        else if ('rawCurrency' === cell_column) {
-                            choices = currencyChoices;
-                        }
-                        
-                        // Populate choicesName with appropriate values
-                        choicesName = bSubList 
-                            ? choices.map(choice => choice[0]) //if it's a sublist then it'll run this line
-                            : choices.map(choice => choice.name); //if it's not a sublist then it'll run this line
-
-                        console.log(choicesName);
-
-                        //if current Value is not an enable item on the list anymore then cancel edit to avoid ruining the data record
-                        if (!choices || choices.length === 0){
-                            failToast("<b>Fail</b> to edit. The current selected option has been disabled.");
-                            cancelEdit(cell, currentValue);
-                            clearTimeout(blurTimeout);
-                            return 0;
-                        }
-
-                        // Iterate over choicesName to create and append option elements
-                        choicesName.forEach(function (option) {
-                            var choicesElement = $('<option>', {
-                                value: option, // Set the value attribute
-                                text: option // Set the displayed text
-                                }); 
-                            // Append each option to the select element
-                            select.append(choicesElement);
-                        });
-
-                        container.append(select);
-
-                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
-                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
-                        container.append(saveBtn);
-                        container.append(cancelBtn);
-
-                        cell.html(container);
-
-                        select.focus(); // Focus on the dropdown
-
-                        // Event delegation for Save and Cancel buttons (similar to before)
-                        var selectedObject
-                        container.on('click', '.saveBtn', function () {
-
-                            if (bSubList) {
-                                selectedObject = currencyChoices.find(choice => choice[0] === option);
-                            }
-
-                            else{
-                                selectedObject = choices.find(option => option.name === select.val());
-                            }
-                    
-                            updateCellValue(cell, selectedObject);
-                            clearTimeout(blurTimeout);
-                        });
-
-                        container.on('click', '.cancelBtn', function () {
-                            cancelEdit(cell, currentValue);
-                            clearTimeout(blurTimeout);
-                        });
-
-                        select.on('keyup', function (event) {
-
-                            // keyup event 'Enter' is handled by selection on the dropdown
-
-                            if (event.keyCode === 27) { // Escape key
-                                event.preventDefault();
-                                cancelEdit(cell, currentValue);
-                            }
-                            clearTimeout(blurTimeout);
-                        });
-
-                        // Blur event handling
-                        select.on('blur', function () {
-                            blurTimeout = setTimeout(function () {
-                                cancelEdit(cell, currentValue);
-                            }, 100); // Delay in milliseconds
-                        });
+                    //define dataType from cell_column
+                    switch(cell_column){
+                        case 'transactionDateTime':
+                            dataType = "dateTime";
+                            break;    
+                        case 'platform':
+                            dataType = "list";
+                            break;
+                        case 'category':
+                            dataType = "list";
+                            break;
+                        case 'rawAmount':
+                            dataType = "text";      
+                            break;                  
+                        case 'rawCurrency':
+                            dataType = "list";
+                            bSubList = true;
+                            break;     
+                        case 'note':
+                            dataType = "text";
+                            break;
+                        default:
+                            dataType = "none";
                     }
-                }
-                //Date-Time Input 
-                else if ('dateTime' === dataType){
-                    if (!cell.hasClass('editing')) {
-                        cell.addClass('editing');
+                    console.log(dataType);
 
-                        // Remove existing buttons if any
-                        $('.saveBtn, .cancelBtn').remove();
+                    // Extract and parse the content
+                    
+                    let currencyChoices = JSON.parse(document.getElementById('currencyChoices').textContent);
+                    let platformCategoryChoices = JSON.parse(document.getElementById('platformCategoryChoices').textContent);
+                    let incomeCategoryChoices = JSON.parse(document.getElementById('incomeCategoryChoices').textContent);
+                    let expenseCategoryChoices = JSON.parse(document.getElementById('expenseCategoryChoices').textContent);
+                    let savingCategoryChoices = JSON.parse(document.getElementById('savingCategoryChoices').textContent);
 
-                        // Create the container and input elements using jQuery
-                        var container = $('<div class="input-btn-container" tabindex="0"></div>');
-                        var input = $('<input class="editable-input form-control">');
-                        container.append(input);
+                    // Drop-down list
+                    if ('list' === dataType) {
+                        if (!cell.hasClass('editing')) {
+                            cell.addClass('editing');
 
-                        // Convert the jQuery input to a native DOM element
-                        const inputElement = input[0];
-                        let initialDate;
+                            $('.saveBtn').remove();
+                            $('.cancelBtn').remove();
 
-                        // Parse the initial date value from the input field using moment.js with your custom format
-                        if (currentValue !== '') {
-                            initialDate = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
-                            input.val(initialDate); // Set the input value with the formatted date
-                        }
+                            let container = $('<div class="input-btn-container"></div>');
 
-                        // Initialize Tempus Dominus with the correct options
-                        const picker = new tempusDominus.TempusDominus(inputElement, {
-                            display: {
-                                components: {
-                                    calendar: true,
-                                    date: true,
-                                    month: true,
-                                    year: true,
-                                    decades: true,
-                                    clock: true,
-                                    hours: true,
-                                    minutes: true,
-                                    seconds: false,
-                                },
-                                icons: {
-                                    time: 'fas fa-clock',
-                                    date: 'fas fa-calendar',
-                                },
-                                buttons: {
-                                    today: true,
-                                },
-                            },
-                            useCurrent: false,
-                            defaultDate: initialDate,
-                            localization: {
-                                locale: 'en',
+                            // Create the dropdown with options
+                            let select = $('<select class="editable-select form-select" value="' + currentValue + '">');
+
+                            let choices, choicesName;
+
+                            if ('platform' === cell_column) {
+                                choices = platformCategoryChoices;
                             }
-                        });
+                            else if ('category' === cell_column) {
+                                let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
+                                choices = findListContainingValue(currentValue, allCategoryChoices);
+                            }
+                            else if ('rawCurrency' === cell_column) {
+                                choices = currencyChoices;
+                            }
+                            
+                            // Populate choicesName with appropriate values
+                            choicesName = bSubList 
+                                ? choices.map(choice => choice[0]) //if it's a sublist then it'll run this line
+                                : choices.map(choice => choice.name); //if it's not a sublist then it'll run this line
 
-                        // Show the picker initially
-                        picker.show();
+                            console.log(choicesName);
 
-                        // Move the picker popup to the custom container
-                        const pickerPopup = document.querySelector('.tempus-dominus-widget');
-                        if (pickerPopup) {
-                            container.append(pickerPopup);
+                            //if current Value is not an enable item on the list anymore then cancel edit to avoid ruining the data record
+                            if (!choices || choices.length === 0){
+                                failToast("<b>Fail</b> to edit. The current selected option has been disabled.");
+                                cancelEdit(cell, currentValue);
+                                clearTimeout(blurTimeout);
+                                return 0;
+                            }
 
-                            // Create and append Save and Cancel buttons using jQuery
-                            var saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
-                            var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
-                            $(pickerPopup).append(saveBtn).append(cancelBtn);
-                        } else {
-                            console.error('Picker popup element is not defined.');
-                        }
+                            // Iterate over choicesName to create and append option elements
+                            choicesName.forEach(function (option) {
+                                let choicesElement = $('<option>', {
+                                    value: option, // Set the value attribute
+                                    text: option // Set the displayed text
+                                    }); 
+                                // Append each option to the select element
+                                select.append(choicesElement);
+                            });
 
-                        // Append the main container to the cell
-                        cell.html(container);
+                            container.append(select);
 
-                        // Set focus to the input and select its content
-                        input.get(0).setSelectionRange(0, input.val().length);
-                        input.trigger('focus');
+                            let saveBtn = $('<button type="button" class="btn btn-success saveBtn btn-primary float-end">Save</button>');
+                            let cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn btn-secondary float-end">Cancel</button>');
+                            container.append(saveBtn);
+                            container.append(cancelBtn);
 
-                        console.log('ready');
+                            cell.html(container);
 
-                        // Track if the blur event should cancel editing
-                        let shouldCancelEdit = true;
+                            select.focus(); // Focus on the dropdown
 
-                        // Delay variable for blur handling
-                        let blurTimeout;
+                            // Event delegation for Save and Cancel buttons (similar to before)
+                            let selectedObject
+                            container.on('click', '.saveBtn', function () {
 
-                        // Event delegation for Save and Cancel buttons
-                        container.on('click', '.saveBtn', function () {
-                            gPicker = picker;
-                            var selectedDate = picker.dates.lastPicked.toString();
-                            updateCellValue(cell, selectedDate); 
-                            clearTimeout(blurTimeout); // Clear any existing timeout
-                            document.removeEventListener('mousedown', handleMouseDown_forDateTime);
-                        });
+                                if (bSubList) {
+                                    selectedObject = currencyChoices.find(choice => choice[0] === option);
+                                }
 
-                        container.on('click', '.cancelBtn', function () {
-                            gPicker = picker;
-                            cancelEdit(cell, currentValue);
-                            clearTimeout(blurTimeout); // Clear any existing timeout
-                            document.removeEventListener('mousedown', handleMouseDown_forDateTime);
-                        });
+                                else{
+                                    selectedObject = choices.find(option => option.name === select.val());
+                                }
+                        
+                                updateCellValue(cell, selectedObject);
+                                clearTimeout(blurTimeout);
+                            });
 
-                        // Focus and blur event handling for the input field
-                        input.on('focus', function() {
-                            shouldCancelEdit = false; // Prevent cancellation while focusing
-                        });
+                            container.on('click', '.cancelBtn', function () {
+                                cancelEdit(cell, currentValue);
+                                clearTimeout(blurTimeout);
+                            });
 
-                        // Define the event handler function separately
-                        function handleMouseDown_forDateTime(event) {
-                            // Check if the click is outside the input and picker
-                            if (!$(event.target).closest('.input-btn-container').length) {
-                                gPicker = picker;
-                                clearTimeout(blurTimeout); // Clear any existing timeout
+                            select.on('keyup', function (event) {
+
+                                // keyup event 'Enter' is handled by selection on the dropdown
+
+                                if (event.keyCode === 27) { // Escape key
+                                    event.preventDefault();
+                                    cancelEdit(cell, currentValue);
+                                }
+                                clearTimeout(blurTimeout);
+                            });
+
+                            // Blur event handling
+                            select.on('blur', function () {
                                 blurTimeout = setTimeout(function () {
                                     cancelEdit(cell, currentValue);
-                                    document.removeEventListener('mousedown', handleMouseDown_forDateTime);
                                 }, 100); // Delay in milliseconds
+                            });
+                        }
+                    }
+                    //Date-Time Input 
+                    else if ('dateTime' === dataType){
+                        if (!cell.hasClass('editing')) {
+                            cell.addClass('editing');
+
+                            // Remove existing buttons if any
+                            $('.saveBtn, .cancelBtn').remove();
+
+                            // Create the container and input elements using jQuery
+                            let container = $('<div class="input-btn-container" tabindex="0"></div>');
+                            let input = $('<input class="editable-input form-control">');
+                            container.append(input);
+
+                            // Convert the jQuery input to a native DOM element
+                            const inputElement = input[0];
+                            let initialDate;
+
+                            // Parse the initial date value from the input field using moment.js with your custom format
+                            if (currentValue !== '') {
+                                initialDate = moment(currentValue, 'MM/DD/YYYY, hh:mm A').format('MM/DD/YYYY, hh:mm A');
+                                input.val(initialDate); // Set the input value with the formatted date
                             }
+
+                            // Initialize Tempus Dominus with the correct options
+                            const picker = new tempusDominus.TempusDominus(inputElement, {
+                                display: {
+                                    components: {
+                                        calendar: true,
+                                        date: true,
+                                        month: true,
+                                        year: true,
+                                        decades: true,
+                                        clock: true,
+                                        hours: true,
+                                        minutes: true,
+                                        seconds: false,
+                                    },
+                                    icons: {
+                                        time: 'fas fa-clock',
+                                        date: 'fas fa-calendar',
+                                    },
+                                    buttons: {
+                                        today: true,
+                                    },
+                                },
+                                useCurrent: false,
+                                defaultDate: initialDate,
+                                localization: {
+                                    locale: 'en',
+                                }
+                            });
+
+                            // Show the picker initially
+                            picker.show();
+
+                            // Move the picker popup to the custom container
+                            const pickerPopup = document.querySelector('.tempus-dominus-widget');
+                            if (pickerPopup) {
+                                container.append(pickerPopup);
+
+                                // Create and append Save and Cancel buttons using jQuery
+                                let saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
+                                let cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
+                                $(pickerPopup).append(saveBtn).append(cancelBtn);
+                            } else {
+                                console.error('Picker popup element is not defined.');
+                            }
+
+                            // Append the main container to the cell
+                            cell.html(container);
+
+                            // Set focus to the input and select its content
+                            input.get(0).setSelectionRange(0, input.val().length);
+                            input.trigger('focus');
+
+                            console.log('ready');
+
+                            // Track if the blur event should cancel editing
+                            let shouldCancelEdit = true;
+
+                            // Delay variable for blur handling
+                            let blurTimeout;
+
+                            // Event delegation for Save and Cancel buttons
+                            container.on('click', '.saveBtn', function () {
+                                gPicker = picker;
+                                let selectedDate = picker.dates.lastPicked.toString();
+                                updateCellValue(cell, selectedDate); 
+                                clearTimeout(blurTimeout); // Clear any existing timeout
+                                document.removeEventListener('mousedown', handleMouseDown_forDateTime);
+                            });
+
+                            container.on('click', '.cancelBtn', function () {
+                                gPicker = picker;
+                                cancelEdit(cell, currentValue);
+                                clearTimeout(blurTimeout); // Clear any existing timeout
+                                document.removeEventListener('mousedown', handleMouseDown_forDateTime);
+                            });
+
+                            // Focus and blur event handling for the input field
+                            input.on('focus', function() {
+                                shouldCancelEdit = false; // Prevent cancellation while focusing
+                            });
+
+                            // Define the event handler function separately
+                            function handleMouseDown_forDateTime(event) {
+                                // Check if the click is outside the input and picker
+                                if (!$(event.target).closest('.input-btn-container').length) {
+                                    gPicker = picker;
+                                    clearTimeout(blurTimeout); // Clear any existing timeout
+                                    blurTimeout = setTimeout(function () {
+                                        cancelEdit(cell, currentValue);
+                                        document.removeEventListener('mousedown', handleMouseDown_forDateTime);
+                                    }, 100); // Delay in milliseconds
+                                }
+                            }
+
+                            // Attach the event listener
+                            document.addEventListener('mousedown', handleMouseDown_forDateTime);
                         }
 
-                        // Attach the event listener
-                        document.addEventListener('mousedown', handleMouseDown_forDateTime);
                     }
 
-                }
+                    else if ('text' === dataType){
+                        if (!cell.hasClass('editing')) {
+                            cell.addClass('editing');
 
-                else if ('text' === dataType){
-                    if (!cell.hasClass('editing')) {
-                        cell.addClass('editing');
+                            $('.saveBtn').remove();
+                            $('.cancelBtn').remove();
 
-                        $('.saveBtn').remove();
-                        $('.cancelBtn').remove();
+                            let container = $('<div class="input-btn-container"></div>');
+                            let input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
+                            container.append(input);
 
-                        var container = $('<div class="input-btn-container"></div>');
-                        var input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
-                        container.append(input);
+                            let saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
+                            let cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
+                            container.append(saveBtn);
+                            container.append(cancelBtn);
 
-                        var saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');
-                        var cancelBtn = $('<button type="button" class="btn btn-danger cancelBtn float-end">Cancel</button>');
-                        container.append(saveBtn);
-                        container.append(cancelBtn);
+                            cell.html(container);
 
-                        cell.html(container);
+                            console.log(cell);
 
-                        console.log(cell);
+                            input.focus();
+                            input.get(0).setSelectionRange(0, input.val().length);
 
-                        input.focus();
-                        input.get(0).setSelectionRange(0, input.val().length);
-
-                        // Event delegation for Save and Cancel buttons
-                        container.on('click', '.saveBtn', function () {
-                            updateCellValue(cell, input.val());
-                            clearTimeout(blurTimeout);
-                        });
-
-                        container.on('click', '.cancelBtn', function () {
-                            cancelEdit(cell, currentValue);
-                            clearTimeout(blurTimeout);
-                        }); 
-
-                        input.on('keyup', function (event) {
-                            if (event.keyCode === 13) { // Enter key
-                                event.preventDefault();
+                            // Event delegation for Save and Cancel buttons
+                            container.on('click', '.saveBtn', function () {
                                 updateCellValue(cell, input.val());
-                            } 
-                            else if (event.keyCode === 27) { // Escape key
-                                event.preventDefault();
+                                clearTimeout(blurTimeout);
+                            });
+
+                            container.on('click', '.cancelBtn', function () {
                                 cancelEdit(cell, currentValue);
+                                clearTimeout(blurTimeout);
+                            }); 
+
+                            input.on('keyup', function (event) {
+                                if (event.keyCode === 13) { // Enter key
+                                    event.preventDefault();
+                                    updateCellValue(cell, input.val());
+                                } 
+                                else if (event.keyCode === 27) { // Escape key
+                                    event.preventDefault();
+                                    cancelEdit(cell, currentValue);
+                                }
+                                clearTimeout(blurTimeout);
+                            });
+
+                            // Blur event handling
+                            input.on('blur', function () {
+                                blurTimeout = setTimeout(function () {
+                                    cancelEdit(cell, currentValue);
+                                }, 100); // Delay in milliseconds
+                            });
+
+                        }
+                    }
+
+                    else{ //('none' === dataType)
+                        console.log("dataType is not defined.");
+                        failToast("<b>Error</b> <br> Please contact your admin.");
+                    }
+
+                    //---------- function for editable ----------//
+                    function updateCellValue(cell, input) {
+                        let updateValueForDatabase;
+                        let updateValueForTable;
+                        if('dateTime' === dataType){
+                            let updateValueForDatabase = formatPickerDateForPython(input);
+                            let updateValueForTable = formatPickerDateForTable(input);
+                            //hide calendar box
+                            gPicker.hide();
+                        }
+                        else if('list' === dataType){
+                            if(bSubList){
+                                updateValueForDatabase = input[0];
+                                updateValueForTable = input[0];
                             }
-                            clearTimeout(blurTimeout);
-                        });
-
-                        // Blur event handling
-                        input.on('blur', function () {
-                            blurTimeout = setTimeout(function () {
-                                cancelEdit(cell, currentValue);
-                            }, 100); // Delay in milliseconds
-                        });
-
-                    }
-                }
-
-                else{ //('none' === dataType)
-                    console.log("dataType is not defined.");
-                    failToast("<b>Error</b> <br> Please contact your admin.");
-                }
-
-                //---------- function for editable ----------//
-                function updateCellValue(cell, input) {
-                    var updateValueForDatabase;
-                    var updateValueForTable;
-                    if('dateTime' === datatype){
-                        var updateValueForDatabase = formatPickerDateForPython(input);
-                        var updateValueForTable = formatPickerDateForTable(input);
-                        //hide calendar box
-                        gPicker.hide();
-                    }
-                    else if('list' === datatype){
-                        if(bSubList){
-                            updateValueForDatabase = input[0];
-                            updateValueForTable = input[0];
+                            else{
+                            updateValueForDatabase = input.id;
+                            updateValueForTable = input.name;
+                            }
                         }
                         else{
-                        updateValueForDatabase = input.id;
-                        updateValueForTable = input.name;
+                            updateValueForDatabase = input;
+                            updateValueForTable = input;
                         }
+
+                        // Send data to Django view using AJAX
+                        // Get the CSRF token from the form
+                        let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+
+                        console.log(cell_column);
+
+                        // update model
+                        $.ajax({
+                            url: window.location.href, // Replace with the actual URL of your Django view
+                            type: 'POST',
+                            data: {
+                                'action': 'update_item',
+                                'is_sublist': bSubList,
+                                'type' : dataType ,
+                                'updateValue':  updateValueForDatabase,  // Convert array to JSON,
+                                'cell_id': cell_id,
+                                'cell_column': cell_column,
+                            },
+                            //dataType: 'json',
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader("X-CSRFToken", csrfToken);
+                            },
+                            success: function (response) {
+
+                                //update last edit info
+                                console.log($('#lastEdit-' + cell_id));
+                                console.log($('#lastEditBy-' + cell_id));
+                                console.log(response.data.lastEdit);
+                                console.log(response.data.lastEditBy);
+                                $('#lastEdit-' + cell_id).text(formatPickerDateForTable(response.data.lastEdit));
+                                $('#lastEditBy-' + cell_id).text(response.data.lastEditBy);
+
+                                //update cell value on the table
+                                cell.text(updateValueForTable);
+                                cell.removeClass('editing'); // Remove editing class
+                                console.log('Success updateCellValue:', response);
+
+                                //refresh for format
+                                refreshTable();
+                                busy = false;
+
+                            },
+                            error: function (error) {
+                                console.log('Error:', error);
+                                cell.removeClass('editing'); // Remove editing class
+                                busy = false;
+                            }
+                        });
                     }
-                    else{
-                        updateValueForDatabase = input;
-                        updateValueForTable = input;
-                    }
 
-                    // Send data to Django view using AJAX
-                    // Get the CSRF token from the form
-                    let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
+                    
 
-                    console.log(cell_column);
-
-                    // update model
-                    $.ajax({
-                        url: window.location.href, // Replace with the actual URL of your Django view
-                        type: 'POST',
-                        data: {
-                            'action': 'update_item',
-                            'is_sublist': bSubList,
-                            'type' : dataType ,
-                            'updateValue':  updateValueForDatabase,  // Convert array to JSON,
-                            'cell_id': cell_id,
-                            'cell_column': cell_column,
-                        },
-                        //dataType: 'json',
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader("X-CSRFToken", csrfToken);
-                        },
-                        success: function (response) {
-
-                            //update last edit info
-                            console.log($('#lastEdit-' + cell_id));
-                            console.log($('#lastEditBy-' + cell_id));
-                            console.log(response.data.lastEdit);
-                            console.log(response.data.lastEditBy);
-                            $('#lastEdit-' + cell_id).text(formatPickerDateForTable(response.data.lastEdit));
-                            $('#lastEditBy-' + cell_id).text(response.data.lastEditBy);
-
-                            //update cell value on the table
-                            cell.text(updateValueForTable);
-                            cell.removeClass('editing'); // Remove editing class
-                            console.log('Success updateCellValue:', response);
-
-                            //refresh for format
-                            refreshTable();
-                            busy = false;
-
-                        },
-                        error: function (error) {
-                            console.log('Error:', error);
-                            cell.removeClass('editing'); // Remove editing class
-                            busy = false;
+                    function cancelEdit(cell, currentValue) {
+                        if(cell_column === 'transactionDateTime'){
+                            //hide calendar box
+                            gPicker.hide();
                         }
-                    });
-                }
-
-                
-
-                function cancelEdit(cell, currentValue) {
-                    if(cell_column === 'transactionDateTime'){
-                        //hide calendar box
-                        gPicker.hide();
+                        cell.text(currentValue);
+                        cell.removeClass('editing'); // Remove editing class
+                        busy = false;
                     }
-                    cell.text(currentValue);
-                    cell.removeClass('editing'); // Remove editing class
-                    busy = false;
-                }
 
+                }
             }
+            else{
+                failToast('Please login to edit the table.');
+            }
+
         });
 
         //---------- function for entire table ----------//
@@ -543,42 +552,42 @@
             console.log(dateString);
             console.log("---");
             // Parse the date string into a Date object
-            var date = new Date(dateString);
+            let date = new Date(dateString);
 
             // Extract individual components
-            var year = date.getFullYear();
-            var month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-indexed
-            var day = ('0' + date.getDate()).slice(-2);
-            var hours = ('0' + date.getHours()).slice(-2);
-            var minutes = ('0' + date.getMinutes()).slice(-2);
-            var seconds = ('0' + date.getSeconds()).slice(-2);
-            var milliseconds = ('00' + date.getMilliseconds()).slice(-3);
+            let year = date.getFullYear();
+            let month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-indexed
+            let day = ('0' + date.getDate()).slice(-2);
+            let hours = ('0' + date.getHours()).slice(-2);
+            let minutes = ('0' + date.getMinutes()).slice(-2);
+            let seconds = ('0' + date.getSeconds()).slice(-2);
+            let milliseconds = ('00' + date.getMilliseconds()).slice(-3);
             
             // Format timezone offset
-            var timezoneOffset = -date.getTimezoneOffset();
-            var sign = timezoneOffset >= 0 ? '+' : '-';
-            var offsetHours = ('0' + Math.floor(Math.abs(timezoneOffset) / 60)).slice(-2);
-            var offsetMinutes = ('0' + (Math.abs(timezoneOffset) % 60)).slice(-2);
-            var timezone = `${sign}${offsetHours}:${offsetMinutes}`;
+            let timezoneOffset = -date.getTimezoneOffset();
+            let sign = timezoneOffset >= 0 ? '+' : '-';
+            let offsetHours = ('0' + Math.floor(Math.abs(timezoneOffset) / 60)).slice(-2);
+            let offsetMinutes = ('0' + (Math.abs(timezoneOffset) % 60)).slice(-2);
+            let timezone = `${sign}${offsetHours}:${offsetMinutes}`;
 
             // Construct the formatted date string
-            var formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}${timezone}`;
+            let formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}${timezone}`;
             return formattedDate;
         }
 
         function formatPickerDateForTable(dateString) {
             // Parse the date string into a Moment object
-            var momentDate = moment(dateString);
+            let momentDate = moment(dateString);
 
             // Format the date according to the specified format
-            var formattedDate = momentDate.format('MM/DD/YYYY, hh:mm A');
+            let formattedDate = momentDate.format('MM/DD/YYYY, hh:mm A');
             return formattedDate;
         }
 
         function convertTextToArray(text){ 
             text = text.slice(1, -1); // Remove the leading and trailing brackets from the string
-            var strArray = text.split(','); // Split the string by commas to create an array
-            var resultArray = strArray.map(function(item) { // Trim any extra whitespace and surrounding quotes from each item
+            let strArray = text.split(','); // Split the string by commas to create an array
+            let resultArray = strArray.map(function(item) { // Trim any extra whitespace and surrounding quotes from each item
                 return item.trim().replace(/^['"](.*)['"]$/, '$1');
             });
 
@@ -614,7 +623,7 @@
         }
 
         function ifListContainingValue(value, list){
-            var resultList = [];
+            let resultList = [];
 
             resultList = list.filter(item => item.name !== value.trim());
 
@@ -623,63 +632,7 @@
 
     });
 
-    function successToast(messageText) {
-        // Create toast HTML and append it to the body
-        var toastHtml = `
-            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
-                <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="4000">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            ${messageText}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Append toast to body
-        $('body').append(toastHtml);
-
-        // Show toast notification
-        var toastEl = document.getElementById('successToast');
-        var toast = new bootstrap.Toast(toastEl);
-        toast.show();
-
-        // Optionally, remove the toast element after it disappears
-        toastEl.addEventListener('hidden.bs.toast', function () {
-            $(toastEl).closest('.toast-container').remove(); // Remove the toast container
-        });
-    }
-
-    function failToast(messageText) {
-        // Create toast HTML and append it to the body
-        var toastHtml = `
-            <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3">
-                <div id="failToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="6000">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            ${messageText}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Append toast to body
-        $('body').append(toastHtml);
-
-        // Show toast notification
-        var toastEl = document.getElementById('failToast');
-        var toast = new bootstrap.Toast(toastEl);
-        toast.show();
-
-        // Optionally, remove the toast element after it disappears
-        toastEl.addEventListener('hidden.bs.toast', function () {
-            $(toastEl).closest('.toast-container').remove(); // Remove the toast container
-        });
-    }
+    
 
 </script>
 {% endblock extrajs %}

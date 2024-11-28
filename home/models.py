@@ -90,6 +90,7 @@ class IncomeExpenseData(models.Model):
 
     platform = models.ForeignKey(PlatformCategory, on_delete=models.CASCADE)
     category = models.CharField(max_length=100)
+    #categoryType = models.CharField(max_length=100)
 
     rawAmount = models.DecimalField(max_digits=10, decimal_places=2)
     currencyChoices = (

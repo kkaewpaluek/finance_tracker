@@ -859,6 +859,7 @@ def data_income_expense(request):
             'incomeCategoryChoices': list(incomeCategoryChoices), # Convert QuerySet to list of dicts
             'expenseCategoryChoices': list(expenseCategoryChoices), # Convert QuerySet to list of dicts
             'savingCategoryChoices': list(savingCategoryChoices), # Convert QuerySet to list of dicts
+            'UserIsAuthenticated': request.user.is_authenticated
         }
         return render(request, 'pages/expense_tracking/data_income_expense.html', context)
     
