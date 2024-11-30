@@ -877,7 +877,7 @@ def data_income_expense(request):
         
         record = IncomeExpenseData.objects.get(id=int(cell_id))
 
-        # Get updateObject if dataType is 'list'
+        """     # Get updateObject if dataType is 'list'
         if 'list' == dataType:
             if 'true' == bSubList:
                 updateObject = PlatformCategory.objects.get(id=int(updateValue)) #still need to fix this. it needs to be different as it's not a modal.
@@ -892,15 +892,15 @@ def data_income_expense(request):
             'rawAmount': updateValue,
             'rawCurrency': updateObject,
             'note': updateValue
-        }
+        } """
 
         # Create a mapping for cell_column to record attributes
         column_attributes_mapping = {
             'transactionDateTime': updateValue,
-            'platform': updateObject,
-            'category': updateObject,
+            'platform': updateValue,
+            'category': updateValue,
             'rawAmount': updateValue,
-            'rawCurrency': updateObject,
+            'rawCurrency': updateValue,
             'note': updateValue
         }
 
