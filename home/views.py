@@ -944,11 +944,12 @@ def data_asset(request):
 
 def add_income_expense(request):
 
+    platformCategory = PlatformCategory.objects.all()
+    incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
+    expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
+    incomeExpenseData = IncomeExpenseData.objects.all()# Fetch all Platform objects
+
     if request.method == 'GET': # When load the URL first time
-        platformCategory = PlatformCategory.objects.all()
-        incomeCategory = IncomeCategory.objects.all() # Fetch all Platform objects
-        expenseCategory = ExpenseCategory.objects.all() # Fetch all Platform objects
-        incomeExpenseData = IncomeExpenseData.objects.all() # Fetch all Platform objects
 
         # Access the currency choices from the model
         currencyChoices = IncomeExpenseData.currencyChoices
@@ -972,11 +973,15 @@ def add_income_expense(request):
             addRawAmount = request.POST.get('rawAmount', None)
             addRawCurrency = request.POST.get('rawCurrency', None)
             addNote = request.POST.get('note', None)
+            addCategoryType = request.POST.get('categoryType', None)
+
+            matchedPlatform = PlatformCategory.objects.filter(name=addPlatform).first()
 
             record = IncomeExpenseData.objects.create(
                 transactionDateTime = addTransactionDateTime,
-                platform = addPlatform,
+                platform = matchedPlatform,
                 category = addCategory,
+                categoryType = addCategoryType,
                 rawAmount = addRawAmount,
                 rawCurrency = addRawCurrency,
                 note = addNote,
@@ -992,7 +997,7 @@ def add_income_expense(request):
 
             serialized_data = {
                 'transactionDateTime': record.transactionDateTime,
-                'platform': record.platform,
+                'platform': record.platform.name,
                 'category': record.category,
                 'rawAmount': record.rawAmount,
                 'rawCurrency': record.rawCurrency,

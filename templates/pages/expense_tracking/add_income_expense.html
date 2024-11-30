@@ -294,9 +294,11 @@
 
         if(bExpense){
             inputCategory = inputExpenseCategory;
+            inputCategoryType = 'Expense';
         }
         else if(bIncome){
             inputCategory = inputIncomeCategory;
+            inputCategoryType = 'Income';
         }
         else{
             failMessage('Oops! Something went wrong. Contact the admin!')
@@ -330,6 +332,7 @@
                     'transactionDateTime': inputTransactionDatetimeValue,
                     'platform': inputPlatform.val(),
                     'category': inputCategory.val(),
+                    'categoryType': inputCategoryType,
                     'rawAmount': inputRawAmountValue,
                     'rawCurrency': inputRawCurrency.val(),
                     'note': inputNote.val(),

@@ -36,14 +36,12 @@
             <div class="row row-cards">
 
                 <div class="col-md-15">
-
-                    <div id="temp_currencyChoices" hidden>{{ currencyChoices | safe }}</div>  
-                    <div id="currencyChoices" hidden>{{ currencyChoices |json_script:"currencyChoices"  }}</div>  
-                        
-                    <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices|json_script:"platformCategoryChoices" }}</div>
-                    <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices|json_script:"incomeCategoryChoices" }}</div>
-                    <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices|json_script:"expenseCategoryChoices" }}</div>
-                    <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices|json_script:"savingCategoryChoices" }}</div>
+                        <div id="temp_currencyChoices" hidden>{{ currencyChoices | safe }}</div>  
+                        <div id="currencyChoices" hidden>{{ currencyChoices |json_script:"currencyChoices"  }}</div>  
+                        <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices|json_script:"platformCategoryChoices" }}</div>
+                        <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices|json_script:"incomeCategoryChoices" }}</div>
+                        <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices|json_script:"expenseCategoryChoices" }}</div>
+                        <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices|json_script:"savingCategoryChoices" }}</div>
 
                     <table id="incomeExpenseDataTable" class="table-data table table-striped"
                         data-model="IncomeExpenseData" style="width:100%">
@@ -68,8 +66,8 @@
                                 <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{item.transactionDateTime|date:"m/d/Y, h:i A" }}</td>
                                 <!-- <td id="datetimepicker-{{item.id}}" data-id="{{item.id}}" data-column="transactionDateTime" class="editable">{{ item.transactionDateTime}}</td>
                                  -->
-                                <td data-id="{{item.id}}" data-column="platform" class="editable">{{ item.platform }}
-                                <td data-id="{{item.id}}" data-column="category" class="editable">{{ item.category }}</td>
+                                <td data-id="{{item.id}}" data-column="platform" class="editable">{{ item.platform }}</td>
+                                <td data-id="{{item.id}}" data-column="category" data-categorytype="{{ item.categoryType }}" class="editable">{{ item.category }}</td>
                                 <td data-id="{{item.id}}" data-column="rawAmount" class="editable">{{ item.rawAmount }}</td>
                                 <td data-id="{{item.id}}" data-column="rawCurrency" class="editable">{{item.rawCurrency}}</td>
                                 <td data-id="{{item.id}}" data-column="note" class="editable">{{ item.note }}</td>
@@ -126,6 +124,7 @@
                     let currentValue = cell.text();
                     let cell_id = cell.data('id');
                     let cell_column = cell.data('column');
+                    let cell_categoryType = 'Not Applicable';
                     let data_type;
                     let bSubList = false;
 
@@ -139,6 +138,7 @@
                             break;
                         case 'category':
                             dataType = "list";
+                            cell_categoryType = cell.data('categorytype');
                             break;
                         case 'rawAmount':
                             dataType = "text";      
@@ -153,7 +153,7 @@
                         default:
                             dataType = "none";
                     }
-                    console.log(dataType);
+
 
                     // Extract and parse the content
                     
@@ -178,12 +178,24 @@
 
                             let choices, choicesName;
 
+                            console.log(cell_categoryType);
+                            console.log(expenseCategoryChoices);
+
                             if ('platform' === cell_column) {
                                 choices = platformCategoryChoices;
                             }
                             else if ('category' === cell_column) {
-                                let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
-                                choices = findListContainingValue(currentValue, allCategoryChoices);
+                                if('Income' === cell_categoryType) {
+                                    choices = incomeCategoryChoices;
+                                }
+                                else if('Expense' === cell_categoryType) {
+                                    choices = expenseCategoryChoices;
+                                }
+                                else //'Saving' === cell_categoryType
+                                    choices = savingCategoryChoices;
+
+                                //let allCategoryChoices = [incomeCategoryChoices, expenseCategoryChoices, savingCategoryChoices];
+                                //choices = findListContainingValue(currentValue, allCategoryChoices);
                             }
                             else if ('rawCurrency' === cell_column) {
                                 choices = currencyChoices;
