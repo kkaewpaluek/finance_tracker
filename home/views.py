@@ -17,6 +17,7 @@ from .models import IncomeExpenseData
 from .models import AssetData
 import datetime
 
+@login_required
 def index_template(request):
     context = {
         'parent': '',
@@ -950,6 +951,9 @@ def add_income_expense(request):
     incomeExpenseData = IncomeExpenseData.objects.all()# Fetch all Platform objects
 
     if request.method == 'GET': # When load the URL first time
+
+        """         if not request.user.is_authenticated:
+        return redirect('login')  """
 
         # Access the currency choices from the model
         currencyChoices = IncomeExpenseData.currencyChoices

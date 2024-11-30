@@ -68,7 +68,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "home.middleware.LoginRequiredMiddleware",
 ]
+
+LOGIN_URL = '/accounts/login/'
 
 ROOT_URLCONF = "core.urls"
 
@@ -180,3 +183,6 @@ CRISPY_TEMPLATE_PACK="bootstrap5"
 
 LOGIN_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+
