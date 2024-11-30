@@ -978,12 +978,13 @@ def add_income_expense(request):
             addRawCurrency = request.POST.get('rawCurrency', None)
             addNote = request.POST.get('note', None)
             addCategoryType = request.POST.get('categoryType', None)
+            print(addPlatform)
 
-            matchedPlatform = PlatformCategory.objects.filter(name=addPlatform).first()
+            #matchedPlatform = PlatformCategory.objects.filter(name=addPlatform).first()
 
             record = IncomeExpenseData.objects.create(
                 transactionDateTime = addTransactionDateTime,
-                platform = matchedPlatform,
+                platform = addPlatform,
                 category = addCategory,
                 categoryType = addCategoryType,
                 rawAmount = addRawAmount,
@@ -1001,7 +1002,7 @@ def add_income_expense(request):
 
             serialized_data = {
                 'transactionDateTime': record.transactionDateTime,
-                'platform': record.platform.name,
+                'platform': record.platform,
                 'category': record.category,
                 'rawAmount': record.rawAmount,
                 'rawCurrency': record.rawCurrency,
