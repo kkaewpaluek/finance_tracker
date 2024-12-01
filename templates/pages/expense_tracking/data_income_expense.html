@@ -101,9 +101,6 @@
         let gPicker;
         let bUserIsAuthenticated = {{ UserIsAuthenticated|yesno:"true,false"}};
 
-        //console.log(allTable);
-        //console.log(bUserIsAuthenticated);
-
         allTable.DataTable({
             "paging": false, // Disable pagination if needed
             "info": false, // Disable info text if needed
@@ -178,9 +175,6 @@
 
                             let choices, choicesName;
 
-                            console.log(cell_categoryType);
-                            console.log(expenseCategoryChoices);
-
                             if ('platform' === cell_column) {
                                 choices = platformCategoryChoices;
                             }
@@ -205,8 +199,6 @@
                             choicesName = bSubList 
                                 ? choices.map(choice => choice[0]) //if it's a sublist then it'll run this line
                                 : choices.map(choice => choice.name); //if it's not a sublist then it'll run this line
-
-                            console.log(choicesName);
 
                             //if current Value is not an enable item on the list anymore then cancel edit to avoid ruining the data record
                             if (!choices || choices.length === 0){
@@ -352,8 +344,6 @@
                             input.get(0).setSelectionRange(0, input.val().length);
                             input.trigger('focus');
 
-                            console.log('ready');
-
                             // Track if the blur event should cancel editing
                             let shouldCancelEdit = true;
 
@@ -418,8 +408,6 @@
 
                             cell.html(container);
 
-                            console.log(cell);
-
                             input.focus();
                             input.get(0).setSelectionRange(0, input.val().length);
 
@@ -477,7 +465,7 @@
                                 updateValueForTable = input[0];
                             }
                             else{
-                            updateValueForDatabase = input.id;
+                            updateValueForDatabase = input.name;
                             updateValueForTable = input.name;
                             }
                         }
@@ -489,8 +477,6 @@
                         // Send data to Django view using AJAX
                         // Get the CSRF token from the form
                         let csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-
-                        console.log(cell_column);
 
                         // update model
                         $.ajax({
@@ -561,8 +547,6 @@
         //input  -> "Wed Jul 17 2024 18:17:08 GMT+0700 (Indochina Time)"
         //output -> "2024-07-17 18:17:08.000+07:00"
         function formatPickerDateForPython(dateString) {
-            console.log(dateString);
-            console.log("---");
             // Parse the date string into a Date object
             let date = new Date(dateString);
 
