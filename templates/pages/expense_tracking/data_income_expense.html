@@ -102,6 +102,17 @@
             const rawAmountCell = row.querySelector('[data-column="rawAmount"]');
             const rawAmountValue = parseFloat(rawAmountCell.textContent.trim());
 
+            // Format the value to a general accounting format (comma, two decimals)
+            const formattedAmount = new Intl.NumberFormat('en-US', {
+                style: 'decimal',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(rawAmountValue);
+
+            // Update the cell text with formatted value
+            rawAmountCell.textContent = formattedAmount;
+
+            // Apply color formatting based on the value
             if (rawAmountValue > 0) {
                 rawAmountCell.classList.add("text-success"); // Green
             } else if (rawAmountValue === 0) {
