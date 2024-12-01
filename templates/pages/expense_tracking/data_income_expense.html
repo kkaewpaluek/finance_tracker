@@ -36,12 +36,12 @@
             <div class="row row-cards">
 
                 <div class="col-md-15">
-                        <div id="temp_currencyChoices" hidden>{{ currencyChoices | safe }}</div>  
-                        <div id="currencyChoices" hidden>{{ currencyChoices |json_script:"currencyChoices"  }}</div>  
-                        <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices|json_script:"platformCategoryChoices" }}</div>
-                        <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices|json_script:"incomeCategoryChoices" }}</div>
-                        <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices|json_script:"expenseCategoryChoices" }}</div>
-                        <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices|json_script:"savingCategoryChoices" }}</div>
+                    <div id="temp_currencyChoices" hidden>{{ currencyChoices | safe }}</div>  
+                    <div id="currencyChoices" hidden>{{ currencyChoices |json_script:"currencyChoices"  }}</div>  
+                    <div id="platformCategoryChoices" hidden>{{ platformCategoryChoices|json_script:"platformCategoryChoices" }}</div>
+                    <div id="incomeCategoryChoices" hidden>{{ incomeCategoryChoices|json_script:"incomeCategoryChoices" }}</div>
+                    <div id="expenseCategoryChoices" hidden>{{ expenseCategoryChoices|json_script:"expenseCategoryChoices" }}</div>
+                    <div id="savingCategoryChoices" hidden>{{ savingCategoryChoices|json_script:"savingCategoryChoices" }}</div>
 
                     <table id="incomeExpenseDataTable" class="table-data table table-striped"
                         data-model="IncomeExpenseData" style="width:100%">
@@ -90,6 +90,28 @@
 
 {% block extrajs %}
 <script>
+
+    //make the data under rawAmount column
+    // green if > 0
+    // gray if = 0
+    // red if < 0
+    document.addEventListener("DOMContentLoaded", function () {
+        const tableRows = document.querySelectorAll("#incomeExpenseDataTable tbody tr");
+
+        tableRows.forEach(row => {
+            const rawAmountCell = row.querySelector('[data-column="rawAmount"]');
+            const rawAmountValue = parseFloat(rawAmountCell.textContent.trim());
+
+            if (rawAmountValue > 0) {
+                rawAmountCell.classList.add("text-success"); // Green
+            } else if (rawAmountValue === 0) {
+                rawAmountCell.classList.add("text-secondary"); // Gray
+            } else if (rawAmountValue < 0) {
+                rawAmountCell.classList.add("text-danger"); // Red
+            }
+        });
+    });
+
 
     $(document).ready(function () {
 
@@ -626,7 +648,7 @@
             return resultList;
         }
 
-    });
+    }); //it's red because Django template is being used.
 
     
 
