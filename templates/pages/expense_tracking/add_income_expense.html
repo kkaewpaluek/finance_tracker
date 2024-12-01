@@ -96,8 +96,8 @@
                                         <h2 class="p-0 m-0"> + </h2>
                                     </div>
                                     <div class="col-auto ">
-                                        <input id="inputRawAmount" data-object="RawAmount" type="number" min="0" step="10"
-                                            class="input-editable form-control col-auto w-auto" value="">
+                                        <input id="inputRawAmount" data-object="RawAmount" type="text" min="0" step="10"
+                                            class="input-editable input-accountFormat form-control col-auto w-auto" value="">
                                     </div>
                                     <div class="col-auto ">
                                         <select id="inputRawCurrency" data-object="RawCurrency"
@@ -183,7 +183,6 @@
 
 
 <script>
-
     var bExpense = true;
     bIncome = false;
 
@@ -199,8 +198,9 @@
     inputNote = $('#inputNote');
 
     document.addEventListener("DOMContentLoaded", function () {
-        
-        
+
+        const input_test = new NumberInputFormatter($(document).find('.input-accountFormat'));
+
 
         //DateTime
         inputTransactionDatetime.val(todayDateTime);
@@ -308,9 +308,11 @@
             failMessage('Oops! Something went wrong. Contact the admin!')
         }
 
-        if ('' !== inputTransactionDatetime.val() && '' !== inputPlatform.val() && '' !== inputCategory.val() && '' !== inputRawAmount.val() && '' !== inputRawCurrency.val()) {
+        if ('' !== inputTransactionDatetime.val() && '' !== inputPlatform.val() && '' !== inputCategory.val() && '' !== inputRawAmount.data("realvalue") && '' !== inputRawCurrency.val()) {
             //&& inputPlatform.val() === '' && inputCategory.val() === '' && inputRawAmount.val() === '' && inputRawCurrency.val() === '') {
-
+            console.log(inputTransactionDatetime.val());
+            console.log(inputPlatform.val());
+            console.log(inputRawAmount.data("realvalue"));
 
             //inputTransactionDatetime = formatPickerDateForPython($('#inputTransactionDatetime').val());
             inputTransactionDatetimeValue = formatPickerDateForPython(inputTransactionDatetime.val());

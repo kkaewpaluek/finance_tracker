@@ -1,0 +1,1030 @@
+<script>
+
+    /**
+     * All Classes defined here
+     *
+     * 
+     * 
+     * 
+     * 
+     * 
+     */
+    class RoomCalendar {
+        constructor(component_id, clickFunction, changeFunction, options = {}) {
+            this.component_id = component_id;
+            this.component_el = $(component_id);
+
+            if (typeof clickFunction === 'function') {
+                this.clickFunction = clickFunction;
+            }
+
+            if (typeof changeFunction === 'function') {
+                this.changeFunction = changeFunction;
+            }
+
+
+            this.handleClick = this.handleClick.bind(this);
+
+            const DAYS_SUNDAY_START = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const DAYS_MONDAY_START = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const THAI_MONTH_FULL = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+            const THAI_MONTH_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const THAI_SUNDAY_START = ['อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'];
+            const THAI_SUNDAY_START_SHORT = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
+            const THAI_MONDAY_START = ['จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์', 'อาทิตย์'];
+            const THAI_MONDAY_START_SHORT = ['จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.', 'อา.'];
+
+            const MONTH_FULL = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+
+
+            this.start_monday = options.start_monday || false;
+            this.thai = options.thai || false;
+
+            // Extract options or use default values
+            this.currentDate = options.currentDate || new Date();
+            this.currentYear = this.currentDate.getFullYear();
+            this.currentMonth = this.currentDate.getMonth() + 1;
+
+            this.cYear = options.defaultYear || this.currentYear;
+            this.cMonth = options.defaultMonth || this.currentMonth;
+
+
+
+
+            this.monthNames = this.thai ? THAI_MONTH_FULL : MONTH_FULL;
+
+            this.shortMonthNames = this.thai ? THAI_MONTH_SHORT : MONTH_FULL.map(month => month.slice(0, 3));
+
+            if (this.thai)
+                this.dayNames = this.start_monday ? THAI_MONDAY_START_SHORT : THAI_SUNDAY_START_SHORT; //THAI
+            else
+                this.dayNames = this.start_monday ? DAYS_MONDAY_START : DAYS_SUNDAY_START; //ENG
+
+
+
+
+
+
+            this.calendar_block = $(`<div class="d-flex flex-column justify-content-between user-select-none"></div>`);
+            this.calendar_head = $(`<div class="d-flex justify-content-between align-items-center p-1 w-100">
+                            <div class="prev-btn btn material-symbols-rounded">arrow_back</div>
+                            <div class="monthYear m-0 btn reset-btn" style="min-width: 105px;"></div>
+                            <div class="next-btn btn material-symbols-rounded">
+                                arrow_forward
+                            </div>
+                        </div>`
+            );
+            this.calendar_body = $(`<div class="calendar-body"></div>`);
+
+
+            this.calendar_block.append(this.calendar_head);
+            this.calendar_block.append(this.calendar_body);
+
+            this.component_el.html(this.calendar_block);
+
+            this.component_el.addClass('salesRoomCalendar');
+
+            this.date_click = '';
+
+            this.init();
+        }
+
+
+        handleClick() {
+            //event.preventDefault();
+            if (this.clickFunction) {
+                calendar_selected_date = this.date_click; //format Y-m-d
+                this.clickFunction(this.date_click);
+            }
+        }
+
+        attachClickListener() {
+            $(document).on('click', `#${this.elementId}`, this.handleClick);
+        }
+
+        detachClickListener() {
+            $(document).off('click', `#${this.elementId}`, this.handleClick);
+        }
+
+        formatDate(year, month, day) {
+            return `${year}-${('0' + month).slice(-2)}-${('0' + day).slice(-2)}`;
+        }
+
+        generateCalendar(year, month) {
+
+
+            const daysInMonth = new Date(year, month, 0).getDate();
+            let firstDay = new Date(year, month - 1, 1).getDay();
+
+            if (this.start_monday)
+                firstDay == 0 ? firstDay = 6 : firstDay--;
+
+            const today = new Date();
+            const todayFormatted = this.formatDate(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+            //calendar_selected_date = todayFormatted;
+
+
+            let calendar_content = this.component_el.find('.calendar-body');
+            calendar_content.html(''); //clear everything
+
+
+            //day of week
+            let dayNamesRow = this.dayNames.map(name => `<div class="head-box text-center">${name}</div>`).join('');
+
+            const calendar_day = $(`<div class="d-flex justify-content-between align-items-center"></div>`);
+
+            calendar_content.append(calendar_day.append(dayNamesRow));
+
+
+
+
+            let calendar = '';
+            let row_complete = 0;
+            let week = '<div class="d-flex justify-content-between align-items-center">';
+            // Padding for first day of the month
+            for (let i = 0; i < firstDay; i++) {
+                week += '<div class="day-box"></div>';
+            }
+            for (let day = 1; day <= daysInMonth; day++) {
+                let date = `${year}-${('0' + month).slice(-2)}-${('0' + day).slice(-2)}`;
+
+                //let dayEvent = events.find(e => e.date === date);
+
+
+                /* It is today */
+                let isToday = date === todayFormatted ? 'istoday' : '';
+
+                if ((day + firstDay - 1) % 7 === 0) {
+                    row_complete = 0;
+                    calendar += week + '</div>';
+                    week = '<div class="d-flex justify-content-between align-items-center">';
+                }
+
+
+                week += `<div class="day-box event ${isToday}" data-date="${date}" ><div class="day-number">${day}</div></div>`;
+
+                row_complete++;
+
+            }
+
+            /* Fill up last row */
+            for (let day = 0; day < (7 - row_complete); day++) {
+                week += `<div class="day-box"></div>`;
+            }
+
+            week += '</div>'; // Close any open row
+            calendar_content.append(calendar + week);
+
+            this.component_el.find('.monthYear').text(`${this.monthNames[month - 1]} ${this.thai ? year + 543 : year}`);
+            let self = this;
+            this.component_el.find('.day-box').on('click', function () {
+                // Remove 'selected' from all elements
+                self.component_el.find('.day-box').removeClass('selected');
+                //only activate if it's date (not blank)
+                if ($(this).is('[data-date]')) {
+                    // Add 'selected' to the clicked element
+                    $(this).addClass('selected');
+                    self.date_click = $(this).data('date');
+                    self.handleClick();
+                }
+            });
+        }
+
+
+
+        init() {
+            this.generateCalendar(this.currentYear, this.currentMonth);
+            this.prevMonth();
+            this.nextMonth();
+            this.resetCalendar();
+            if (this.changeFunction) {
+                this.changeFunction(this.currentMonth, this.currentYear);
+            }
+        }
+
+        prevMonth() {
+            let self = this; // Preserve reference to 'this'
+            this.component_el.find('.prev-btn').on('click', function () {
+                if (self.currentMonth === 1) {
+                    self.currentMonth = 12;
+                    self.currentYear -= 1;
+                } else {
+                    self.currentMonth -= 1;
+                }
+                self.generateCalendar(self.currentYear, self.currentMonth);
+
+                if (self.changeFunction) {
+                    self.changeFunction(self.currentMonth, self.currentYear);
+                }
+            });
+        }
+
+
+        nextMonth() {
+            let self = this; // Preserve reference to 'this'
+            this.component_el.find('.next-btn').on('click', function () {
+                if (self.currentMonth === 12) {
+                    self.currentMonth = 1;
+                    self.currentYear += 1;
+                } else {
+                    self.currentMonth += 1;
+                }
+                self.generateCalendar(self.currentYear, self.currentMonth);
+
+                if (self.changeFunction) {
+                    self.changeFunction(self.currentMonth, self.currentYear);
+                }
+            });
+        }
+
+        resetCalendar() {
+            let self = this;
+            this.component_el.find('.reset-btn').on('click', function () {
+                self.currentMonth = self.cMonth;
+                self.currentYear = self.cYear;
+                self.generateCalendar(self.currentYear, self.currentMonth);
+
+                if (self.changeFunction) {
+                    self.changeFunction(self.currentMonth, self.currentYear);
+                }
+            });
+        }
+    }
+
+
+
+
+    class SalesRoom {
+        constructor(data = {}, callbacks = {}) {
+            // Define the default data and callbacks
+            this.objectData = Object.assign({}, data);
+            this.callbacks = Object.assign({}, callbacks);
+
+            this.objectData['viewMode'] = 'edit';
+
+            // Create a proxy to monitor changes in properties
+            return new Proxy(this, {
+                set: (target, property, value) => {
+                    const oldValue = target.objectData[property];
+
+
+                    if (target.objectData['viewMode'] === 'edit') {
+                        target.objectData[property] = value;
+                    }
+
+                    // Trigger the corresponding callback if exists
+                    if (target.callbacks[property] && typeof target.callbacks[property] === 'function') {
+                        target.callbacks[property](oldValue, value);
+                    } else {
+                        //console.warn(`No callback defined for ${property}`);
+                    }
+
+                    return true; // Indicate that the assignment was successful
+                },
+                get: (target, property) => {
+                    // Allow access to methods in the class
+                    if (property in target) {
+                        return target[property]; // Access method
+                    }
+                    return target.objectData[property]; // Access data
+                }
+            });
+        }
+
+        // Add callback method
+        addCallback(key, callbackFunction) {
+            this.callbacks[key] = callbackFunction;
+        }
+
+
+        // Method to return the entire data object
+        getData() {
+            return this.objectData;
+        }
+    }
+
+
+
+
+    class ModelRecordObject {
+        constructor(data = {}, callbacks = {}) {
+            this.objectData = { ...data };
+            this.callbacks = { ...callbacks };
+            this.objectData['viewMode'] = 'edit';
+
+            return new Proxy(this, {
+                set: (target, property, value) => {
+                    const oldValue = target.objectData[property];
+
+                    if (target.objectData['viewMode'] === 'edit') {
+                        target.objectData[property] = value;
+                    }
+
+                    if (target.callbacks[property] && typeof target.callbacks[property] === 'function') {
+                        target.callbacks[property](oldValue, value);
+                    }
+
+                    return true;
+                },
+                get: (target, property) => {
+                    if (property in target) {
+                        return target[property];
+                    }
+                    return target.objectData[property];
+                }
+            });
+        }
+
+        addCallback(key, callbackFunction) {
+            this.callbacks[key] = callbackFunction;
+        }
+
+        getData() {
+            return this.objectData;
+        }
+    }
+
+    class ModelRecordsArray {
+        constructor(dataArray = [], callbacks = {}) {
+            this.records = dataArray.map(data => new ModelRecordObject(data, callbacks));
+        }
+
+        addRecord(data = {}, callbacks = {}) {
+            const record = new ModelRecordObject(data, callbacks);
+            this.records.push(record);
+            return record;
+        }
+
+        getAllData() {
+            return this.records.map(record => record.getData());
+        }
+
+        findRecord(key, value) {
+            return this.records.find(record => record[key] === value);
+        }
+
+        addCallbackToAll(key, callbackFunction) {
+            this.records.forEach(record => record.addCallback(key, callbackFunction));
+        }
+
+        // Method to apply values to corresponding HTML elements, handling multiple input types
+        applyValuesToAttributes() {
+            this.records.forEach(record => {
+                const data = record.getData();
+                Object.keys(data).forEach(key => {
+                    const elements = $(`[data-json-key="${key}"]`);
+                    const value = data[key];
+
+                    elements.each(function () {
+                        const $element = $(this);
+                        const elementType = $element.attr("type");
+
+                        if ($element.is("input")) {
+                            switch (elementType) {
+                                case "checkbox":
+                                    $element.prop("checked", Boolean(value));
+                                    break;
+                                case "radio":
+                                    $element.prop("checked", $element.val() === value.toString());
+                                    break;
+                                case "date":
+                                    $element.val(value ? new Date(value).toISOString().split("T")[0] : "");
+                                    break;
+                                case "number":
+                                case "text":
+                                    $element.val(value);
+                                    break;
+                                default:
+                                    $element.val(value);
+                            }
+                        } else if ($element.is("textarea")) {
+                            $element.text(value);
+                        } else if ($element.is("select")) {
+                            $element.val(value);
+                        }
+                    });
+                });
+            });
+        }
+    }
+
+    // Usage example
+    /*
+    const dataArray = [
+        { id: 1, name: 'Record 1', value: 10, active: true, created: '2024-10-28' },
+        { id: 2, name: 'Record 2', value: 20, active: false, created: '2024-10-27' }
+    ];
+    const callbacks = {
+        value: (oldValue, newValue) => {
+            console.log(`Value changed from ${oldValue} to ${newValue}`);
+        }
+    };
+    
+    const recordsArray = new ModelRecordsArray(dataArray, callbacks);
+    recordsArray.applyValuesToAttributes();
+    */
+
+
+
+
+    /* 
+    // Data to display
+    const data = {
+        name: "John Doe",
+        age: 25,
+        joinDate: "2024-10-21T07:00:00+07:00"
+    };
+    
+    // Map of key names to display labels
+    const keyMap = {
+        name: "Full Name",
+        age: "Age",
+        joinDate: "Join Date"
+    };
+    
+    // List of keys to exclude
+    const excludeList = ["age"];
+    
+    // Custom processors for specific keys
+    const valueProcessors = {
+        joinDate: (dateStr) => {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString("th-TH", {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    };
+    
+    // Instantiate the class and render the datagrid
+    const datagridDisplay = new DatagridDisplay(data, keyMap, excludeList, valueProcessors);
+    datagridDisplay.render(document.body); // Replace document.body with your target container
+    */
+    class DatagridDisplay {
+        constructor(data, keyMap = {}, excludeList = [], valueProcessors = {}) {
+            this.data = data;
+            this.keyMap = keyMap;
+            this.excludeList = excludeList;
+            this.valueProcessors = valueProcessors;
+        }
+
+        // Method to create the datagrid structure
+        createDatagrid() {
+            const $datagrid = $('<div>').addClass('datagrid');
+
+            // Loop through each key in keyMap to ensure order
+            $.each(this.keyMap, (key, title) => {
+                // Skip keys in excludeList that don’t have an entry in keyMap
+                if (this.excludeList.includes(key) && !this.keyMap[key]) return;
+
+                // Retrieve the corresponding value from data
+                let value = this.data[key];
+
+                console.log(typeof value, value);
+
+                if (value === '' || value == null) {
+                    value = $(`<span class="m-1 badge badge-outline text-red">ไม่พบข้อมูล</span>`);
+                }
+                // Process the value using the provided function if available
+                else if (this.valueProcessors[key]) {
+                    value = this.valueProcessors[key](value);
+                }
+
+                // Only add item if value exists in data
+                if (value !== undefined) {
+                    // Create a datagrid item using jQuery
+                    const $datagridItem = this.createDatagridItem(title, value);
+
+                    // Append the datagrid item to the main datagrid container
+                    $datagrid.append($datagridItem);
+                }
+            });
+
+            return $datagrid;
+        }
+
+        // Helper method to create individual datagrid items
+        createDatagridItem(title, value) {
+            const $datagridItem = $('<div>').addClass('datagrid-item');
+
+            const $datagridTitle = $('<div>').addClass('datagrid-title').text(title);
+
+            // Check if value is a jQuery object
+            const $datagridContent = $('<div>').addClass('datagrid-content text-capitalize');
+            if (value instanceof jQuery) {
+                $datagridContent.append(value);
+            } else {
+                $datagridContent.text(value);
+            }
+
+            $datagridItem.append($datagridTitle, $datagridContent);
+            return $datagridItem;
+        }
+
+        // Method to render the datagrid in the specified container
+        render($container) {
+            const $datagrid = this.createDatagrid();
+            $container.append($datagrid);
+        }
+    }
+
+
+
+
+
+    class DateTimeDisplay {
+        constructor(element) {
+            this.$element = element;
+            this.updateInterval = 1000; // Update every second
+            this.start();
+        }
+
+        start() {
+            this.updateDateTime(); // Initial call to display immediately
+            setInterval(() => this.updateDateTime(), this.updateInterval);
+        }
+
+        updateDateTime() {
+            const now = new Date();
+            const optionsDate = {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            };
+            const optionsTime = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false // 24-hour format
+            };
+
+            // Format the date and time
+            const formattedDate = now.toLocaleDateString('th-TH', optionsDate);
+            const formattedTime = now.toLocaleTimeString('th-TH', optionsTime);
+
+            // Combine date and time
+            this.$element.text(`${formattedDate}, ${formattedTime}`);
+        }
+    }
+
+
+
+
+
+    class NumberInputFormatter {
+        constructor(selectorOrElement, onChangeCallback, options={}) {
+            // Check if selectorOrElement is a jQuery object or a string selector
+            this.$input = selectorOrElement instanceof jQuery ? selectorOrElement : $(selectorOrElement);
+            this.onChangeCallback = onChangeCallback;
+
+            // Set initial values to 0 if undefined
+            this.$input.val(this.$input.val() || 0).data('realvalue', this.$input.data('realvalue') || 0);
+
+            this.options = options;
+
+            if (this.options.int){
+                this.max_digit = 0;
+                this.min_digit = 0;
+            }
+            else{
+                // Sanitize min/max digit
+                this.max_digit = Math.min(this.options.max_digit ?? 2, 4);
+                this.min_digit = Math.min(this.options.min_digit ?? 2, this.max_digit);
+            }
+
+
+
+            // Set up event handlers
+            this.initEventHandlers();
+        }
+
+        initEventHandlers() {
+            // Allow only numeric input with number-related keys
+            this.$input.on('keydown', (event) => {
+                // Allow: backspace, delete, tab, escape, and other navigation keys
+                if ([46, 8, 9, 27].includes(event.keyCode) ||
+                    // Allow: Ctrl/cmd+A, Ctrl/cmd+C, Ctrl/cmd+V, Ctrl/cmd+X
+                    (event.keyCode === 65 && (event.ctrlKey || event.metaKey)) ||
+                    (event.keyCode === 67 && (event.ctrlKey || event.metaKey)) ||
+                    (event.keyCode === 86 && (event.ctrlKey || event.metaKey)) ||
+                    (event.keyCode === 88 && (event.ctrlKey || event.metaKey)) ||
+                    // Allow: home, end, left, right
+                    (event.keyCode >= 35 && event.keyCode <= 39)) {
+                    return;
+                }
+
+                // Allow: numbers and number-related characters (-, ., e)
+                if ((event.key >= '0' && event.key <= '9') || event.key === '-' || event.key === '.') {
+                    return;
+                }
+
+
+                // if Enter
+                if (event.keyCode === 13){
+                    this.formatAndSetRealValue();
+                    if (typeof this.onChangeCallback === 'function') {
+                        this.onChangeCallback(this.$input);
+                    }
+                }
+
+                // Prevent other keys
+                event.preventDefault();
+            });
+
+            // Trigger change callback on blur if a callback is provided
+            this.$input.on('blur', () => {
+
+                this.formatAndSetRealValue();
+
+                if (typeof this.onChangeCallback === 'function') {
+                    this.onChangeCallback(this.$input);
+                }
+            });
+
+
+            //display realvalue when click
+            this.$input.on('click', () => {
+                let value = this.$input.data('realvalue');
+                this.$input.val(value).select();
+            });
+        }
+
+        formatAndSetRealValue() {
+            const rawValue = this.$input.val().replace(/[^0-9.-]/g, '');
+            const realValue = parseFloat(rawValue).toFixed(this.options.int? 0 : 4); // Retain the full precision
+
+            if (!isNaN(realValue)) {
+                // Set the data-realvalue attribute
+                this.$input.data('realvalue', realValue);
+
+                // Format to 2 decimal places with commas
+                const formattedValue = parseFloat(realValue).toLocaleString('en-US', {
+                    minimumFractionDigits: this.min_digit,
+                    maximumFractionDigits: this.max_digit
+                });
+
+                this.$input.val(formattedValue);
+            } else {
+                this.$input.val('0');
+                this.$input.data('realvalue', '0');
+            }
+        }
+
+
+        setValue(floatValue, trigger = false) {
+
+
+            const rawValue = String(floatValue).replace(/[^0-9.-]/g, '');
+
+            if (!isNaN(rawValue)) {
+                // Set the data-realvalue attribute to the exact float value
+                this.$input.data('realvalue', parseFloat(rawValue).toFixed(this.options.int? 0 : 4));
+
+                // Format the float value to 2 decimal places with commas
+                const formattedValue = parseFloat(rawValue).toLocaleString('en-US', {
+                    minimumFractionDigits: this.min_digit,
+                    maximumFractionDigits: this.max_digit
+                });
+
+                // Update the input field with the formatted value
+                this.$input.val(formattedValue);
+
+                // Trigger the change callback if provided
+                if (typeof this.onChangeCallback === 'function' && trigger) {
+                    this.onChangeCallback(this.$input);
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+    class thaiDateInputFormatter {
+        constructor(selectorOrElement, onChangeCallback = null, option = {}) {
+            // Check if selectorOrElement is a jQuery object or a string selector
+            this.$input = selectorOrElement instanceof jQuery ? selectorOrElement : $(selectorOrElement);
+            this.onChangeCallback = onChangeCallback;
+
+            this.status = option.status || '';
+            this.drops = option.drops || 'up';
+            this.opens = option.opens || 'right';
+            this.date = option.date || moment();
+
+            
+            this.time = option.time !== undefined ? option.time : true;
+            this.enable = option.enable !== undefined ? option.enable : true;
+
+            this.$inputDisplay = $(`<span class="cursor-pointer ${this.status}">test</span>`);
+
+/*             let newDate = new Date(this.date)
+            newDate.setFullYear(newDate.getFullYear());
+
+            console.log(newDate); */
+
+            if(this.time)
+                this.$inputDisplay.text(displayCurrentTime(this.date).text);
+            else
+                this.$inputDisplay.text(displayCurrentDate(this.date).text);
+
+
+            this.$inputParent = this.$input.parent();
+
+            this.$inputParent.append(this.$inputDisplay);
+
+            // Bind the updateDisplay method to this instance
+            this.updateDisplay = this.updateDisplay.bind(this);
+
+
+            this.$input.removeClass('invisible_input').addClass('invisible_input');
+
+
+            if (this.enable)
+                // Set up event handlers
+                this.initEventHandlers();
+        }
+
+        initEventHandlers() {
+
+
+            this.$input.daterangepicker({
+                "autoApply": true,
+                "singleDatePicker": true,
+                "timePicker": this.time,
+                "timePicker24Hour": this.time,
+                "locale": {
+                    "format": "YYYY-MM-DD HH:mm:ss",  // Adjusted to the Thai date format
+                    "separator": " - ",
+                    "applyLabel": "ยืนยัน",   // "Apply" in Thai
+                    "cancelLabel": "ยกเลิก",  // "Cancel" in Thai
+                    "fromLabel": "จาก",       // "From" in Thai
+                    "toLabel": "ถึง",         // "To" in Thai
+                    "customRangeLabel": "กำหนดเอง", // "Custom" in Thai
+                    "weekLabel": "สัปดาห์",    // "Week" in Thai
+                    "daysOfWeek": [
+                        "อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"
+                    ],
+                    "monthNames": [
+                        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+                    ],
+                    "firstDay": 1
+                },
+                // Set start and end dates to the current date/time with a 543-year adjustment for Thai Buddhist calendar
+                "startDate": moment(this.date),
+                "endDate": moment(this.date),
+                "drops": this.drops,
+                "opens": this.opens,
+            }, this.updateDisplay);
+
+            this.$inputDisplay.on('click', () => {
+                this.$input.click();
+            });
+        }
+
+        updateDisplay(start, end, label) {
+
+            let newDate = new Date(start.format('YYYY-MM-DD HH:mm:ss'))
+            newDate.setFullYear(newDate.getFullYear());
+
+            if (this.time){
+                this.$inputDisplay.text(displayCurrentTime(newDate).text);
+            }
+            else{
+                this.$inputDisplay.text(displayCurrentDate(newDate).text);
+            }
+            
+
+
+            if (typeof this.onChangeCallback === 'function') {
+                this.onChangeCallback(start, end, label);
+            }
+
+        }
+
+    }
+
+
+
+
+
+
+
+    class inputTextSearch {
+
+
+        constructor(selectorOrElement, option, onChangeCallback = null) {
+            // Check if selectorOrElement is a jQuery object or a string selector
+            this.$input = selectorOrElement instanceof jQuery ? selectorOrElement : $(selectorOrElement);
+
+            this.onChangeCallback = onChangeCallback;
+
+            this.$suggestions = $(`<ul class="suggestions force-empty list-group"></ul>`);
+
+            //width of ul to the same of its sibling input
+            this.$suggestions.css('min-width', this.$input.outerWidth());
+
+            this.$inputParent = this.$input.parent();
+            this.$inputParent.append(this.$suggestions);
+
+            // Bind the updateSuggestions method to this instance
+            this.updateSuggestions = this.updateSuggestions.bind(this);
+
+
+            this.api_url = option.api_url;
+
+            this.onClick = option.onClick;
+
+            this.show_all_on_click = option.show_all_on_click !== undefined ? option.show_all_on_click : true;
+
+            // Set up event handlers
+            this.initEventHandlers();
+        }
+
+
+        initEventHandlers() {
+
+            let self = this;
+
+            this.$input.on('keyup click', function () {
+
+                let query = $(this).val().trim();
+
+                if ((event.type === 'click')) {
+
+                    query = '*';
+
+                    if (self.$suggestions.find('li').length > 0) {
+                        self.$suggestions.empty();  // Clear previous results when the component is loaded for the first time
+                        return;
+                    }
+                }
+
+
+                if (query.length > 1 || event.type === 'click') { // Start searching when at least 2 characters are entered
+                    $.ajax({
+                        url: self.api_url,
+                        data: {
+                            q: query
+                        },
+                        success: function (data) {
+
+                            self.$suggestions.empty();  // Clear previous results
+
+                            if (data.length) {
+                                // Append new data dynamically
+                                $.each(data, function (index, item) {
+
+                                    let newLi = self.updateSuggestions(index, item);
+
+                                    self.$suggestions.append(newLi);  // Append to results
+                                });
+                            } else {
+                                //nothing for now
+                            }
+                        }
+                    });
+                } else {
+                    self.$suggestions.empty();  // Clear results when query is less than 2 characters
+                }
+            });
+
+            // You can also handle click events for selecting a customer
+            this.$suggestions.on('click', 'li', function () {
+
+                let thisItem = $(this);
+                let Id = $(this).data('id');
+                let Value = $(this).data('value');
+
+                self.$input.val(Value);
+                self.$input.data('id', Id);
+                self.$suggestions.empty();  // Clear the dropdown after selection
+
+                if (typeof self.onClick === 'function') {
+                    return self.onClick(thisItem);
+                }
+
+            });
+
+        }
+
+        //handler of Li item
+        updateSuggestions(index, item) {
+            // Trigger the change callback if provided
+            if (typeof this.onChangeCallback === 'function') {
+                return this.onChangeCallback(index, item);
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+    class BarcodeScanner {
+        constructor(selectorOrElement, options = {}) {
+            this.$input = selectorOrElement instanceof jQuery ? selectorOrElement : $(selectorOrElement);
+            this.scanData = '';
+            this.scanStart = null;
+            this.scanTimeout = options.scanTimeout || 50; // Max time (ms) between characters
+            this.terminationKey = options.terminationKey || 'Enter'; // Default termination key
+            this.onScanComplete = options.onScanComplete || this.defaultScanComplete;
+
+            // Attach the event listeners
+            this.attachEvents();
+        }
+
+        attachEvents() {
+            // Keydown for detecting barcode scans
+            this.$input.on('keydown', (e) => this.handleKeydown(e));
+
+            // Simulate scan for testing
+            this.$input.on('simulateScan', (e, simulatedScan) => {
+                this.simulateScan(simulatedScan);
+            });
+        }
+
+        handleKeydown(e) {
+            const now = Date.now();
+
+            // Start a new scan if timeout exceeds
+            if (!this.scanStart || now - this.scanStart > this.scanTimeout) {
+                this.scanData = '';
+            }
+
+            this.scanStart = now;
+
+            // Check for termination key
+            if (e.key === this.terminationKey) {
+                e.preventDefault(); // Prevent default action, e.g., form submission
+                this.completeScan();
+            } else {
+                // Append the character to scan data
+                this.scanData += e.key;
+            }
+        }
+
+        completeScan() {
+            // Trigger the scan complete callback
+            this.onScanComplete(this.scanData);
+            this.resetScan();
+        }
+
+        resetScan() {
+            this.scanData = '';
+            this.scanStart = null;
+        }
+
+        simulateScan(simulatedScan) {
+            // Simulate scan character by character
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index < simulatedScan.length) {
+                    this.$input.trigger($.Event('keydown', { key: simulatedScan[index] }));
+                    index++;
+                } else {
+                    clearInterval(interval);
+                    // Simulate termination key
+                    this.$input.trigger($.Event('keydown', { key: this.terminationKey }));
+                }
+            }, this.scanTimeout / 2); // Faster than the scan timeout for testing
+        }
+
+        defaultScanComplete(scanData) {
+            this.$input.val(scandata);
+            console.log('Scan complete:', scanData);
+            alert(`Scan complete: ${scanData}`);
+        }
+    }
+
+    // Usage Example
+    /* $(document).ready(() => {
+        const scanner = new BarcodeScanner('#barcodeInput', {
+            scanTimeout: 100,
+            terminationKey: 'Enter',
+            onScanComplete: (scanData) => {
+                console.log('Barcode scanned:', scanData);
+                alert(`Scanned: ${scanData}`);
+            }
+        });
+
+        // Simulate a scan for testing
+        $('#simulateButton').on('click', () => {
+            const simulatedScan = '1234567890'; // Simulated barcode data
+            $('#barcodeInput').trigger('simulateScan', simulatedScan);
+        });
+    }); */
+</script>
