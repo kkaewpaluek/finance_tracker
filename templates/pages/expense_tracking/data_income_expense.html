@@ -68,7 +68,7 @@
                                  -->
                                 <td data-id="{{item.id}}" data-column="platform" class="editable">{{ item.platform }}</td>
                                 <td data-id="{{item.id}}" data-column="category" data-categorytype="{{ item.categoryType }}" class="editable">{{ item.category }}</td>
-                                <td data-id="{{item.id}}" data-column="rawAmount" class="editable">{{ item.rawAmount }}</td>
+                                <td data-id="{{item.id}}" data-column="rawAmount" class="editable cell-accountFormat">{{ item.rawAmount }}</td>
                                 <td data-id="{{item.id}}" data-column="rawCurrency" class="editable">{{item.rawCurrency}}</td>
                                 <td data-id="{{item.id}}" data-column="note" class="editable">{{ item.note }}</td>
                                 <td id="lastEdit-{{item.id}}" data-id="{{item.id}}" data-column="lastEdit" class="text-muted">{{ item.lastEdit|date:"m/d/Y, h:i A" }}</td>
@@ -402,8 +402,11 @@
                             $('.saveBtn').remove();
                             $('.cancelBtn').remove();
 
+
                             let container = $('<div class="input-btn-container"></div>');
+
                             let input = $('<input type="text" class="editable-input form-control" value="' + currentValue + '">');
+
                             container.append(input);
 
                             let saveBtn = $('<button type="button" class="btn btn-success saveBtn float-end">Save</button>');

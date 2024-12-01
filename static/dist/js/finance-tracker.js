@@ -1,12 +1,16 @@
 function formatTable(){
-    const tableRows = document.querySelectorAll('.ft-table-format tr');
+    const tableRows = $('.ft-table-format tr');
 
-    tableRows.forEach(row => {
-        const rawAmountCell = row.querySelector('[data-column="rawAmount"]');
-        const enabledCell = row.querySelector('[data-column="enabled"]'); // Select cell within the current row
+    tableRows.each(function () {
+        const row = $(this);
 
-        if(rawAmountCell){
-            const rawAmountValue = parseFloat(rawAmountCell.textContent.trim());
+        const categoryCell = row.find('[data-column="category"]');
+        const categoryTypeCell = categoryCell.data('categorytype'); // Use .data() for data attributes
+        const rawAmountCell = row.find('[data-column="rawAmount"]');
+        const enabledCell = row.find('[data-column="enabled"]');
+
+        if (rawAmountCell.length) {
+            const rawAmountValue = parseFloat(rawAmountCell.text().trim());
 
             // Format the value under rawAmount column to a general accounting format (comma, two decimals)
             const formattedAmount = new Intl.NumberFormat('en-US', {
@@ -16,30 +20,30 @@ function formatTable(){
             }).format(rawAmountValue);
 
             // Update the cell text with formatted value
-            rawAmountCell.textContent = formattedAmount;
+            rawAmountCell.text(formattedAmount);
 
-            // Apply color formatting rawAmount column based on the value
-            // green if > 0
-            // gray if = 0
-            // red if < 0
-            if (rawAmountValue > 0) {
-                rawAmountCell.classList.add("text-success"); // Green
-            } else if (rawAmountValue === 0) {
-                rawAmountCell.classList.add("text-secondary"); // Gray
-            } else if (rawAmountValue < 0) {
-                rawAmountCell.classList.add("text-danger"); // Red
+            // Apply color formatting rawAmount column based on the categoryType and value
+            if ('Saving' === categoryTypeCell) {
+                rawAmountCell.addClass('text-primary'); // Blue
+            } else {
+                if (rawAmountValue > 0) {
+                    rawAmountCell.addClass('text-success'); // Green
+                } else if (rawAmountValue === 0) {
+                    rawAmountCell.addClass('text-gray-500'); // Gray
+                } else if (rawAmountValue < 0) {
+                    rawAmountCell.addClass('text-danger'); // Red
+                }
             }
         }
 
-        // Formating the disable item
-        if(enabledCell){
-            if (enabledCell.textContent.trim() === 'False') { // Use jQuery methods for text content
-                if (!row.classList.contains('row_disabled')) { // Check if the row doesn't already have the 'table_disabled' class
-                    row.classList.add('row_disabled'); // Add class using jQuery
+        // Formatting the disabled item
+        if (enabledCell.length) {
+            if (enabledCell.text().trim() === 'False') {
+                if (!row.hasClass('row_disabled')) {
+                    row.addClass('row_disabled');
                 }
-            }
-            else {
-                row.classList.remove('row_disabled');
+            } else {
+                row.removeClass('row_disabled');
             }
         }
     });
@@ -137,7 +141,7 @@ class NumberInputFormatter {
         }
         else{
             // Sanitize min/max digit
-            this.max_digit = Math.min(this.options.max_digit ?? 2, 4);
+            this.max_digit = Math.min(this.options.max_digit ?? 2, 2);
             this.min_digit = Math.min(this.options.min_digit ?? 2, this.max_digit);
         }
 
@@ -200,7 +204,7 @@ class NumberInputFormatter {
 
     formatAndSetRealValue() {
         const rawValue = this.$input.val().replace(/[^0-9.-]/g, '');
-        const realValue = parseFloat(rawValue).toFixed(this.options.int? 0 : 4); // Retain the full precision
+        const realValue = parseFloat(rawValue).toFixed(this.options.int? 0 : 2); // Retain the full precision
 
         if (!isNaN(realValue)) {
             // Set the data-realvalue attribute
@@ -227,7 +231,7 @@ class NumberInputFormatter {
 
         if (!isNaN(rawValue)) {
             // Set the data-realvalue attribute to the exact float value
-            this.$input.data('realvalue', parseFloat(rawValue).toFixed(this.options.int? 0 : 4));
+            this.$input.data('realvalue', parseFloat(rawValue).toFixed(this.options.int? 0 : 2));
 
             // Format the float value to 2 decimal places with commas
             const formattedValue = parseFloat(rawValue).toLocaleString('en-US', {

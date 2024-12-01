@@ -199,8 +199,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        const input_test = new NumberInputFormatter($(document).find('.input-accountFormat'));
-
+        new NumberInputFormatter($(document).find('.input-accountFormat'));
 
         //DateTime
         inputTransactionDatetime.val(todayDateTime);
@@ -309,18 +308,13 @@
         }
 
         if ('' !== inputTransactionDatetime.val() && '' !== inputPlatform.val() && '' !== inputCategory.val() && '' !== inputRawAmount.data("realvalue") && '' !== inputRawCurrency.val()) {
-            //&& inputPlatform.val() === '' && inputCategory.val() === '' && inputRawAmount.val() === '' && inputRawCurrency.val() === '') {
-            console.log(inputTransactionDatetime.val());
-            console.log(inputPlatform.val());
-            console.log(inputRawAmount.data("realvalue"));
 
-            //inputTransactionDatetime = formatPickerDateForPython($('#inputTransactionDatetime').val());
             inputTransactionDatetimeValue = formatPickerDateForPython(inputTransactionDatetime.val());
             if (bExpense){
-                inputRawAmountValue = (-1) * inputRawAmount.val();
+                inputRawAmountValue = (-1) * inputRawAmount.data("realvalue");
             }
             else if (bIncome){
-                inputRawAmountValue = inputRawAmount.val();
+                inputRawAmountValue = inputRawAmount.data("realvalue");
             }
             else{
                 failMessage('Oops! Something went wrong. Contact the admin!')
